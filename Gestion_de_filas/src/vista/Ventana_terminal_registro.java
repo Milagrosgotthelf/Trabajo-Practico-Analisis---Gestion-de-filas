@@ -124,5 +124,6 @@ public class Ventana_terminal_registro extends JFrame {
 		this.Button_aceptar.setBounds(408, 142, 84, 20);
 		this.contentPane.add(this.Button_aceptar);
 
+		
 	}
 }
