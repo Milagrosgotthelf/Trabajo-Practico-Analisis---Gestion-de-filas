@@ -8,12 +8,15 @@ import javax.swing.border.EmptyBorder;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
-public class Ventana_terminal_registro extends JFrame {
+public class Ventana_terminal_registro extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -56,8 +59,9 @@ public class Ventana_terminal_registro extends JFrame {
 	 */
 	public Ventana_terminal_registro() {
 		setTitle("Terminal de Registro");
+		this.setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 584, 300);
+		setBounds(50, 50, 584, 300);
 		this.contentPane = new JPanel();
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(this.contentPane);
@@ -120,10 +124,20 @@ public class Ventana_terminal_registro extends JFrame {
 		this.panel_1.add(this.Button_back);
 		
 		this.Button_aceptar = new JButton("Aceptar");
+		this.Button_aceptar.addActionListener(this);
 		this.Button_aceptar.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		this.Button_aceptar.setBounds(408, 142, 84, 20);
 		this.contentPane.add(this.Button_aceptar);
-
+		
 		
 	}
+	public void actionPerformed(ActionEvent arg0) {
+		        JOptionPane.showMessageDialog(Ventana_terminal_registro.this, 
+		            "DNI Validado correctamente", 
+		            "Validación", 
+		            JOptionPane.INFORMATION_MESSAGE);
+		        
+		    }
+
+	
 }

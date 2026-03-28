@@ -25,6 +25,7 @@ public class Ventana_terminal extends JFrame {
     public Ventana_terminal() {
         setTitle("Terminal de Registro");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setMinimumSize(new Dimension(500, 400));
         // Quitamos el setBounds fijo y usamos pack() al final o un tamaño inicial
         setSize(600, 400); 
         setLocationRelativeTo(null); // Centra la ventana en la pantalla
