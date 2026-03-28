@@ -1,36 +1,36 @@
 package modelo;
 
-import static modelo.Utils.PUERTO;
+import static modelo.Utils.*;
 public class Empleado {
 	private Receptor receptor = null;
+	private Emisor emisor = null;
 	
 	public Empleado() {
 		this.escucharTerminal();
 		
 	}
 	
-	private void llamarCliente() {
+	public void llamarCliente() {
 		//Aca deberia extraer al cliente de la informacion enviada por la terminal y enviarlo a la pantalla
+		if (emisor == null) 
+			this.emisor = new Emisor();
+		this.emisor.enviar(this.receptor.getMensaje(), PUERTO_PANTALLA);
 		
-		this.obtenerCliente();
-		
-	}
-	
-	private void obtenerCliente() {
 		
 		
 	}
 	
 	public void escucharTerminal() {
-		try {
-			if (receptor != null) {
-				receptor.recibir(PUERTO);
-				Thread.sleep(1000);
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		if (receptor == null) 
+			this.receptor = new Receptor(PUERTO);
+		receptor.recibir();
 		
+}
+	
+	public void rutinaTest() {
+		this.escucharTerminal();
+		this.llamarCliente();
 		
 	}
+	
 }

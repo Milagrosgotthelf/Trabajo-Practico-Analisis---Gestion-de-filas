@@ -9,7 +9,10 @@ import java.util.LinkedList;
 import static modelo.Utils.IP;
 import static modelo.Utils.PUERTO;
 public class TerminalRegistro {
+	Emisor emisor = new Emisor();
+	
 	LinkedList<Cliente> clientes=null;
+	
 	
 	private static TerminalRegistro instancia = null;
 	
@@ -32,27 +35,28 @@ public class TerminalRegistro {
 	}
 	
 	public void enviarCliente() {
+		
 		if (clientes.isEmpty()) {
             System.out.println("No hay clientes en la cola para enviar.");
-            return;
         }
-		try {
-			//IP no se cual podria ser pero puerto seria el del puesto de atencion
-			System.out.println("Inicia emisor en puerto " + PUERTO);
-            Socket socket = new Socket(IP,Integer.parseInt(PUERTO));
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            Cliente siguiente = this.clientes.pop();
-            out.println(siguiente.getDni());
-            //Esta linea envia el DNI al receptor
-            out.close();
-            socket.close();
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+		else {
+			for (Cliente cliente : clientes) {
+				System.out.println(cliente.getDni());
+			}
+			emisor.enviar(this.clientes.pop().getDni(), PUERTO);
+		}
 
         
         
     }
+	
+	public void rutinaTest() {
+		this.agregarCliente(new Cliente("44635069"));
+		this.enviarCliente();
+		System.out.println("Cliente enviado");
+		
+		
+		
+	}
 		
 }
