@@ -16,7 +16,7 @@ import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class Ventana_terminal_registro extends JFrame implements ActionListener {
+public class Ventana_terminal_registro extends JFrame  {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -37,6 +37,7 @@ public class Ventana_terminal_registro extends JFrame implements ActionListener 
 	private JButton Button_0;
 	private JButton Button_back;
 	private JButton Button_aceptar;
+	private ActionListener actionListener;
 
 	/**
 	 * Launch the application.
@@ -124,20 +125,40 @@ public class Ventana_terminal_registro extends JFrame implements ActionListener 
 		this.panel_1.add(this.Button_back);
 		
 		this.Button_aceptar = new JButton("Aceptar");
-		this.Button_aceptar.addActionListener(this);
 		this.Button_aceptar.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		this.Button_aceptar.setBounds(408, 142, 84, 20);
+		this.Button_aceptar.setEnabled(false);
 		this.contentPane.add(this.Button_aceptar);
 		
 		
 	}
-	public void actionPerformed(ActionEvent arg0) {
-		        JOptionPane.showMessageDialog(Ventana_terminal_registro.this, 
-		            "DNI Validado correctamente", 
-		            "Validación", 
-		            JOptionPane.INFORMATION_MESSAGE);
-		        
-		    }
-
 	
+	public void setActionListener(ActionListener actionListener) {
+		this.actionListener = actionListener;
+		this.Button_0.addActionListener(actionListener);
+		this.Button_1.addActionListener(actionListener);
+		this.Button_2.addActionListener(actionListener);
+		this.Button_3.addActionListener(actionListener);
+		this.Button_4.addActionListener(actionListener);
+		this.Button_5.addActionListener(actionListener);
+		this.Button_6.addActionListener(actionListener);
+		this.Button_7.addActionListener(actionListener);
+		this.Button_8.addActionListener(actionListener);
+		this.Button_9.addActionListener(actionListener);
+		this.Button_back.addActionListener(actionListener);
+		this.Button_aceptar.addActionListener(actionListener);
+	}
+	
+	public void habilitarAceptar (boolean habilitado) {
+		this.Button_aceptar.setEnabled(habilitado);
+	}
+
+	public String getDni() {
+		
+		return textField.getText();
+	}
+
+	public void setDni(String dniActual) {
+		this.textField.setText(dniActual);
+	}
 }

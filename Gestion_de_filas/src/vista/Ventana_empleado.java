@@ -8,12 +8,17 @@ import javax.swing.border.EmptyBorder;
 import java.awt.CardLayout;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionListener;
+
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
 import javax.swing.JTextArea;
 import java.awt.Font;
 import javax.swing.border.LineBorder;
+
+import controlador.Controlador;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
@@ -25,8 +30,8 @@ public class Ventana_empleado extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JPanel panel_inicial;
-	private JPanel panel_1;
-	private JPanel panel_2;
+	private JPanel panel_llamada;
+	private JPanel panel_atencion;
 	private JPanel panel_izq;
 	private JPanel panel_central;
 	private JPanel panel_der;
@@ -36,11 +41,11 @@ public class Ventana_empleado extends JFrame {
 	private JPanel panel_8;
 	private JLabel lbl_SISTEMA;
 	private JPanel panel_6;
-	private JButton btn_INICIAR;
+	private JButton btn_iniciar;
 	private JPanel panel_sup;
 	private JPanel panel_inf;
 	private JButton btn_llamar;
-	private JButton btn_iniciar;
+	private JButton btn_iniciarturno;
 	private JPanel panel_llamar;
 	private JPanel panel_iniciar;
 	private JLabel lbl_prox;
@@ -82,7 +87,7 @@ public class Ventana_empleado extends JFrame {
 		this.contentPane.setLayout(new CardLayout(0, 0));
 		
 		this.panel_inicial = new JPanel();
-		this.contentPane.add(this.panel_inicial, "name_143361443988500");
+		this.contentPane.add(this.panel_inicial, "Inicio");
 		this.panel_inicial.setLayout(new GridLayout(0, 3, 0, 0));
 		
 		this.panel_izq = new JPanel();
@@ -115,21 +120,21 @@ public class Ventana_empleado extends JFrame {
 		this.panel_6 = new JPanel();
 		this.panel_central.add(this.panel_6);
 		
-		this.btn_INICIAR = new JButton("INICIAR");
-		this.btn_INICIAR.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		this.panel_6.add(this.btn_INICIAR);
+		this.btn_iniciar = new JButton("INICIAR");
+		this.btn_iniciar.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		this.panel_6.add(this.btn_iniciar);
 		
 		
 		this.panel_der = new JPanel();
 		this.panel_der.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		this.panel_inicial.add(this.panel_der);
 		
-		this.panel_1 = new JPanel();
-		this.contentPane.add(this.panel_1, "name_143363979583100");
-		this.panel_1.setLayout(new GridLayout(2, 0, 0, 0));
+		this.panel_llamada = new JPanel();
+		this.contentPane.add(this.panel_llamada, "Llamada");
+		this.panel_llamada.setLayout(new GridLayout(2, 0, 0, 0));
 		
 		this.panel_sup = new JPanel();
-		this.panel_1.add(this.panel_sup);
+		this.panel_llamada.add(this.panel_sup);
 		this.panel_sup.setLayout(new GridLayout(0, 1, 0, 0));
 		
 		this.panel_prox = new JPanel();
@@ -148,7 +153,7 @@ public class Ventana_empleado extends JFrame {
 		this.lbl_intentos.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		
 		this.panel_inf = new JPanel();
-		this.panel_1.add(this.panel_inf);
+		this.panel_llamada.add(this.panel_inf);
 		this.panel_inf.setLayout(new GridLayout(0, 2, 0, 0));
 		
 		this.panel_llamar = new JPanel();
@@ -162,16 +167,16 @@ public class Ventana_empleado extends JFrame {
 		this.panel_iniciar = new JPanel();
 		this.panel_inf.add(this.panel_iniciar);
 		
-		this.btn_iniciar = new JButton("Iniciar turno");
-		this.btn_iniciar.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		this.panel_iniciar.add(this.btn_iniciar);
+		this.btn_iniciarturno = new JButton("Iniciar turno");
+		this.btn_iniciarturno.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		this.panel_iniciar.add(this.btn_iniciarturno);
 		
-		this.panel_2 = new JPanel();
-		this.contentPane.add(this.panel_2, "name_143367952138600");
-		this.panel_2.setLayout(new GridLayout(2, 0, 0, 0));
+		this.panel_atencion = new JPanel();
+		this.contentPane.add(this.panel_atencion, "Atencion");
+		this.panel_atencion.setLayout(new GridLayout(2, 0, 0, 0));
 		
 		this.panel_dniact = new JPanel();
-		this.panel_2.add(this.panel_dniact);
+		this.panel_atencion.add(this.panel_dniact);
 		this.panel_dniact.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 50));
 		
 		this.lbl_dniact = new JLabel("DNI actual: ");
@@ -179,12 +184,33 @@ public class Ventana_empleado extends JFrame {
 		this.lbl_dniact.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		
 		this.panel_fin = new JPanel();
-		this.panel_2.add(this.panel_fin);
+		this.panel_atencion.add(this.panel_fin);
 		
 		this.btn_fin = new JButton("Finalizar turno");
 		this.btn_fin.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		this.panel_fin.add(this.btn_fin);
 
+	}
+
+	public void setActionListener(ActionListener actionListener) {
+		this.btn_iniciar.addActionListener(actionListener);
+		this.btn_llamar.addActionListener(actionListener);
+		this.btn_iniciarturno.addActionListener(actionListener);
+		this.btn_fin.addActionListener(actionListener);
+		
+	}
+	public void mostrarPantalla (String nombre) {
+		CardLayout cl = (CardLayout) contentPane.getLayout();
+		cl.show(contentPane, nombre);
+	}
+	public void setIntentos(int intentos) {
+		lbl_intentos.setText("Intentos pendientes: "+intentos);
+	}
+	public void setProximoDni(String dni) {
+		lbl_prox.setText("Próximo DNI: "+dni);
+	}
+	public void setDniActual(String dni) {
+		lbl_dniact.setText("DNI actual: "+dni);
 	}
 
 }
