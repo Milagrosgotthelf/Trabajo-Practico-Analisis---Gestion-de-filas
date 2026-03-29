@@ -14,10 +14,6 @@ public class Receptor implements Runnable{
 	private Socket soc = null;
 	private ServerSocket s = null;
 	
-	
-	
-	private static Receptor instancia = null;
-	
 	public Receptor(String puerto) {
 		this.puerto = puerto;
 		try {
@@ -26,20 +22,13 @@ public class Receptor implements Runnable{
 			System.out.println("Excepcion al iniciar el receptor: " + e.getMessage());
 			e.printStackTrace();
 			}
-		
-		
 	}
 	
 	public void recibir() {
         Thread hilo = new Thread(this);
         hilo.start();
-        
 	}
 	
-	
-	public synchronized String getMensaje() {
-        return mensaje;
-    }
 	
 	@Override
     public void run() {
@@ -61,6 +50,10 @@ public class Receptor implements Runnable{
             e.printStackTrace();
         }
 
+    }
+
+	public synchronized String getMensaje() {
+        return mensaje;
     }
 
 }

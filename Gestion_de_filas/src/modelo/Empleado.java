@@ -4,33 +4,31 @@ import static modelo.Utils.*;
 public class Empleado {
 	private Receptor receptor = null;
 	private Emisor emisor = null;
+	private String dniActual = null;
 	
 	public Empleado() {
+		this.receptor = new Receptor(PUERTO);
+		this.emisor = new Emisor();
 		this.escucharTerminal();
 		
 	}
 	
 	public void llamarCliente() {
-		//Aca deberia extraer al cliente de la informacion enviada por la terminal y enviarlo a la pantalla
-		if (emisor == null) 
-			this.emisor = new Emisor();
-		this.emisor.enviar(this.receptor.getMensaje(), PUERTO_PANTALLA);
-		
-		
+		this.dniActual = this.receptor.getMensaje();
+		this.emisor.enviar(this.dniActual, PUERTO_PANTALLA);
 		
 	}
-	
+	//Hay que ver lo de rellamar pero no recuerdo si se hacia en esta iteracion
 	public void escucharTerminal() {
-		if (receptor == null) 
-			this.receptor = new Receptor(PUERTO);
 		receptor.recibir();
-		
-}
-	
-	public void rutinaTest() {
-		this.escucharTerminal();
-		this.llamarCliente();
-		
+	}
+
+	public Receptor getReceptor() {
+		return receptor;
+	}
+ 
+	public Emisor getEmisor() {
+		return emisor;
 	}
 	
 }

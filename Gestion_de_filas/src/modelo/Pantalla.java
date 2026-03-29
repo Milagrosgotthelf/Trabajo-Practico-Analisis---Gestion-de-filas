@@ -10,6 +10,7 @@ public class Pantalla  {
 	
 	private Pantalla() {
 		this.clientes = new LinkedList<String>();
+		this.receptor = new Receptor(Utils.PUERTO_PANTALLA);
 		
 	}
 	
@@ -22,9 +23,9 @@ public class Pantalla  {
 	}
 	
 	public void escucharEmpleado() {
-		if (receptor == null) 
-			this.receptor = new Receptor(Utils.PUERTO_PANTALLA);
 		receptor.recibir();
+		this.clientes.addFirst(this.receptor.getMensaje());	
+		this.clientes.removeLast();
 		
 	}
 
@@ -33,9 +34,8 @@ public class Pantalla  {
 	}
 	
 	public void rutinaTest() {
-		this.clientes.add(this.receptor.getMensaje());
-		
-		System.out.println("Lista clientes: "+ this.clientes);
+		this.clientes.addFirst(this.receptor.getMensaje());	
+		this.clientes.removeLast();		
 		
 	}
 	
