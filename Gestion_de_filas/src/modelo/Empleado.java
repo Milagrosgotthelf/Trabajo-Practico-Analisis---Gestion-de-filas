@@ -11,18 +11,22 @@ public class Empleado {
 		this.emisor = new Emisor();
 		this.escucharTerminal();
 		
+		
 	}
 	
 	public void llamarCliente() {
 		this.dniActual = this.receptor.getMensaje();
+		System.out.println("Empleado 20 " + this.dniActual);
+		//Hasta aca
 		this.emisor.enviar(this.dniActual, PUERTO_PANTALLA);
 		
 	}
+	
+	
 	//Hay que ver lo de rellamar pero no recuerdo si se hacia en esta iteracion
 	public void escucharTerminal() {
 		receptor.recibir();
 	}
-
 	public Receptor getReceptor() {
 		return receptor;
 	}
@@ -30,5 +34,10 @@ public class Empleado {
 	public Emisor getEmisor() {
 		return emisor;
 	}
+
+	public String getDniActual() {
+		return dniActual;
+	}
+	
 	
 }

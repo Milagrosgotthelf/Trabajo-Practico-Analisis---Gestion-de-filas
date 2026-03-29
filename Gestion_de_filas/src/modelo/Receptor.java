@@ -18,6 +18,7 @@ public class Receptor implements Runnable{
 		this.puerto = puerto;
 		try {
 			this.s = new ServerSocket(Integer.parseInt(puerto));
+			System.out.println("21 Constructor Receptor \n Receptor iniciado en el puerto " + puerto);
 		} catch (Exception e) {
 			System.out.println("Excepcion al iniciar el receptor: " + e.getMessage());
 			e.printStackTrace();
@@ -38,10 +39,11 @@ public class Receptor implements Runnable{
 
                 this.soc = this.s.accept();
                 BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
-
                 this.mensaje = in.readLine();
+                System.out.println(this.mensaje);
                 soc.close();
                 in.close();
+                Thread.sleep(30);
                 
             }
 

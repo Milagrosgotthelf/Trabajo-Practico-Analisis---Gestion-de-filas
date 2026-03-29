@@ -30,38 +30,16 @@ public class Controlador implements ActionListener{
 		}
 		return instancia;	
 	}
+	
+
 	public void setVistas(Ventana_terminal_registro reg, Ventana_empleado emp) {
 	    this.registro = reg;
 	    this.vistaEmpleado = emp;
 	    this.registro.setActionListener(this);
 	    this.vistaEmpleado.setActionListener(this);
 	}
-	public void agregarCliente(String dni) {
-		if (this.validacionDNI(dni)) {
-			this.terminal.agregarCliente(new Cliente(dni));			
-		}
-		else {
-			System.out.println("DNI no valido");
-			
-		}
-		TerminalRegistro.getInstance().agregarCliente(new Cliente(dni));
-	}
-
-	public boolean validacionDNI(String dni) {
-		return this.dniNoRepetido(dni);
-	}
-	public boolean dniNoRepetido(String dni) {
-		for (Cliente cliente : this.terminal.getClientes()) {
-			if (cliente.getDni().equals(dni)) {
-				return false; // El DNI ya existe en la lista de clientes
-			}
-		}
-		return true; // El DNI no está repetido
-	}
-	public void llamarCliente() {
-		this.empleado.llamarCliente();
-	}
-
+	
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String comando = e.getActionCommand();
@@ -75,6 +53,29 @@ public class Controlador implements ActionListener{
 		
 	}
 	
+	
+	
+	
+	//TERMINAL
+	
+	/*
+	 * El controlador le manda a la terminal el dni para que lo agregue a su cola de clientes
+	 */
+	public void agregarCliente(String dni) {
+		if (this.dniNoRepetido(dni)) {
+			this.terminal.agregarCliente(new Cliente(dni));			
+		}
+		else {
+			System.out.println("DNI no valido");	
+		}
+	}
+
+
+	
+	
+	
+
+	//REGISTRO
 	private boolean esRegistro(String comando) {
 		return comando.matches("\\d") || comando.equals("←") || comando.equals("Aceptar");
 	}
@@ -92,12 +93,9 @@ public class Controlador implements ActionListener{
 			}
 		}
 		else if (comando.equals("Aceptar")) {
-			if (validacionDNI(dniActual)) {
-				agregarCliente(dniActual);
-				registro.setDni("");
-			} else {
-				System.out.println("DNI repetido");
-			}
+			agregarCliente(dniActual);
+			registro.setDni("");
+			
 		}
 		this.validarLongitud();
 		
@@ -112,16 +110,31 @@ public class Controlador implements ActionListener{
 		}
 	}
 	
+	public boolean dniNoRepetido(String dni) {
+		for (Cliente cliente : this.terminal.getClientes()) {
+			if (cliente.getDni().equals(dni)) {
+				return false; // El DNI ya existe en la lista de clientes
+			}
+		}
+		return true; // El DNI no está repetido
+	}
+
+	
+	
+	
+	
+	//EMPLEADO
 	private boolean esEmpleado(String comando) {
 		return comando.equals("INICIAR")||comando.equals("Llamar")||
 				comando.equals("Iniciar turno")||comando.equals("Finalizar turno");
 	}
+	
 	private void manejarEmpleado(String comando) {
 		if (comando.equals("INICIAR")){
 			iniciarSistema();
 		}
 		else if (comando.equals("Llamar")) {
-			llamarSiguiente();
+			rellamarCliente();
 		}
 		else if (comando.equals("Iniciar turno")) {
 			iniciarTurno();
@@ -130,30 +143,54 @@ public class Controlador implements ActionListener{
 			finalizarTurno();
 		}
 	}
-
-	private void iniciarSistema() {
+	
+	/*COMUNICACION
+	 * Es necesario que ambas funciones se ejecuten juntas
+	 * Llamado le pide a la terminal que envie al cliente y le avisa al empleado que lo devuelva
+	 * El empleado siempre esta escuchando a la terminal pero hay que pedirselo
+	 * Despues hace otras cosas que se hacian siempre en conjunto, como el numero de intentos y demas
+	 * Eventualmente hay que seguir una logica similar con la poantalla
+	 */
+	private void llamado() {
 		intentos=3;
+		this.terminal.enviarCliente();
+		this.empleado.llamarCliente();
+		//Al iniciar el sistema es necesario que la terminal envie el cliente para que el cliente la lea
+		
+		dniActual_emp = this.empleado.getDniActual();
+		vistaEmpleado.setProximoDni(dniActual_emp);
+		vistaEmpleado.setIntentos(intentos);
+	}
+	
+	
+	/*
+	 * IniciarSistema y finalizarTurno son IGUALES pero dejalas asi, seguro para la iteracion que viene son distintas
+	 * Sino se cambia
+	 */
+	private void iniciarSistema() {
+		
 		if (!terminal.getClientes().isEmpty()) {
-			dniActual_emp = terminal.getClientes().get(0).getDni();
-			vistaEmpleado.setProximoDni(dniActual_emp);
-			vistaEmpleado.setIntentos(intentos);
+			this.llamado();
 			vistaEmpleado.mostrarPantalla("Llamada");
 		}
+		else
+			System.out.println("No hay clientes en la cola");
 	}
 
 	private void llamarSiguiente() {
+		
+		if (!terminal.getClientes().isEmpty())
+			this.llamado();
+		else
+			System.out.println("Cola de clientes vacia");
+	}
+	
+	private void rellamarCliente() {
 		intentos--;
 		vistaEmpleado.setIntentos(intentos);
 		if (intentos==0) {
-			llamarCliente();
-			intentos=3;
-			if (!terminal.getClientes().isEmpty()) {
-				dniActual_emp = terminal.getClientes().get(0).getDni();
-				vistaEmpleado.setProximoDni(dniActual_emp);
-				vistaEmpleado.setIntentos(intentos);
-			}
+			llamarSiguiente();
 		}
-		
 	}
 
 	private void iniciarTurno() {
@@ -161,14 +198,13 @@ public class Controlador implements ActionListener{
 		vistaEmpleado.mostrarPantalla("Atencion");
 	}
 
+	
 	private void finalizarTurno() {
-		llamarCliente();
-		intentos=3;
 		if (!terminal.getClientes().isEmpty()) {
-			dniActual_emp = terminal.getClientes().get(0).getDni();
-			vistaEmpleado.setProximoDni(dniActual_emp);
-			vistaEmpleado.setIntentos(intentos);
+			this.llamado();
+			vistaEmpleado.mostrarPantalla("Llamada");
 		}
-		vistaEmpleado.mostrarPantalla("Llamada");
+		else
+			System.out.println("No hay clientes en la cola");
 	}
 }

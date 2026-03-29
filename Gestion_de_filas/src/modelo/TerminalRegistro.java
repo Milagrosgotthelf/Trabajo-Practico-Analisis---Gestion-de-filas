@@ -24,24 +24,15 @@ public class TerminalRegistro {
 	}
 	
 	public void agregarCliente(Cliente cliente) {
-		clientes.add(cliente);
+		clientes.addLast(cliente);
 	}
 	
 	public void enviarCliente() {
-		if (clientes.isEmpty()) {
+		if (clientes.isEmpty())
             System.out.println("No hay clientes en la cola para enviar.");
-        }
-		else {
-			emisor.enviar(this.clientes.pop().getDni(), PUERTO);
-		}
+		else
+			emisor.enviar(this.clientes.removeFirst().getDni(), PUERTO);			
     }
-	
-	public void rutinaTest() {
-		this.agregarCliente(new Cliente("44635069"));
-		this.enviarCliente();
-		System.out.println("Cliente enviado");
-	}
-	
  
 	public Emisor getEmisor() {
 		return emisor;
