@@ -165,7 +165,7 @@ public class Controlador implements ActionListener{
 		vistaEmpleado.setProximoDni(dniActual_emp);
 		vistaEmpleado.setIntentos(intentos);
 		
-		vistaEmpleado.activarBtnIniciarTurno();
+		vistaEmpleado.activarBtnIniciarTurno(false);
 		
 	}
 	
@@ -228,6 +228,7 @@ public class Controlador implements ActionListener{
 		if (intentos > 1) {
 			intentos--;
 			vistaEmpleado.setIntentos(intentos);
+			vistaEmpleado.activarBtnIniciarTurno(true);
 		}
 		else{
 			//llamarSiguiente();

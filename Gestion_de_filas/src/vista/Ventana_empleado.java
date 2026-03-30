@@ -240,7 +240,11 @@ public class Ventana_empleado extends JFrame {
 	        );
 	}
 
-	public void activarBtnIniciarTurno() {
-		this.btn_iniciarturno.setEnabled(true);
+	public void activarBtnIniciarTurno(boolean activar) {
+		this.btn_iniciarturno.setEnabled(activar);
+	}
+	
+	public void activarBtnLlamar(boolean activar) {
+		this.btn_llamar.setEnabled(activar); //este para que cuando pasemos a la pantalla de llamados sin clientes no se pueda presionar el btn
 	}
 }
