@@ -27,12 +27,22 @@ public class TerminalRegistro {
 		clientes.addLast(cliente);
 	}
 	
-	public void enviarCliente() {
-		if (clientes.isEmpty())
-            System.out.println("No hay clientes en la cola para enviar.");
-		else
-			emisor.enviar(this.clientes.removeFirst().getDni(), PUERTO);			
-    }
+	public String enviarCliente() {
+	    if (clientes.isEmpty()) {
+	        System.out.println("No hay clientes en la cola para enviar.");
+	        return null;
+	    } else {
+	        // No removemos todavía
+	        return clientes.getFirst().getDni();
+	    }
+	}
+
+	// Nuevo método para remover el cliente cuando inicia turno
+	public void removerClienteActual() {
+	    if (!clientes.isEmpty()) {
+	        clientes.removeFirst();
+	    }
+	}
  
 	public Emisor getEmisor() {
 		return emisor;
