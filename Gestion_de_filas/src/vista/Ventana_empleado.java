@@ -231,16 +231,13 @@ public class Ventana_empleado extends JFrame {
 		return lbl_dniact.getText();
 	}
 	
-	public void mostrarMensajeTemporal(String mensaje, int x, int y, int ancho, int alto) {
-		this.lblMensaje.setText(mensaje);
-		this.lblMensaje.setVisible(true);
-		this.lblMensaje.setBounds(x,y,ancho,alto);
-		javax.swing.Timer timer = new javax.swing.Timer(2500, e -> {
-	        lblMensaje.setVisible(false);
-	    });
-	    timer.setRepeats(false);
-	    timer.start();
-		
+	public void mostrarMensaje(String mensaje) {
+	    javax.swing.JOptionPane.showMessageDialog(
+	            this,
+	            mensaje,
+	            "Información",
+	            javax.swing.JOptionPane.INFORMATION_MESSAGE
+	        );
 	}
 
 	public void activarBtnIniciarTurno() {

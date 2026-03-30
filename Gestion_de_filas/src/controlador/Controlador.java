@@ -167,9 +167,6 @@ public class Controlador implements ActionListener{
 		
 		vistaEmpleado.activarBtnIniciarTurno();
 		
-		/*if (terminal.getClientes().isEmpty()) {
-			vistaEmpleado.mostrarMensajeTemporal("No hay mas clientes en la cola.", 110, 100, 120, 50);
-		}*/
 	}
 	
 	
@@ -183,8 +180,24 @@ public class Controlador implements ActionListener{
 			this.llamado();
 			vistaEmpleado.mostrarPantalla("Llamada");
 		}
-		else
+		else {
 			System.out.println("No hay clientes en la cola");
+			mostrarSigCliente();
+		}
+	}
+	/*private void iniciarSistema() {
+		mostrarSigCliente();
+	}*/
+	
+	private void mostrarSigCliente() {
+		if (terminal.getClientes().isEmpty())
+			this.llamado();
+		else {
+			vistaEmpleado.setProximoDni("-");
+			vistaEmpleado.setIntentos(0);
+			vistaEmpleado.mostrarPantalla("Llamada");
+			vistaEmpleado.mostrarMensaje("No quedan más clientes por atender. Aguarde.");
+		}
 	}
 
 	private void llamarSiguiente() {
@@ -194,6 +207,9 @@ public class Controlador implements ActionListener{
 		else
 			System.out.println("Cola de clientes vacia");
 	}
+	/*private void llamarSiguiente() {
+		mostrarSigCliente();
+	}*/
 	
 	private void verSiEsAusente() {
 		clienteAtendido = false;
@@ -239,12 +255,7 @@ public class Controlador implements ActionListener{
 			System.out.println("No hay clientes en la cola");
 	}
 	/*private void finalizarTurno() {
-		this.llamado();
-		vistaEmpleado.mostrarPantalla("Llamada");
-		this.clienteAtendido = false;
-		if (terminal.getClientes().isEmpty()) {
-			vistaEmpleado.mostrarMensajeTemporal("No hay mas clientes en la cola.", 110, 100, 120, 50);
-		}
+		mostrarSigCliente();
 	}*/
 
 }
