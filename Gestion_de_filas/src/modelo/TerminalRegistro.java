@@ -24,6 +24,7 @@ public class TerminalRegistro {
 	}
 	
 	public void agregarCliente(Cliente cliente) {
+		System.out.println(cliente.getDni());
 		clientes.addLast(cliente);
 	}
 	

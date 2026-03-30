@@ -1,10 +1,7 @@
 package modelo;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -40,7 +37,7 @@ public class Receptor implements Runnable{
                 this.soc = this.s.accept();
                 BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
                 this.mensaje = in.readLine();
-                System.out.println(this.mensaje);
+                System.out.println("hola"+this.mensaje);
                 soc.close();
                 in.close();
                 Thread.sleep(30);

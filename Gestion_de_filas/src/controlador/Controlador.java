@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import modelo.*;
 import vista.Ventana_empleado;
+import vista.Ventana_pantalla;
 import vista.Ventana_terminal_registro;
 public class Controlador implements ActionListener{
 	
@@ -13,6 +14,7 @@ public class Controlador implements ActionListener{
 	private Pantalla pantalla = null;
 	private Ventana_terminal_registro registro;
 	private Ventana_empleado vistaEmpleado;
+	private Ventana_pantalla vistaPantalla;
 	private int intentos =3;
 	private String dniActual_emp ="";
 	private boolean clienteAtendido = false;
@@ -34,9 +36,10 @@ public class Controlador implements ActionListener{
 	}
 	
 
-	public void setVistas(Ventana_terminal_registro reg, Ventana_empleado emp) {
+	public void setVistas(Ventana_terminal_registro reg, Ventana_empleado emp, Ventana_pantalla pant) {
 	    this.registro = reg;
 	    this.vistaEmpleado = emp;
+	    this.vistaPantalla = pant;
 	    this.registro.setActionListener(this);
 	    this.vistaEmpleado.setActionListener(this);
 	}
@@ -97,6 +100,7 @@ public class Controlador implements ActionListener{
 
 	private void manejarRegistro(String comando) {
 		String dniActual =registro.getDni();
+		System.out.println(dniActual);
 		if (comando.matches("\\d")) { //busca si es igual a cualquier digito decimal
 			dniActual += comando;
 			registro.setDni(dniActual);
@@ -172,6 +176,7 @@ public class Controlador implements ActionListener{
 	    if (!terminal.getClientes().isEmpty()) {
 	        dniActual_emp = null; //tdv no se lo asigno
 	        String dniProximo = terminal.enviarCliente(); //solo MIRO el primero SIN sacarlo todavia de la cola eso recien al iniciar turno
+	        
 	        vistaEmpleado.setProximoDni(dniProximo);
 	        intentos = 3;
 	        vistaEmpleado.setIntentos(intentos);
@@ -221,7 +226,7 @@ public class Controlador implements ActionListener{
 	
 	private void verSiEsAusente() {
 		clienteAtendido = false;
-		javax.swing.Timer timer = new javax.swing.Timer(6000, e -> { // NO SE SI NO SON MUCHOS SEGUNDOS O POCOS 
+		javax.swing.Timer timer = new javax.swing.Timer(600, e -> { // NO SE SI NO SON MUCHOS SEGUNDOS O POCOS 
 	        if (!clienteAtendido) {
 	        	terminal.removerClienteActual(); 
 	        	mostrarSigCliente(); //aca llama a llamado() y es AHI donde se reinician los intentos
@@ -233,6 +238,9 @@ public class Controlador implements ActionListener{
 	}
 	
 	private void rellamarCliente() {
+		pantalla.escucharEmpleado();
+		this.empleado.llamarCliente();
+		vistaPantalla.actualizarTurnos(pantalla.getClientes());
 		if (intentos > 1) {
 			intentos--;
 			vistaEmpleado.setIntentos(intentos);
@@ -243,6 +251,7 @@ public class Controlador implements ActionListener{
 			vistaEmpleado.setIntentos(intentos);
 			vistaEmpleado.activarBtnIniciarTurno(true); //creo que tdv hay que dejarlo activo porque tiene oportunidad de presentarsee
 			verSiEsAusente();
+			
 		}
 	}
 

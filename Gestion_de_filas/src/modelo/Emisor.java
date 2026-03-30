@@ -24,6 +24,7 @@ public class Emisor {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             
             out.println(cliente);
+            System.out.println("puto"+cliente);
             //Esta linea envia el DNI al receptor
             
             out.close();

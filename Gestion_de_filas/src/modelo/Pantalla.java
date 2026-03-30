@@ -11,7 +11,10 @@ public class Pantalla  {
 	private Pantalla() {
 		this.clientes = new LinkedList<String>();
 		this.receptor = new Receptor(Utils.PUERTO_PANTALLA);
-		
+		//se inicializa con 5 lugares vacios
+		for (int i=0; i< 5; i++) {
+			clientes.add("-");
+		}
 	}
 	
 	public static Pantalla getInstance() {

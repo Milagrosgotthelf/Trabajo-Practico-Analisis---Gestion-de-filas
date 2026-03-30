@@ -9,6 +9,8 @@ import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.util.LinkedList;
+
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 
@@ -115,6 +117,14 @@ public class Ventana_pantalla extends JFrame {
 		this.lbl_turnos.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		this.panel_turnos.add(this.lbl_turnos);
 
+	}
+	
+	public void actualizarTurnos(LinkedList<String> turnos) {
+		this.lbl_DNI1.setText("DNI: " + turnos.get(0));
+		this.lbl_DNI2.setText("DNI: " + turnos.get(1));
+		this.lbl_DNI3.setText("DNI: " + turnos.get(2));
+		this.lbl_DNI4.setText("DNI: " + turnos.get(3));
+		this.lbl_DNI5.setText("DNI: " + turnos.get(4));
 	}
 
 }
