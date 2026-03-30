@@ -56,6 +56,8 @@ public class Ventana_empleado extends JFrame {
 	private JButton btn_fin;
 	private JPanel panel_dniact;
 	private JPanel panel_fin;
+	private JLabel lblMensaje;
+
 
 	/**
 	 * Launch the application.
@@ -170,6 +172,7 @@ public class Ventana_empleado extends JFrame {
 		this.btn_iniciarturno = new JButton("Iniciar turno");
 		this.btn_iniciarturno.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		this.panel_iniciar.add(this.btn_iniciarturno);
+		this.btn_iniciarturno.setEnabled(false);
 		
 		this.panel_atencion = new JPanel();
 		this.contentPane.add(this.panel_atencion, "Atencion");
@@ -189,6 +192,17 @@ public class Ventana_empleado extends JFrame {
 		this.btn_fin = new JButton("Finalizar turno");
 		this.btn_fin.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		this.panel_fin.add(this.btn_fin);
+		
+		//pongo solo uno asi lo podemos reutilizar unicamente cambiandole el mensaje
+		this.lblMensaje = new JLabel("");
+		this.lblMensaje.setFont(new Font("Tahoma", Font.BOLD, 12));
+		this.lblMensaje.setOpaque(true);
+		this.lblMensaje.setBackground(Color.GRAY); //fondo oscuro
+		this.lblMensaje.setForeground(Color.WHITE);
+		this.lblMensaje.setVisible(false);
+		this.contentPane.add(this.lblMensaje);
+		this.contentPane.setComponentZOrder(lblMensaje, 0); //asi aparece sobre el teclado 
+				
 
 	}
 
@@ -213,4 +227,23 @@ public class Ventana_empleado extends JFrame {
 		lbl_dniact.setText("DNI actual: "+dni);
 	}
 
+	public String getDniActual() {
+		return lbl_dniact.getText();
+	}
+	
+	public void mostrarMensajeTemporal(String mensaje, int x, int y, int ancho, int alto) {
+		this.lblMensaje.setText(mensaje);
+		this.lblMensaje.setVisible(true);
+		this.lblMensaje.setBounds(x,y,ancho,alto);
+		javax.swing.Timer timer = new javax.swing.Timer(2500, e -> {
+	        lblMensaje.setVisible(false);
+	    });
+	    timer.setRepeats(false);
+	    timer.start();
+		
+	}
+
+	public void activarBtnIniciarTurno() {
+		this.btn_iniciarturno.setEnabled(true);
+	}
 }

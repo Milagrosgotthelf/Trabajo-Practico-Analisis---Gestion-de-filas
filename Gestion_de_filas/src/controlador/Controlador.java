@@ -15,6 +15,7 @@ public class Controlador implements ActionListener{
 	private Ventana_empleado vistaEmpleado;
 	private int intentos =3;
 	private String dniActual_emp ="";
+	private boolean clienteAtendido = false;
 	private Controlador()  {
 		
 	}
@@ -63,10 +64,12 @@ public class Controlador implements ActionListener{
 	 */
 	public void agregarCliente(String dni) {
 		if (this.dniNoRepetido(dni)) {
-			this.terminal.agregarCliente(new Cliente(dni));			
+			this.terminal.agregarCliente(new Cliente(dni));	
+			this.registro.mostrarMensajeTemporal("   Usted ha sido registrado con exito.  ",155, 100, 240, 50);
 		}
 		else {
 			System.out.println("DNI no valido");	
+			this.registro.mostrarMensajeTemporal("   Usted ya se ha registrado.\nPor favor, aguarde pacientemente.  ", 85, 85, 400, 50);
 		}
 	}
 
@@ -101,6 +104,7 @@ public class Controlador implements ActionListener{
 		
 	}
 	
+	//Esto creo que es responsabilidad de la ventana
 	private void validarLongitud() {
 		int longitud = this.registro.getDni().length();
 		if (longitud >=7 && longitud<=8) {
@@ -160,6 +164,12 @@ public class Controlador implements ActionListener{
 		dniActual_emp = this.empleado.getDniActual();
 		vistaEmpleado.setProximoDni(dniActual_emp);
 		vistaEmpleado.setIntentos(intentos);
+		
+		vistaEmpleado.activarBtnIniciarTurno();
+		
+		/*if (terminal.getClientes().isEmpty()) {
+			vistaEmpleado.mostrarMensajeTemporal("No hay mas clientes en la cola.", 110, 100, 120, 50);
+		}*/
 	}
 	
 	
@@ -185,17 +195,37 @@ public class Controlador implements ActionListener{
 			System.out.println("Cola de clientes vacia");
 	}
 	
+	private void verSiEsAusente() {
+		clienteAtendido = false;
+		javax.swing.Timer timer = new javax.swing.Timer(6000, e -> { // NO SE SI NO SON MUCHOS SEGUNDOS O POCOS 
+	        if (!clienteAtendido) {
+	        	llamarSiguiente();
+	            vistaEmpleado.mostrarPantalla("Llamada");
+	        }
+	    });
+
+	    timer.setRepeats(false);
+	    timer.start();
+	}
+	
 	private void rellamarCliente() {
-		intentos--;
-		vistaEmpleado.setIntentos(intentos);
-		if (intentos==0) {
-			llamarSiguiente();
+		if (intentos > 1) {
+			intentos--;
+			vistaEmpleado.setIntentos(intentos);
+		}
+		else{
+			//llamarSiguiente();
+			//vistaEmpleado.mostrarPantalla("Llamada");
+			intentos--;
+			vistaEmpleado.setIntentos(0);
+			verSiEsAusente();
 		}
 	}
 
 	private void iniciarTurno() {
 		vistaEmpleado.setDniActual(dniActual_emp);
 		vistaEmpleado.mostrarPantalla("Atencion");
+		this.clienteAtendido = true;
 	}
 
 	
@@ -203,8 +233,18 @@ public class Controlador implements ActionListener{
 		if (!terminal.getClientes().isEmpty()) {
 			this.llamado();
 			vistaEmpleado.mostrarPantalla("Llamada");
+			this.clienteAtendido = false;
 		}
 		else
 			System.out.println("No hay clientes en la cola");
 	}
+	/*private void finalizarTurno() {
+		this.llamado();
+		vistaEmpleado.mostrarPantalla("Llamada");
+		this.clienteAtendido = false;
+		if (terminal.getClientes().isEmpty()) {
+			vistaEmpleado.mostrarMensajeTemporal("No hay mas clientes en la cola.", 110, 100, 120, 50);
+		}
+	}*/
+
 }
