@@ -191,7 +191,6 @@ public class Controlador implements ActionListener{
 	        this.pantalla.escucharEmpleado();
 	        
 	        vistaEmpleado.setProximoDni(this.empleado.getDniActual());
-	        this.vistaPantalla.actualizarTurnos(this.pantalla.getClientes());
 	        
 	        
 	        intentos = 3;
@@ -258,7 +257,8 @@ public class Controlador implements ActionListener{
 	private void rellamarCliente() {
 		this.empleado.llamarCliente();
 		
-		
+		this.vistaPantalla.actualizarTurnos(this.pantalla.getClientes());
+        
 		//vistaPantalla.actualizarTurnos(pantalla.getClientes());
 		if (intentos > 1) {
 			intentos--;
