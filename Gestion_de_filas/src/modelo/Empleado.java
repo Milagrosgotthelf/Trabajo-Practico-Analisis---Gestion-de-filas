@@ -16,8 +16,6 @@ public class Empleado {
 	
 	public void llamarCliente() {
 		this.dniActual = this.receptor.getMensaje();
-		System.out.println("Empleado 20 " + this.dniActual);
-		//Hasta aca
 		this.emisor.enviar(this.dniActual, PUERTO_PANTALLA);
 		
 	}

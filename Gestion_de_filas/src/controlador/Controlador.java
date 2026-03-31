@@ -69,7 +69,8 @@ public class Controlador implements ActionListener{
 	public void agregarCliente(String dni) {
 		boolean estabaVacia = this.terminal.getClientes().isEmpty();
 		
-		if (this.dniNoRepetido(dni)) {
+		//if (this.dniNoRepetido(dni)) {
+		if (true) {
 			this.terminal.agregarCliente(new Cliente(dni));	
 			this.registro.mostrarMensajeTemporal("   Usted ha sido registrado con exito.  ",155, 100, 240, 50);
 			
@@ -174,10 +175,25 @@ public class Controlador implements ActionListener{
 
 	private void llamado() {
 	    if (!terminal.getClientes().isEmpty()) {
+	    	
+	    	/*
 	        dniActual_emp = null; //tdv no se lo asigno
 	        String dniProximo = terminal.enviarCliente(); //solo MIRO el primero SIN sacarlo todavia de la cola eso recien al iniciar turno
+	        */
 	        
-	        vistaEmpleado.setProximoDni(dniProximo);
+	        //O: Todo bien si es para debug pero eso no se puede hacer
+	        //O: Aca está pasando que el controlador le pide el dni a la terminal y se lo pasa a la vista
+	        //O: Las comunicaciones entre clases tienen que hacerse utilizando los emisores y receptores
+	        
+	        
+	        this.terminal.enviarCliente();
+	        this.empleado.llamarCliente();
+	        this.pantalla.escucharEmpleado();
+	        
+	        vistaEmpleado.setProximoDni(this.empleado.getDniActual());
+	        this.vistaPantalla.actualizarTurnos(this.pantalla.getClientes());
+	        
+	        
 	        intentos = 3;
 	        vistaEmpleado.setIntentos(intentos);
 	        vistaEmpleado.activarBtnLlamar(true);
@@ -222,11 +238,12 @@ public class Controlador implements ActionListener{
 
 	private void llamarSiguiente() { //podriamos unificar pero no quiero rompr nada 
 		mostrarSigCliente();
+		//O: No se exactamente que hace sisteamIniciado=True como, pero supongo yo que si al llamar iniciar sistema no hay drama con que se reasigne podriamos reutilizar iniciarSistema()
 	}
 	
 	private void verSiEsAusente() {
 		clienteAtendido = false;
-		javax.swing.Timer timer = new javax.swing.Timer(600, e -> { // NO SE SI NO SON MUCHOS SEGUNDOS O POCOS 
+		javax.swing.Timer timer = new javax.swing.Timer(600, e -> { // NO SE SI NO SON MUCHOS SEGUNDOS O POCOS||| Son 0.6 segundos, realmente deberian ser mas
 	        if (!clienteAtendido) {
 	        	terminal.removerClienteActual(); 
 	        	mostrarSigCliente(); //aca llama a llamado() y es AHI donde se reinician los intentos
@@ -235,12 +252,14 @@ public class Controlador implements ActionListener{
 	    });
 	    timer.setRepeats(false);
 	    timer.start();
+	    //O: No entiendo para nada esta función
 	}
 	
 	private void rellamarCliente() {
-		pantalla.escucharEmpleado();
 		this.empleado.llamarCliente();
-		vistaPantalla.actualizarTurnos(pantalla.getClientes());
+		
+		
+		//vistaPantalla.actualizarTurnos(pantalla.getClientes());
 		if (intentos > 1) {
 			intentos--;
 			vistaEmpleado.setIntentos(intentos);
@@ -257,7 +276,10 @@ public class Controlador implements ActionListener{
 
 	private void iniciarTurno() {
 	    if (!terminal.getClientes().isEmpty()) {
-	        dniActual_emp = terminal.enviarCliente(); // AHORA SI asignamos el DNI actual
+	        dniActual_emp = this.empleado.getDniActual(); //terminal.enviarCliente(); // AHORA SI asignamos el DNI actual
+	        
+	        this.terminal.enviarCliente();
+	        this.empleado.llamarCliente();
 	        terminal.removerClienteActual(); // y ACA lo eliminamos de la cola
 	        vistaEmpleado.setDniActual(dniActual_emp);
 	        vistaEmpleado.mostrarPantalla("Atencion");

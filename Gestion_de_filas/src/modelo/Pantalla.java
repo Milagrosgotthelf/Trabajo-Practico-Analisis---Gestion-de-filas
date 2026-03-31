@@ -15,6 +15,7 @@ public class Pantalla  {
 		for (int i=0; i< 5; i++) {
 			clientes.add("-");
 		}
+		
 	}
 	
 	public static Pantalla getInstance() {
@@ -28,18 +29,12 @@ public class Pantalla  {
 	public void escucharEmpleado() {
 		receptor.recibir();
 		this.clientes.addFirst(this.receptor.getMensaje());	
-		this.clientes.removeLast();
+		System.out.println("Pantalla 32: " + this.receptor.getMensaje());
 		
 	}
 
 	public LinkedList<String> getClientes() {
 		return clientes;
-	}
-	
-	public void rutinaTest() {
-		this.clientes.addFirst(this.receptor.getMensaje());	
-		this.clientes.removeLast();		
-		
 	}
 	
 	

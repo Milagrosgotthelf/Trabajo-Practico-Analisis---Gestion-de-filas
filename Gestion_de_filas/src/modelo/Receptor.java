@@ -33,13 +33,10 @@ public class Receptor implements Runnable{
         try {
 
             while (true) {
-
+            	Thread.sleep(30);
                 this.soc = this.s.accept();
                 BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
                 this.mensaje = in.readLine();
-                System.out.println("hola"+this.mensaje);
-                soc.close();
-                in.close();
                 Thread.sleep(30);
                 
             }

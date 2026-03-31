@@ -28,13 +28,14 @@ public class TerminalRegistro {
 		clientes.addLast(cliente);
 	}
 	
-	public String enviarCliente() {
+	public void enviarCliente() {
 	    if (clientes.isEmpty()) {
 	        System.out.println("No hay clientes en la cola para enviar.");
-	        return null;
 	    } else {
 	        // No removemos todavía
-	        return clientes.getFirst().getDni();
+	        System.out.println("TerminalRegistro 36 - Primer dni de la cola de clientes:" + clientes.getFirst().getDni());
+	        emisor.enviar(this.clientes.getFirst().getDni(), PUERTO);
+	        //O: Ahora le envia el primero como corresponde pero no lo elimina
 	    }
 	}
 
