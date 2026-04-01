@@ -12,7 +12,7 @@ public class Pantalla  {
 		this.clientes = new LinkedList<String>();
 		this.receptor = new Receptor(Utils.PUERTO_PANTALLA);
 		//se inicializa con 5 lugares vacios
-		for (int i=0; i< 5; i++) {
+		for (int i=0; i< 4; i++) {
 			clientes.add("-");
 		}
 		
@@ -28,6 +28,7 @@ public class Pantalla  {
 	
 	public void escucharEmpleado() {
 		receptor.recibir();
+		
 		this.clientes.addFirst(this.receptor.getMensaje());	
 		System.out.println("Pantalla 32: " + this.receptor.getMensaje());
 		

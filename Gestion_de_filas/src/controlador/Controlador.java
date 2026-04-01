@@ -16,7 +16,7 @@ public class Controlador implements ActionListener{
 	private Ventana_empleado vistaEmpleado;
 	private Ventana_pantalla vistaPantalla;
 	private int intentos =3;
-	private String dniActual_emp ="";
+	private String dniActual_emp ="", proxdni ="";
 	private boolean clienteAtendido = false;
 	private boolean sistemaIniciado = false;
 	private Controlador()  {
@@ -78,8 +78,10 @@ public class Controlador implements ActionListener{
 				vistaEmpleado.activarBtnLlamar(true);
 				if(sistemaIniciado) {
 					vistaEmpleado.setProximoDni(dni);
-					dniActual_emp = dni;
-					vistaEmpleado.setIntentos(3);
+					this.proxdni = dni;
+					//dniActual_emp = dni;
+					intentos=3;
+					vistaEmpleado.setIntentos(intentos);
 				}
 			}
 		}
@@ -174,7 +176,9 @@ public class Controlador implements ActionListener{
 	 */
 
 	private void llamado() {
+		System.out.println("Controlador 179");
 	    if (!terminal.getClientes().isEmpty()) {
+	    	System.out.println("Controlador 181");
 	    	
 	    	/*
 	        dniActual_emp = null; //tdv no se lo asigno
@@ -184,28 +188,17 @@ public class Controlador implements ActionListener{
 	        //O: Todo bien si es para debug pero eso no se puede hacer
 	        //O: Aca está pasando que el controlador le pide el dni a la terminal y se lo pasa a la vista
 	        //O: Las comunicaciones entre clases tienen que hacerse utilizando los emisores y receptores
-	        
-	        
 	        this.terminal.enviarCliente();
 	        this.empleado.llamarCliente();
 	        this.pantalla.escucharEmpleado();
+	        System.out.println("Controlador 194 " +this.empleado.getDniActual());
 	        
 	        vistaEmpleado.setProximoDni(this.empleado.getDniActual());
-	        
-	        
 	        intentos = 3;
 	        vistaEmpleado.setIntentos(intentos);
 	        vistaEmpleado.activarBtnLlamar(true);
 	        vistaEmpleado.activarBtnIniciarTurno(false);
-	    } else {
-	        //trato aparte el caso de que este vacia
-	        dniActual_emp = null;
-	        vistaEmpleado.setProximoDni("-");
-	        vistaEmpleado.setIntentos(0);
-	        vistaEmpleado.activarBtnLlamar(false);
-	        vistaEmpleado.activarBtnIniciarTurno(false);
-	        vistaEmpleado.mostrarMensaje("No hay clientes por atender. Aguarde.");
-	    }
+	    } 
 	}
 	
 	
@@ -225,7 +218,7 @@ public class Controlador implements ActionListener{
 			vistaEmpleado.mostrarPantalla("Llamada");
 		}
 		else {
-			dniActual_emp = null;
+			//dniActual_emp = null;
 			vistaEmpleado.setProximoDni("-");
 			vistaEmpleado.setIntentos(0);
 			vistaEmpleado.activarBtnLlamar(false);
@@ -235,14 +228,11 @@ public class Controlador implements ActionListener{
 		}
 	}
 
-	private void llamarSiguiente() { //podriamos unificar pero no quiero rompr nada 
-		mostrarSigCliente();
-		//O: No se exactamente que hace sisteamIniciado=True como, pero supongo yo que si al llamar iniciar sistema no hay drama con que se reasigne podriamos reutilizar iniciarSistema()
-	}
+	
 	
 	private void verSiEsAusente() {
 		clienteAtendido = false;
-		javax.swing.Timer timer = new javax.swing.Timer(600, e -> { // NO SE SI NO SON MUCHOS SEGUNDOS O POCOS||| Son 0.6 segundos, realmente deberian ser mas
+		javax.swing.Timer timer = new javax.swing.Timer(3000, e -> { // NO SE SI NO SON MUCHOS SEGUNDOS O POCOS||| Son 0.6 segundos, realmente deberian ser mas
 	        if (!clienteAtendido) {
 	        	terminal.removerClienteActual(); 
 	        	mostrarSigCliente(); //aca llama a llamado() y es AHI donde se reinician los intentos
@@ -255,7 +245,7 @@ public class Controlador implements ActionListener{
 	}
 	
 	private void rellamarCliente() {
-		this.empleado.llamarCliente();
+		this.llamado();
 		
 		this.vistaPantalla.actualizarTurnos(this.pantalla.getClientes());
         
@@ -276,10 +266,13 @@ public class Controlador implements ActionListener{
 
 	private void iniciarTurno() {
 	    if (!terminal.getClientes().isEmpty()) {
-	        dniActual_emp = this.empleado.getDniActual(); //terminal.enviarCliente(); // AHORA SI asignamos el DNI actual
+	         //terminal.enviarCliente(); // AHORA SI asignamos el DNI actual
 	        
 	        this.terminal.enviarCliente();
 	        this.empleado.llamarCliente();
+	        dniActual_emp = this.empleado.getDniActual();
+	        
+	        this.pantalla.escucharEmpleado();
 	        terminal.removerClienteActual(); // y ACA lo eliminamos de la cola
 	        vistaEmpleado.setDniActual(dniActual_emp);
 	        vistaEmpleado.mostrarPantalla("Atencion");

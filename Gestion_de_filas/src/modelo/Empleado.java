@@ -16,7 +16,8 @@ public class Empleado {
 	
 	public void llamarCliente() {
 		this.dniActual = this.receptor.getMensaje();
-		this.emisor.enviar(this.dniActual, PUERTO_PANTALLA);
+		if (dniActual != null)
+			this.emisor.enviar(this.dniActual, PUERTO_PANTALLA);
 		
 	}
 	
