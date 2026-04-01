@@ -157,7 +157,12 @@ public class Controlador implements ActionListener{
 			iniciarSistema();
 		}
 		else if (comando.equals("Llamar")) {
-			rellamarCliente();
+			if (intentos == 3)
+				llamadoCliente();
+			else if (intentos>0) 
+				rellamarCliente();
+			else
+				mostrarSigCliente();
 		}
 		else if (comando.equals("Iniciar turno")) {
 			iniciarTurno();
@@ -167,6 +172,16 @@ public class Controlador implements ActionListener{
 		}
 	}
 	
+	private void llamadoCliente() {
+		this.terminal.enviarCliente();
+        this.empleado.llamarCliente();
+        this.pantalla.escucharEmpleado();
+        this.vistaPantalla.actualizarTurnos(this.pantalla.getClientes());
+        this.intentos--;
+        this.vistaEmpleado.setIntentos(intentos);
+		this.vistaEmpleado.activarBtnIniciarTurno(true);
+	}
+
 	/*COMUNICACION
 	 * Es necesario que ambas funciones se ejecuten juntas
 	 * Llamado le pide a la terminal que envie al cliente y le avisa al empleado que lo devuelva
@@ -189,11 +204,11 @@ public class Controlador implements ActionListener{
 	        //O: Aca está pasando que el controlador le pide el dni a la terminal y se lo pasa a la vista
 	        //O: Las comunicaciones entre clases tienen que hacerse utilizando los emisores y receptores
 	        this.terminal.enviarCliente();
-	        this.empleado.llamarCliente();
-	        this.pantalla.escucharEmpleado();
-	        System.out.println("Controlador 194 " +this.empleado.getDniActual());
+	        //this.empleado.llamarCliente();
+	        //this.pantalla.escucharEmpleado();
+	        //System.out.println("Controlador 194 " +this.empleado.getDniActual());
 	        
-	        vistaEmpleado.setProximoDni(this.empleado.getDniActual());
+	        vistaEmpleado.setProximoDni(this.terminal.getClientes().get(0).getDni());
 	        intentos = 3;
 	        vistaEmpleado.setIntentos(intentos);
 	        vistaEmpleado.activarBtnLlamar(true);
@@ -245,9 +260,9 @@ public class Controlador implements ActionListener{
 	}
 	
 	private void rellamarCliente() {
-		this.llamado();
+		//this.llamado();
 		
-		this.vistaPantalla.actualizarTurnos(this.pantalla.getClientes());
+		//this.vistaPantalla.actualizarTurnos(this.pantalla.getClientes());
         
 		//vistaPantalla.actualizarTurnos(pantalla.getClientes());
 		if (intentos > 1) {
