@@ -29,8 +29,8 @@ public class Controlador implements ActionListener{
 			instancia.terminal = TerminalRegistro.getInstance();
 			instancia.empleado = new Empleado();
 			instancia.pantalla = Pantalla.getInstance();
-			instancia.empleado.escucharTerminal();
-			instancia.pantalla.escucharEmpleado();
+			//instancia.empleado.escucharTerminal();
+			//instancia.pantalla.escucharEmpleado();
 		}
 		return instancia;	
 	}
@@ -57,9 +57,6 @@ public class Controlador implements ActionListener{
 		}
 		
 	}
-	
-	
-	
 	
 	//TERMINAL
 	
@@ -103,7 +100,6 @@ public class Controlador implements ActionListener{
 
 	private void manejarRegistro(String comando) {
 		String dniActual =registro.getDni();
-		System.out.println(dniActual);
 		if (comando.matches("\\d")) { //busca si es igual a cualquier digito decimal
 			dniActual += comando;
 			registro.setDni(dniActual);
@@ -119,18 +115,8 @@ public class Controlador implements ActionListener{
 			registro.setDni("");
 			
 		}
-		this.validarLongitud();
+		registro.validarLongitud();
 		
-	}
-	
-	//Esto creo que es responsabilidad de la ventana
-	private void validarLongitud() {
-		int longitud = this.registro.getDni().length();
-		if (longitud >=7 && longitud<=8) {
-			this.registro.habilitarAceptar(true);
-		} else {
-			this.registro.habilitarAceptar(false);
-		}
 	}
 	
 	public boolean dniNoRepetido(String dni) {
@@ -142,12 +128,9 @@ public class Controlador implements ActionListener{
 		return true; // El DNI no está repetido
 	}
 
-	
-	
-	
-	
 	//EMPLEADO
 	private boolean esEmpleado(String comando) {
+		
 		return comando.equals("INICIAR")||comando.equals("Llamar")||
 				comando.equals("Iniciar turno")||comando.equals("Finalizar turno");
 	}
@@ -173,13 +156,21 @@ public class Controlador implements ActionListener{
 	}
 	
 	private void llamadoCliente() {
-		this.terminal.enviarCliente();
-        this.empleado.llamarCliente();
-        this.pantalla.escucharEmpleado();
-        this.vistaPantalla.actualizarTurnos(this.pantalla.getClientes());
-        this.intentos--;
-        this.vistaEmpleado.setIntentos(intentos);
-		this.vistaEmpleado.activarBtnIniciarTurno(true);
+	    // 1. La terminal envía el DNI por el socket (Puerto 5000)
+	    this.terminal.enviarCliente();
+	    
+	    // 2. El empleado recibe del 5000 y reenvía a la pantalla (Puerto 5001)
+	    this.empleado.llamarCliente();
+	    
+	    // 3. La pantalla recibe del 5001 y lo guarda en su lista interna
+	    this.pantalla.escucharEmpleado();
+	    
+	    // 4. RECIÉN AQUÍ actualizamos la interfaz gráfica
+	    this.vistaPantalla.actualizarTurnos(this.pantalla.getClientes());
+	    
+	    this.intentos--;
+	    this.vistaEmpleado.setIntentos(intentos);
+	    this.vistaEmpleado.activarBtnIniciarTurno(true);
 	}
 
 	/*COMUNICACION
@@ -191,23 +182,8 @@ public class Controlador implements ActionListener{
 	 */
 
 	private void llamado() {
-		System.out.println("Controlador 179");
-	    if (!terminal.getClientes().isEmpty()) {
-	    	System.out.println("Controlador 181");
+		if (!terminal.getClientes().isEmpty()) {
 	    	
-	    	/*
-	        dniActual_emp = null; //tdv no se lo asigno
-	        String dniProximo = terminal.enviarCliente(); //solo MIRO el primero SIN sacarlo todavia de la cola eso recien al iniciar turno
-	        */
-	        
-	        //O: Todo bien si es para debug pero eso no se puede hacer
-	        //O: Aca está pasando que el controlador le pide el dni a la terminal y se lo pasa a la vista
-	        //O: Las comunicaciones entre clases tienen que hacerse utilizando los emisores y receptores
-	        this.terminal.enviarCliente();
-	        //this.empleado.llamarCliente();
-	        //this.pantalla.escucharEmpleado();
-	        //System.out.println("Controlador 194 " +this.empleado.getDniActual());
-	        
 	        vistaEmpleado.setProximoDni(this.terminal.getClientes().get(0).getDni());
 	        intentos = 3;
 	        vistaEmpleado.setIntentos(intentos);

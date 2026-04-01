@@ -189,4 +189,15 @@ public class Ventana_terminal_registro extends JFrame  {
 	    timer.start();
 		
 	}
+
+	public void validarLongitud() {
+		int longitud = this.getDni().length();
+		if (longitud >=7 && longitud<=8) {
+			this.habilitarAceptar(true);
+		} else {
+			this.habilitarAceptar(false);
+		
+		}
+		
+	}
 }

@@ -9,7 +9,8 @@ public class Empleado {
 	public Empleado() {
 		this.receptor = new Receptor(PUERTO);
 		this.emisor = new Emisor();
-		this.escucharTerminal();
+		this.receptor.recibir();
+		//this.escucharTerminal();
 		
 		
 	}
@@ -23,17 +24,7 @@ public class Empleado {
 	
 	
 	//Hay que ver lo de rellamar pero no recuerdo si se hacia en esta iteracion
-	public void escucharTerminal() {
-		receptor.recibir();
-	}
-	public Receptor getReceptor() {
-		return receptor;
-	}
- 
-	public Emisor getEmisor() {
-		return emisor;
-	}
-
+	
 	public String getDniActual() {
 		return dniActual;
 	}

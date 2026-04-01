@@ -33,23 +33,37 @@ public class Receptor implements Runnable{
         try {
 
             while (true) {
-            	Thread.sleep(30);
+            	//Thread.sleep(30);
                 this.soc = this.s.accept();
                 BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
-                this.mensaje = in.readLine();
-                Thread.sleep(30);
-                
+                synchronized (this) {
+                    this.mensaje = in.readLine();
+                    this.notifyAll(); // Avisa a getMensaje() que ya llegó el dato
+                }
+                //this.mensaje = in.readLine();
+                //Thread.sleep(30);
+                in.close();
+                this.soc.close();
             }
 
         } catch (Exception e) {
         	System.out.println("Excepcion en el receptor: " + e.getMessage());
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 
     }
 
 	public synchronized String getMensaje() {
-        return mensaje;
+        while (this.mensaje == null) {
+            try {
+                this.wait(); // Se queda "durmiendo" hasta que notifyAll() lo despierte
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        String aux = this.mensaje;
+        this.mensaje = null; // Lo reseteamos para la próxima recepción
+        return aux;
     }
 
 }
