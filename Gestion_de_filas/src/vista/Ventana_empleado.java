@@ -162,6 +162,9 @@ public class Ventana_empleado extends JFrame {
 		this.panel_inicial.add(this.panel_der);
 		
 		this.panel_llamada = new JPanel();
+		this.panel_llamada.setBorder(new LineBorder(new Color(202, 243, 255)));
+		this.panel_llamada.setForeground(new Color(202, 243, 255));
+		this.panel_llamada.setBackground(new Color(202, 243, 255));
 		this.contentPane.add(this.panel_llamada, "Llamada");
 		this.panel_llamada.setLayout(new GridLayout(2, 0, 0, 0));
 		
