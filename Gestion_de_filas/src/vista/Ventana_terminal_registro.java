@@ -69,7 +69,7 @@ public class Ventana_terminal_registro extends JFrame  {
 		setTitle("Terminal de Registro");
 		this.setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(50, 50, 584, 300);
+		setBounds(50, 50, 584, 350);
 		this.contentPane = new JPanel();
 		contentPane.setBackground(new Color(202, 243, 255));
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
