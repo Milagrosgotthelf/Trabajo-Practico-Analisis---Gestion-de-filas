@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -63,76 +64,164 @@ public class Ventana_terminal_registro extends JFrame  {
 	 * Create the frame.
 	 */
 	public Ventana_terminal_registro() {
+		Color colorAtras;
+		Color colorTeclas;
 		setTitle("Terminal de Registro");
 		this.setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(50, 50, 584, 300);
 		this.contentPane = new JPanel();
+		contentPane.setBackground(new Color(202, 243, 255));
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(this.contentPane);
 		this.contentPane.setLayout(null);
 		
 		this.panel = new JPanel();
-		this.panel.setBounds(10, 10, 550, 67);
+		panel.setBackground(new Color(202, 243, 255));
+		this.panel.setBounds(10, 10, 550, 57);
 		this.contentPane.add(this.panel);
 		this.panel.setLayout(null);
 		
 		this.lblIngreseSuDni = new JLabel("Ingrese su DNI: ");
-		this.lblIngreseSuDni.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		this.lblIngreseSuDni.setBounds(157, 10, 127, 47);
+		this.lblIngreseSuDni.setFont(new Font("SansSerif", Font.BOLD, 20));
+		this.lblIngreseSuDni.setBounds(151, 8, 151, 47);
 		this.panel.add(this.lblIngreseSuDni);
 		
 		this.textFieldDNI = new JTextField();
-		this.textFieldDNI.setBounds(312, 26, 112, 18);
+		textFieldDNI.setForeground(new Color(0, 160, 183));
+		textFieldDNI.setBackground(new Color(202, 243, 255));
+		textFieldDNI.setBorder(null);
+		textFieldDNI.setFont(new Font("SansSerif", Font.BOLD, 20));
+		this.textFieldDNI.setBounds(312, 13, 184, 36);
 		this.panel.add(this.textFieldDNI);
 		this.textFieldDNI.setColumns(10);
 		this.textFieldDNI.setEditable(false);
 		
 		this.panel_1 = new JPanel();
-		this.panel_1.setBounds(167, 87, 196, 149);
+		panel_1.setBackground(new Color(225, 249, 255));
+		this.panel_1.setBounds(188, 77, 196, 149);
 		this.contentPane.add(this.panel_1);
 		this.panel_1.setLayout(new GridLayout(4, 3, 0, 0));
+		this.panel_1.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		
+		colorTeclas = new Color(0, 216, 247);
 		this.Button_1 = new JButton("1");
+		Button_1.setBackground(new Color(0, 216, 247));
+		Button_1.setFont(new Font("Tahoma", Font.BOLD, 14));
+		this.Button_1.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		this.panel_1.add(this.Button_1);
 		
 		this.Button_2 = new JButton("2");
 		this.panel_1.add(this.Button_2);
+		Button_2.setBackground(colorTeclas);
+		Button_2.setFont(new Font("Tahoma", Font.BOLD, 14));
+		this.Button_2.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		
 		this.Button_3 = new JButton("3");
 		this.panel_1.add(this.Button_3);
+		Button_3.setBackground(colorTeclas);
+		Button_3.setFont(new Font("Tahoma", Font.BOLD, 14));
+		this.Button_3.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		
 		this.Button_4 = new JButton("4");
 		this.panel_1.add(this.Button_4);
+		Button_4.setBackground(colorTeclas);
+		Button_4.setFont(new Font("Tahoma", Font.BOLD, 14));
+		this.Button_4.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		
 		this.Button_5 = new JButton("5");
 		this.panel_1.add(this.Button_5);
+		Button_5.setBackground(colorTeclas);
+		Button_5.setFont(new Font("Tahoma", Font.BOLD, 14));
+		this.Button_5.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		
 		this.Button_6 = new JButton("6");
 		this.panel_1.add(this.Button_6);
+		Button_6.setBackground(colorTeclas);
+		Button_6.setFont(new Font("Tahoma", Font.BOLD, 14));
+		this.Button_6.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		
 		this.Button_7 = new JButton("7");
 		this.panel_1.add(this.Button_7);
+		Button_7.setBackground(colorTeclas);
+		Button_7.setFont(new Font("Tahoma", Font.BOLD, 14));
+		this.Button_7.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		
 		this.Button_8 = new JButton("8");
 		this.panel_1.add(this.Button_8);
+		Button_8.setBackground(colorTeclas);
+		Button_8.setFont(new Font("Tahoma", Font.BOLD, 14));
+		this.Button_8.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		
 		this.Button_9 = new JButton("9");
 		this.panel_1.add(this.Button_9);
+		Button_9.setBackground(colorTeclas);
+		Button_9.setFont(new Font("Tahoma", Font.BOLD, 14));
+		this.Button_9.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		
 		this.panel_2 = new JPanel();
+		panel_2.setBackground(new Color(225, 249, 255));
 		this.panel_1.add(this.panel_2);
 		
 		this.Button_0 = new JButton("0");
 		this.panel_1.add(this.Button_0);
+		Button_0.setBackground(colorTeclas);
+		Button_0.setFont(new Font("Tahoma", Font.BOLD, 14));
+		this.Button_0.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		
 		this.Button_back = new JButton("←");
+		Button_back.setBackground(new Color(221, 221, 221));
 		this.panel_1.add(this.Button_back);
+		colorAtras = Color.decode("#E3E8E8");
+		this.Button_back.setBackground(colorAtras);
+		Button_back.setFont(new Font("Tahoma", Font.BOLD, 14));
+		this.Button_back.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		
 		this.Button_aceptar = new JButton("Aceptar");
-		this.Button_aceptar.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		this.Button_aceptar.setBounds(408, 142, 84, 20);
+		Button_aceptar.setBackground(colorTeclas);
+		this.Button_aceptar.setFont(new Font("SansSerif", Font.BOLD, 12));
+		this.Button_aceptar.setBounds(242, 236, 84, 20);
 		this.Button_aceptar.setEnabled(false);
+		this.Button_aceptar.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		this.contentPane.add(this.Button_aceptar);
 		
 		//pongo solo uno asi lo podemos reutilizar unicamente cambiandole el mensaje
@@ -180,6 +269,8 @@ public class Ventana_terminal_registro extends JFrame  {
 		this.lblMensaje.setText(mensaje);
 		this.lblMensaje.setVisible(true);
 		this.lblMensaje.setBounds(x,y,ancho,alto);
+		this.lblMensaje.setForeground(Color.WHITE);
+		this.lblMensaje.setBackground(new Color(0,48,71));
 		//aca tuve que buscar como poner timer je, 
 		//no me parecia poner los carteles donde se tiene que presionar aceptar para salir asique lo hice asi
 		javax.swing.Timer timer = new javax.swing.Timer(2500, e -> {

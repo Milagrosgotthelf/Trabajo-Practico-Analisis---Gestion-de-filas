@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import java.awt.CardLayout;
 import java.awt.BorderLayout;
@@ -23,6 +24,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.FlowLayout;
+
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 
 public class Ventana_empleado extends JFrame {
@@ -57,6 +60,13 @@ public class Ventana_empleado extends JFrame {
 	private JPanel panel_dniact;
 	private JPanel panel_fin;
 	private JLabel lblMensaje;
+	private JPanel panel;
+	private JPanel panel_1;
+	private JPanel panel_2;
+	private JPanel panel_3;
+	private JLabel lblNumProxDNI;
+	private JLabel lblNumIntentosPend;
+	private JLabel lblNumDNIActual;
 
 
 	/**
@@ -79,7 +89,8 @@ public class Ventana_empleado extends JFrame {
 	 * Create the frame.
 	 */
 	public Ventana_empleado() {
-		setTitle("Gestion de fila");
+		Color color;
+		setTitle("NEXTUP - TERMINAL DE ATENCIÓN");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setMinimumSize(new Dimension(550,300));
 		setBounds(100, 100, 450, 300);
@@ -93,42 +104,61 @@ public class Ventana_empleado extends JFrame {
 		this.panel_inicial.setLayout(new GridLayout(0, 3, 0, 0));
 		
 		this.panel_izq = new JPanel();
-		this.panel_izq.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		panel_izq.setBackground(new Color(202, 243, 255));
+		panel_izq.setForeground(new Color(0, 0, 0));
 		this.panel_inicial.add(this.panel_izq);
 		
 		this.panel_central = new JPanel();
-		this.panel_central.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		panel_central.setBackground(new Color(202, 243, 255));
 		this.panel_inicial.add(this.panel_central);
 		this.panel_central.setLayout(new GridLayout(5, 3, 0, 0));
 		
 		this.panel_5 = new JPanel();
+		panel_5.setBackground(new Color(202, 243, 255));
 		this.panel_central.add(this.panel_5);
 		
 		this.panel_7 = new JPanel();
+		panel_7.setBackground(new Color(229, 245, 255));
 		this.panel_central.add(this.panel_7);
 		this.panel_7.setLayout(new GridLayout(2, 2, 0, 0));
 		
 		this.lbl_SISTEMA = new JLabel("SISTEMA DE");
-		this.lbl_SISTEMA.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lbl_SISTEMA.setBackground(new Color(201, 234, 255));
+		lbl_SISTEMA.setHorizontalAlignment(SwingConstants.CENTER);
+		this.lbl_SISTEMA.setFont(new Font("SansSerif", Font.BOLD, 20));
+		color = Color.decode("#2683BF");
+		this.lbl_SISTEMA.setForeground(new Color(0, 160, 183));
 		this.panel_7.add(this.lbl_SISTEMA);
 		
 		this.lblNewLabel_1 = new JLabel("GESTIÓN DE FILA");
+		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
 		this.panel_7.add(this.lblNewLabel_1);
-		this.lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		this.lblNewLabel_1.setFont(new Font("SansSerif", Font.BOLD, 20));
+		this.lblNewLabel_1.setForeground(new Color(0, 160, 183));
 		
 		this.panel_8 = new JPanel();
+		panel_8.setBackground(new Color(229, 245, 255));
 		this.panel_central.add(this.panel_8);
 		
 		this.panel_6 = new JPanel();
+		panel_6.setBackground(new Color(229, 245, 255));
 		this.panel_central.add(this.panel_6);
 		
 		this.btn_iniciar = new JButton("INICIAR");
-		this.btn_iniciar.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		//damos color
+		this.btn_iniciar.setFont(new Font("SansSerif", Font.BOLD, 15));
+		this.btn_iniciar.setBackground(new Color(0, 160, 183));
+		this.btn_iniciar.setFocusPainted(false);
+		this.btn_iniciar.setBackground(color);
+		this.btn_iniciar.setForeground(Color.WHITE);
+		this.btn_iniciar.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
+		
 		this.panel_6.add(this.btn_iniciar);
-		
-		
 		this.panel_der = new JPanel();
-		this.panel_der.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		panel_der.setBackground(new Color(202, 243, 255));
 		this.panel_inicial.add(this.panel_der);
 		
 		this.panel_llamada = new JPanel();
@@ -139,58 +169,131 @@ public class Ventana_empleado extends JFrame {
 		this.panel_llamada.add(this.panel_sup);
 		this.panel_sup.setLayout(new GridLayout(0, 1, 0, 0));
 		
+		Color colorPaneles =  new Color(202, 243, 255);
 		this.panel_prox = new JPanel();
+		panel_prox.setBackground(colorPaneles);
 		this.panel_sup.add(this.panel_prox);
 		
 		this.lbl_prox = new JLabel("Próximo DNI:");
 		this.lbl_prox.setVerticalAlignment(SwingConstants.BOTTOM);
 		this.panel_prox.add(this.lbl_prox);
-		this.lbl_prox.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		this.lbl_prox.setFont(new Font("SansSerif", Font.PLAIN, 25));
+		this.lbl_prox.setForeground(new Color(0, 0, 0));
+		
+		lblNumProxDNI = new JLabel("New label");
+		lblNumProxDNI.setForeground(new Color(0, 160, 183));
+		lblNumProxDNI.setFont(new Font("SansSerif", Font.BOLD, 25));
+		panel_prox.add(lblNumProxDNI);
 		
 		this.panel_int = new JPanel();
+		panel_int.setBackground(colorPaneles);
 		this.panel_sup.add(this.panel_int);
 		
 		this.lbl_intentos = new JLabel("Intentos pendientes: ");
 		this.panel_int.add(this.lbl_intentos);
-		this.lbl_intentos.setFont(new Font("Tahoma", Font.PLAIN, 25));
+		this.lbl_intentos.setFont(new Font("SansSerif", Font.PLAIN, 25));
+		this.lbl_intentos.setForeground(new Color(0, 0, 0));
+		
+		lblNumIntentosPend = new JLabel("New label");
+		lblNumIntentosPend.setForeground(new Color(0, 160, 183));
+		lblNumIntentosPend.setFont(new Font("SansSerif", Font.BOLD, 25));
+		panel_int.add(lblNumIntentosPend);
 		
 		this.panel_inf = new JPanel();
 		this.panel_llamada.add(this.panel_inf);
 		this.panel_inf.setLayout(new GridLayout(0, 2, 0, 0));
 		
 		this.panel_llamar = new JPanel();
+		panel_llamar.setBackground(colorPaneles);
 		this.panel_inf.add(this.panel_llamar);
-		this.panel_llamar.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		panel_llamar.setLayout(new GridLayout(3, 1, 0, 0));
+		
+		panel = new JPanel();
+		FlowLayout flowLayout = (FlowLayout) panel.getLayout();
+		flowLayout.setVgap(0);
+		flowLayout.setHgap(0);
+		panel.setBackground(colorPaneles);
+		panel_llamar.add(panel);
+		
+		panel_1 = new JPanel();
+		FlowLayout flowLayout_3 = (FlowLayout) panel_1.getLayout();
+		flowLayout_3.setVgap(0);
+		flowLayout_3.setHgap(0);
+		panel_1.setBackground(colorPaneles);
+		panel_llamar.add(panel_1);
 		
 		this.btn_llamar = new JButton("Llamar");
-		this.btn_llamar.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		this.panel_llamar.add(this.btn_llamar);
+		panel_1.add(btn_llamar);
+		this.btn_llamar.setFont(new Font("SansSerif", Font.BOLD, 20));
+		this.btn_llamar.setBackground(new Color(0, 160, 183));
+		this.btn_llamar.setForeground(Color.WHITE);
+		this.btn_llamar.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		
 		this.panel_iniciar = new JPanel();
+		panel_iniciar.setBackground(colorPaneles);
 		this.panel_inf.add(this.panel_iniciar);
+		panel_iniciar.setLayout(new GridLayout(3, 1, 0, 0));
+		
+		panel_2 = new JPanel();
+		FlowLayout flowLayout_1 = (FlowLayout) panel_2.getLayout();
+		flowLayout_1.setHgap(0);
+		flowLayout_1.setVgap(0);
+		panel_2.setBackground(colorPaneles);
+		panel_iniciar.add(panel_2);
+		
+		panel_3 = new JPanel();
+		FlowLayout flowLayout_2 = (FlowLayout) panel_3.getLayout();
+		flowLayout_2.setVgap(0);
+		flowLayout_2.setHgap(0);
+		panel_3.setBackground(colorPaneles);
+		panel_iniciar.add(panel_3);
 		
 		this.btn_iniciarturno = new JButton("Iniciar turno");
-		this.btn_iniciarturno.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		this.panel_iniciar.add(this.btn_iniciarturno);
+		panel_3.add(btn_iniciarturno);
+		this.btn_iniciarturno.setFont(new Font("SansSerif", Font.BOLD, 20));
 		this.btn_iniciarturno.setEnabled(false);
+		this.btn_iniciarturno.setBackground(new Color(0, 160, 183));
+		this.btn_iniciarturno.setForeground(Color.WHITE);
+		this.btn_iniciarturno.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		
 		this.panel_atencion = new JPanel();
 		this.contentPane.add(this.panel_atencion, "Atencion");
 		this.panel_atencion.setLayout(new GridLayout(2, 0, 0, 0));
 		
 		this.panel_dniact = new JPanel();
+		panel_dniact.setBackground(new Color(202, 243, 255));
+		panel_dniact.setForeground(new Color(202, 243, 255));
 		this.panel_atencion.add(this.panel_dniact);
-		this.panel_dniact.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 50));
+		this.panel_dniact.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 50));
 		
 		this.lbl_dniact = new JLabel("DNI actual: ");
 		this.panel_dniact.add(this.lbl_dniact);
-		this.lbl_dniact.setFont(new Font("Tahoma", Font.PLAIN, 30));
+		this.lbl_dniact.setFont(new Font("SansSerif", Font.PLAIN, 30));
+		
+		lblNumDNIActual = new JLabel("New label");
+		lblNumDNIActual.setForeground(new Color(0, 160, 183));
+		lblNumDNIActual.setFont(new Font("SansSerif", Font.BOLD, 30));
+		panel_dniact.add(lblNumDNIActual);
 		
 		this.panel_fin = new JPanel();
+		panel_fin.setForeground(new Color(202, 243, 255));
+		panel_fin.setBackground(new Color(202, 243, 255));
 		this.panel_atencion.add(this.panel_fin);
 		
 		this.btn_fin = new JButton("Finalizar turno");
-		this.btn_fin.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		this.btn_fin.setFont(new Font("SansSerif", Font.BOLD, 20));
+		this.btn_fin.setBackground(new Color(0, 160, 183));
+		this.btn_fin.setForeground(Color.WHITE);
+		this.btn_fin.setBorder(BorderFactory.createCompoundBorder(
+			    BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED),
+			    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+			));
 		this.panel_fin.add(this.btn_fin);
 		
 		//pongo solo uno asi lo podemos reutilizar unicamente cambiandole el mensaje
@@ -216,15 +319,27 @@ public class Ventana_empleado extends JFrame {
 	public void mostrarPantalla (String nombre) {
 		CardLayout cl = (CardLayout) contentPane.getLayout();
 		cl.show(contentPane, nombre);
+		
+		switch (nombre) {
+        case "Inicio":
+            setTitle("NEXTUP - Inicio");
+            break;
+        case "Llamada":
+            setTitle("NEXTUP - Llamado de clientes");
+            break;
+        case "Atencion":
+            setTitle("NEXTUP - Atención al cliente");
+            break;
+		}
 	}
 	public void setIntentos(int intentos) {
-		lbl_intentos.setText("Intentos pendientes: "+intentos);
+		lblNumIntentosPend.setText(Integer.toString(intentos));
 	}
 	public void setProximoDni(String dni) {
-		lbl_prox.setText("Próximo DNI: "+dni);
+		lblNumProxDNI.setText(dni);
 	}
 	public void setDniActual(String dni) {
-		lbl_dniact.setText("DNI actual: "+dni);
+		lblNumDNIActual.setText(dni);
 	}
 
 	public String getDniActual() {
