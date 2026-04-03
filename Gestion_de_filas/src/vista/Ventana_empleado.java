@@ -90,7 +90,7 @@ public class Ventana_empleado extends JFrame {
 	 */
 	public Ventana_empleado() {
 		Color color;
-		setTitle("NEXTUP - TERMINAL DE ATENCIÓN");
+		setTitle("TERMINAL DE ATENCIÓN");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setMinimumSize(new Dimension(550,300));
 		setBounds(100, 100, 450, 300);
@@ -325,13 +325,13 @@ public class Ventana_empleado extends JFrame {
 		
 		switch (nombre) {
         case "Inicio":
-            setTitle("NEXTUP - Inicio");
+            setTitle("Inicio");
             break;
         case "Llamada":
-            setTitle("NEXTUP - Llamado de clientes");
+            setTitle("Llamado de clientes");
             break;
         case "Atencion":
-            setTitle("NEXTUP - Atención al cliente");
+            setTitle("Atención al cliente");
             break;
 		}
 	}
