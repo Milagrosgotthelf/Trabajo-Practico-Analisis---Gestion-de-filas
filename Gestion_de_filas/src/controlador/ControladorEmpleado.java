@@ -48,8 +48,16 @@ public class ControladorEmpleado implements ActionListener{
 		else if (comando.equals("Llamar")) {
 			if (intentos == 3 && this.vistaEmpleado.getProximoDni() != null && this.vistaEmpleado.getProximoDni().equals("-"))
 				mostrarSigCliente();
-			else if (intentos>0) 
+			else if (intentos>0) { 
+				this.empleado.enviarCliente_pantalla(this.dniActual_emp);
 				rellamarCliente();
+			}
+			else {
+				verSiEsAusente();
+				System.out.println("manejarEmpleado intentos=0");
+				pedirSigCliente();
+				
+			}
 		}
 		else if (comando.equals("Iniciar turno")) {
 			iniciarTurno();
@@ -59,29 +67,10 @@ public class ControladorEmpleado implements ActionListener{
 		}
 	}
 	
-	/*
-	 * Llamado cliente tiene como unica tarea reducir el numero de intentos
-	 */
-	private void llamadoCliente() {
-	    
-	    this.intentos--;
-	    this.vistaEmpleado.setIntentos(intentos);
-	    this.vistaEmpleado.activarBtnIniciarTurno(true);
-	}
-
-	//COMUNICACION
 	
-	/*
-	 * Invoca a empleado.llamarCliente() el cual envia un mensaje de confirmacion y devuelve el mensaje recibido
-	 * MostrarSigclinte tiene la responsabilidad de avisarle a la terminal que envie al siguiente cliente
-	 * Primero avisa y despues extrae al cliente, en el primer cliente va a haber un espacio nulo puesto que nunca se le dijo que lo envie
-	 * mostrarSigCliente debe ser llamada unicamente cuando el cliente actual fue atendido o cuando se inicia el sistema
-	 */
+	
 	private void mostrarSigCliente() {
-		String mensaje = this.dniActual_emp;		
-		if (mensaje != null && !mensaje.isEmpty()) {
-		    System.out.println("No deberia mostrar ventana error: " + mensaje);
-			this.proxdni = mensaje;
+			this.proxdni = dniActual_emp;
 	        vistaEmpleado.setProximoDni(this.proxdni);
 	        intentos = 3;
 	        vistaEmpleado.setIntentos(intentos);
@@ -89,25 +78,22 @@ public class ControladorEmpleado implements ActionListener{
 	        vistaEmpleado.activarBtnIniciarTurno(false);
 	        vistaEmpleado.mostrarPantalla("Llamada");
 	    } 
-		else {
-			System.out.println("Deberia mostrar ventana de error "+ mensaje);
+	private void ventanaLlamadaDefecto() {
 			this.proxdni = "-";
 			vistaEmpleado.setProximoDni(this.proxdni);
-			vistaEmpleado.setIntentos(0);
-			vistaEmpleado.activarBtnLlamar(false);
+			intentos = 0;
+			vistaEmpleado.setIntentos(intentos);
+			vistaEmpleado.activarBtnLlamar(true);
 			vistaEmpleado.activarBtnIniciarTurno(false);
-			vistaEmpleado.mostrarMensaje("No hay clientes por atender. Aguarde.");
+			vistaEmpleado.mostrarMensaje("Aguarde...");
 			sistemaIniciado = false;
-			vistaEmpleado.mostrarPantalla("Inicio");
+			vistaEmpleado.mostrarPantalla("Llamada");	
 		}
-		
-	}	
 	
 	private void verSiEsAusente() {
 		clienteAtendido = false;
 		javax.swing.Timer timer = new javax.swing.Timer(3000, e -> { // NO SE SI NO SON MUCHOS SEGUNDOS O POCOS||| Son 0.6 segundos, realmente deberian ser mas
 	        if (!clienteAtendido) {
-	        	mostrarSigCliente(); 
 	            vistaEmpleado.mostrarPantalla("Llamada");
 	        }
 	    });
@@ -123,8 +109,6 @@ public class ControladorEmpleado implements ActionListener{
 		intentos--;
 		vistaEmpleado.setIntentos(intentos);
 		vistaEmpleado.activarBtnIniciarTurno(true); 
-		if (intentos == 0)
-			verSiEsAusente();
 	}
 
 	/*
@@ -141,14 +125,15 @@ public class ControladorEmpleado implements ActionListener{
 	private void finalizarTurno() {
 	    vistaEmpleado.mostrarPantalla("Llamada");
 	    vistaEmpleado.setDniActual("-");
+	    System.out.println("ControladorEmpleado finalizarTurno");
 	    pedirSigCliente(); 
 	}
 
 	private void pedirSigCliente() {
-		System.out.println("ControladorEmpleado 148");
         Thread hiloEscucha = new Thread(new Runnable() {
             @Override
             public void run() {
+            		ventanaLlamadaDefecto();
                 	dniActual_emp = empleado.llamarCliente(); 
                 	javax.swing.SwingUtilities.invokeLater(new Runnable() {
     					@Override

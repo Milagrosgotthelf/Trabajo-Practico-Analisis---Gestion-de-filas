@@ -11,22 +11,18 @@ public class Empleado {
 		this.receptor = new Receptor(PUERTO);
 		this.emisor_pantalla = new Emisor();
 		this.emisor_terminal = new Emisor();
-		//this.receptor.recibir();
-		//this.escucharTerminal();
 	}
 	
 	
 	public String llamarCliente() {
 		this.emisor_terminal.enviar("----", Utils.PUERTO_CONFIRMACION);
-		
-		String msj = this.receptor.getMensaje();
-		System.out.println("Empleado 23: " + msj);
-		if (msj != null)
-			this.emisor_pantalla.enviar(msj, PUERTO_PANTALLA);
-		return msj;
+		return this.receptor.getMensaje();
 	}
 	
-	
+	public void enviarCliente_pantalla(String msj) {
+		if (msj != null)
+			this.emisor_pantalla.enviar(msj, PUERTO_PANTALLA);
+	}
 	public String getDniActual() {
 		return dniActual;
 	}

@@ -11,7 +11,6 @@ public class Pantalla  {
 	private Pantalla() {
 		this.clientes = new LinkedList<String>();
 		this.receptor = new Receptor(Utils.PUERTO_PANTALLA);
-		this.receptor.recibir();
 		//se inicializa con 5 lugares vacios
 		for (int i=0; i< 5; i++) {
 			clientes.add("-");
@@ -32,14 +31,11 @@ public class Pantalla  {
 	    String mensajeRecibido = this.receptor.getMensaje();
 	    
 	    if (mensajeRecibido != null) {
-	        // VALIDACIÓN: Si el DNI nuevo es igual al anterior, no lo agregamos de nuevo
 	        if (!this.clientes.isEmpty() && mensajeRecibido.equals(this.clientes.getFirst())) {
 	            return;
 	        }
-
 	        this.clientes.addFirst(mensajeRecibido);
 	        
-	        // Mantener siempre 5 elementos
 	        if (this.clientes.size() > 5) {
 	            this.clientes.removeLast();
 	        }

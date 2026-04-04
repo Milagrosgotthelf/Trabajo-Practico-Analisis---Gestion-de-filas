@@ -51,7 +51,6 @@ public class Receptor implements Runnable {
         	System.out.println("Receptor 50 getMensaje: " + this.mensaje);
             try {
                 this.wait();
-                //Esto no es lo que esta bloqueando al boton iniciar
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return null;

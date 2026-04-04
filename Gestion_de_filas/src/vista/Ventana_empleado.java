@@ -18,7 +18,6 @@ import javax.swing.JTextArea;
 import java.awt.Font;
 import javax.swing.border.LineBorder;
 
-import controlador.Controlador;
 
 import java.awt.Color;
 import java.awt.Dimension;
