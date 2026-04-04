@@ -15,11 +15,12 @@ public class Empleado {
 		//this.escucharTerminal();
 	}
 	
-	public void llamarCliente() {
+	public String llamarCliente() {
 		this.dniActual = this.recibirMensaje();
 		
 		if (dniActual != null)
 			this.emisor_pantalla.enviar(this.dniActual, PUERTO_PANTALLA);
+		return dniActual;
 	}
 	
 	/*
@@ -27,8 +28,10 @@ public class Empleado {
 	 * el primer dni de la cola. Luego se retorna el mensaje enviado por la terminal y usado en llamarCliente()
 	 */
 	public String recibirMensaje() {
+
+		
 		this.emisor_terminal.enviar("----", Utils.PUERTO_CONFIRMACION);
-		this.receptor.recibir();
+		
 		String msj = this.receptor.getMensaje();
 		System.out.println("Empleado 33: " + msj);
 		return msj;

@@ -349,6 +349,9 @@ public class Ventana_empleado extends JFrame {
 		return lbl_dniact.getText();
 	}
 	
+	public String getProximoDni() {
+		return lbl_prox.getText();
+	}
 	public void mostrarMensaje(String mensaje) {
 	    javax.swing.JOptionPane.showMessageDialog(
 	            this,

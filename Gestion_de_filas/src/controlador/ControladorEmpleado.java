@@ -16,6 +16,7 @@ public class ControladorEmpleado implements ActionListener{
 	private boolean clienteAtendido = false;
 	private boolean sistemaIniciado = false;
 	private ControladorEmpleado()  {
+		this.iniciarEscuchaClientes();
 		
 	}
 	
@@ -46,12 +47,10 @@ public class ControladorEmpleado implements ActionListener{
 			mostrarSigCliente();
 		}
 		else if (comando.equals("Llamar")) {
-			if (intentos == 3)
-				llamadoCliente();
+			if (intentos == 3 && this.vistaEmpleado.getProximoDni() != null && this.vistaEmpleado.getProximoDni().equals("-"))
+				mostrarSigCliente();
 			else if (intentos>0) 
 				rellamarCliente();
-			else
-				mostrarSigCliente();
 		}
 		else if (comando.equals("Iniciar turno")) {
 			iniciarTurno();
@@ -61,22 +60,32 @@ public class ControladorEmpleado implements ActionListener{
 		}
 	}
 	
+	/*
+	 * Llamado cliente tiene como unica tarea reducir el numero de intentos
+	 */
 	private void llamadoCliente() {
 	    
-	    this.empleado.llamarCliente();
 	    this.intentos--;
 	    this.vistaEmpleado.setIntentos(intentos);
 	    this.vistaEmpleado.activarBtnIniciarTurno(true);
 	}
 
 	//COMUNICACION
+	
+	/*
+	 * Invoca a empleado.llamarCliente() el cual envia un mensaje de confirmacion y devuelve el mensaje recibido
+	 * MostrarSigclinte tiene la responsabilidad de avisarle a la terminal que envie al siguiente cliente
+	 * Primero avisa y despues extrae al cliente, en el primer cliente va a haber un espacio nulo puesto que nunca se le dijo que lo envie
+	 * mostrarSigCliente debe ser llamada unicamente cuando el cliente actual fue atendido o cuando se inicia el sistema
+	 */
 	private void mostrarSigCliente() {
-		String mensaje = this.empleado.recibirMensaje();
-		System.out.println("ControladorEmpleado 75: " + mensaje);
+		String mensaje = this.empleado.llamarCliente();
+		System.out.println("ControladorEmpleado 83: " + mensaje);
 		
 		if (mensaje != null) {
-		    	
-	        vistaEmpleado.setProximoDni(mensaje);
+		    
+			this.proxdni = mensaje;
+	        vistaEmpleado.setProximoDni(this.proxdni);
 	        intentos = 3;
 	        vistaEmpleado.setIntentos(intentos);
 	        vistaEmpleado.activarBtnLlamar(true);
@@ -84,7 +93,8 @@ public class ControladorEmpleado implements ActionListener{
 	        vistaEmpleado.mostrarPantalla("Llamada");
 	    } 
 		else {
-			vistaEmpleado.setProximoDni("-");
+			this.proxdni = "-";
+			vistaEmpleado.setProximoDni(this.proxdni);
 			vistaEmpleado.setIntentos(0);
 			vistaEmpleado.activarBtnLlamar(false);
 			vistaEmpleado.activarBtnIniciarTurno(false);
@@ -107,19 +117,24 @@ public class ControladorEmpleado implements ActionListener{
 	    timer.start();
 	}
 	
+	/*
+	 * Rellamar tiene las mismas respponsabilidades que llamarCliente(), llamarCliente no es mas usada por ese motivo
+	 * 
+	 */
 	private void rellamarCliente() {
 		intentos--;
 		vistaEmpleado.setIntentos(intentos);
-		vistaEmpleado.activarBtnIniciarTurno(true); //O: Sujeto a cambios
+		vistaEmpleado.activarBtnIniciarTurno(true); 
 		if (intentos == 0)
 			verSiEsAusente();
 	}
 
+	/*
+	 * Iniciar turno no debe activar la comunicacion, se supone que todo lo que necesita lo tiene.
+	 * Solo debe cambiar la ventana. Luego finalizar turno va a ocuparse de lo demas
+	 */
 	private void iniciarTurno() {
-        this.empleado.llamarCliente();
-        dniActual_emp = this.empleado.getDniActual();
-        System.out.println("ControladorEmpleado 122: " + dniActual_emp);
-        vistaEmpleado.setDniActual(dniActual_emp);
+        vistaEmpleado.setDniActual(this.proxdni);
         vistaEmpleado.mostrarPantalla("Atencion");
         clienteAtendido = true;
 	}
@@ -128,7 +143,24 @@ public class ControladorEmpleado implements ActionListener{
 	private void finalizarTurno() {
 	    vistaEmpleado.mostrarPantalla("Llamada");
 	    vistaEmpleado.setDniActual("-");
-	    mostrarSigCliente(); //actualizar el prox dni
+	    mostrarSigCliente(); 
 	}
 
+	
+	private void iniciarEscuchaClientes() {
+        Thread hiloEscucha = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                	dniActual_emp = empleado.llamarCliente();  
+                    
+                    if (dniActual_emp != null) {
+                        System.out.println("ControladorEmpleado: Cliente recibido -> " + dniActual_emp);
+                    }
+                }
+            }
+        });
+        hiloEscucha.setDaemon(true); // Para que se cierre si cierras la ventana
+        hiloEscucha.start();
+    }
 }

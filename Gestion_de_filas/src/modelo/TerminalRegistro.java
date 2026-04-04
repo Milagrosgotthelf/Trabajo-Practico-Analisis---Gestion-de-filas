@@ -26,7 +26,7 @@ public class TerminalRegistro {
 		clientes.addLast(cliente);
 	}
 	
-	public void enviarCliente() {
+	public void enviarCliente() throws InterruptedException {
 	    if (!clientes.isEmpty()) {
 	        System.out.println("TerminalRegistro 32 - Primer dni de la cola de clientes:" + clientes.getFirst().getDni());
 	        emisor.enviar(this.clientes.getFirst().getDni(), PUERTO);
@@ -34,7 +34,8 @@ public class TerminalRegistro {
 	    }
 	    else {
 	    	System.out.println("TerminalRegistro 36: Sistema vacio");
-	    	System.out.println(this.clientes);
+	    	throw new InterruptedException("No hay clientes en la cola");
+	    	
 	    }
 	}
  
