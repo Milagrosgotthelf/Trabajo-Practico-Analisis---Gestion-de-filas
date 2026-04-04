@@ -28,14 +28,13 @@ public class TerminalRegistro {
 	
 	public void enviarCliente() {
 	    if (!clientes.isEmpty()) {
-	        // No removemos todavía
 	        System.out.println("TerminalRegistro 32 - Primer dni de la cola de clientes:" + clientes.getFirst().getDni());
-	        
 	        emisor.enviar(this.clientes.getFirst().getDni(), PUERTO);
 	        this.clientes.removeFirst();
 	    }
 	    else {
-	    	System.out.println("TerminalRegistro 38: Sistema vacio");
+	    	System.out.println("TerminalRegistro 36: Sistema vacio");
+	    	System.out.println(this.clientes);
 	    }
 	}
  

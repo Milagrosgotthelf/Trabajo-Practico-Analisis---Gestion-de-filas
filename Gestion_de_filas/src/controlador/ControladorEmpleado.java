@@ -42,7 +42,8 @@ public class ControladorEmpleado implements ActionListener{
 	
 	private void manejarEmpleado(String comando) {
 		if (comando.equals("INICIAR")){
-			iniciarSistema();
+			sistemaIniciado = true;
+			mostrarSigCliente();
 		}
 		else if (comando.equals("Llamar")) {
 			if (intentos == 3)
@@ -62,29 +63,16 @@ public class ControladorEmpleado implements ActionListener{
 	
 	private void llamadoCliente() {
 	    
-	    
 	    this.empleado.llamarCliente();
-	    
-	    
 	    this.intentos--;
 	    this.vistaEmpleado.setIntentos(intentos);
 	    this.vistaEmpleado.activarBtnIniciarTurno(true);
 	}
 
-	/*COMUNICACION
-	 * Es necesario que ambas funciones se ejecuten juntas
-	 * Llamado le pide a la terminal que envie al cliente y le avisa al empleado que lo devuelva
-	 * El empleado siempre esta escuchando a la terminal pero hay que pedirselo
-	 * Despues hace otras cosas que se hacian siempre en conjunto, como el numero de intentos y demas
-	 * Eventualmente hay que seguir una logica similar con la poantalla
-	 */
-
-	private void llamado() {
-		
-		
+	//COMUNICACION
+	private void mostrarSigCliente() {
 		String mensaje = this.empleado.recibirMensaje();
-		System.out.println("ControladorEmpleado 86: " + mensaje);
-		
+		System.out.println("ControladorEmpleado 75: " + mensaje);
 		
 		if (mensaje != null) {
 		    	
@@ -93,39 +81,25 @@ public class ControladorEmpleado implements ActionListener{
 	        vistaEmpleado.setIntentos(intentos);
 	        vistaEmpleado.activarBtnLlamar(true);
 	        vistaEmpleado.activarBtnIniciarTurno(false);
+	        vistaEmpleado.mostrarPantalla("Llamada");
 	    } 
-	}
-	
-	
-	/*
-	 * IniciarSistema y finalizarTurno son IGUALES pero dejalas asi, seguro para la iteracion que viene son distintas
-	 * Sino se cambia
-	 */
-
-	private void iniciarSistema() {
-		sistemaIniciado = true;
-		mostrarSigCliente();
-	}
-	
-	private void mostrarSigCliente() {
-		//dniActual_emp = null;
-		System.out.println("ControladorEmpleado 112");
-		this.llamado();
-		vistaEmpleado.setProximoDni("-");
-		vistaEmpleado.setIntentos(0);
-		vistaEmpleado.activarBtnLlamar(false);
-		vistaEmpleado.activarBtnIniciarTurno(false);
-		vistaEmpleado.mostrarPantalla("Llamada");
-		vistaEmpleado.mostrarMensaje("No hay clientes por atender. Aguarde.");
-	}
-
-	
+		else {
+			vistaEmpleado.setProximoDni("-");
+			vistaEmpleado.setIntentos(0);
+			vistaEmpleado.activarBtnLlamar(false);
+			vistaEmpleado.activarBtnIniciarTurno(false);
+			vistaEmpleado.mostrarMensaje("No hay clientes por atender. Aguarde.");
+			sistemaIniciado = false;
+			vistaEmpleado.mostrarPantalla("Inicio");
+		}
+		
+	}	
 	
 	private void verSiEsAusente() {
 		clienteAtendido = false;
 		javax.swing.Timer timer = new javax.swing.Timer(3000, e -> { // NO SE SI NO SON MUCHOS SEGUNDOS O POCOS||| Son 0.6 segundos, realmente deberian ser mas
 	        if (!clienteAtendido) {
-	        	mostrarSigCliente(); //aca llama a llamado() y es AHI donde se reinician los intentos
+	        	mostrarSigCliente(); 
 	            vistaEmpleado.mostrarPantalla("Llamada");
 	        }
 	    });
@@ -134,24 +108,17 @@ public class ControladorEmpleado implements ActionListener{
 	}
 	
 	private void rellamarCliente() {
-		if (intentos > 1) {
-			intentos--;
-			vistaEmpleado.setIntentos(intentos);
-			vistaEmpleado.activarBtnIniciarTurno(true);
-		}
-		else if (intentos == 1){
-			intentos = 0;
-			vistaEmpleado.setIntentos(intentos);
-			vistaEmpleado.activarBtnIniciarTurno(true); //creo que tdv hay que dejarlo activo porque tiene oportunidad de presentarsee
+		intentos--;
+		vistaEmpleado.setIntentos(intentos);
+		vistaEmpleado.activarBtnIniciarTurno(true); //O: Sujeto a cambios
+		if (intentos == 0)
 			verSiEsAusente();
-			
-		}
 	}
 
 	private void iniciarTurno() {
         this.empleado.llamarCliente();
         dniActual_emp = this.empleado.getDniActual();
-        //this.pantalla.escucharEmpleado();
+        System.out.println("ControladorEmpleado 122: " + dniActual_emp);
         vistaEmpleado.setDniActual(dniActual_emp);
         vistaEmpleado.mostrarPantalla("Atencion");
         clienteAtendido = true;

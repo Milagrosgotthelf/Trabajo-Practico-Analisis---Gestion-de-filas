@@ -8,15 +8,14 @@ import vista.Ventana_pantalla;
 import vista.Ventana_terminal_registro;
 public class ControladorRegistro implements ActionListener{
 	
-	private static ControladorRegistro instancia = null;
 	private TerminalRegistro terminal = null;
 	private Ventana_terminal_registro ventana_registro;
+	private boolean escuchando=false;
 	
 	public ControladorRegistro(Ventana_terminal_registro reg)  {
 		this.ventana_registro = reg;
 		this.terminal = TerminalRegistro.getInstance();
 		this.ventana_registro.setActionListener(this);
-		this.EscucharConfirmaciones();
 	}
 	
 		
@@ -45,20 +44,26 @@ public class ControladorRegistro implements ActionListener{
 	public void agregarCliente(String dni) {
 		this.terminal.agregarCliente(new Cliente(dni));	
 		this.ventana_registro.mostrarMensajeTemporal("   Usted ha sido registrado con exito.  ",155, 100, 240, 50);	
+		if(!this.escuchando) {
+			this.EscucharConfirmaciones();
+			System.out.println("ControladorRegistro 49: Llamada funcion de escucha");
+		}
 	}
 	
 	private void EscucharConfirmaciones() {
+		this.escuchando = true;
 		Thread hiloLlamada = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				terminal.getReceptor().recibir();
-				System.out.println("ControladorRegistro 55: " + terminal.getReceptor().getMensaje());
+
+				System.out.println("ControladorRegistro 59: " + terminal.getReceptor().getMensaje());
 				terminal.enviarCliente();
-				System.out.println("ControladorRegistro 57");
+				System.out.println("ControladorRegistro 56: Cliente enviado");
 				
 			}
 		});
 		hiloLlamada.start();
+		this.escuchando = false;
 		//O: Puede que haya que llamar a esta funcion de nuevo en otro lado
 	}
 }

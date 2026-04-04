@@ -40,8 +40,6 @@ public class Receptor implements Runnable{
                     this.mensaje = in.readLine();
                     this.notifyAll(); // Avisa a getMensaje() que ya llegó el dato
                 }
-                //this.mensaje = in.readLine();
-                //Thread.sleep(30);
                 in.close();
                 this.soc.close();
             }
@@ -54,15 +52,12 @@ public class Receptor implements Runnable{
     }
 
 	public synchronized String getMensaje() {
-        while (this.mensaje == null) {
-            try {
-                this.wait(); // Se queda "durmiendo" hasta que notifyAll() lo despierte
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        try {
+            this.wait(30); // Se queda "durmiendo" hasta que notifyAll() lo despierte o 30ms
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         String aux = this.mensaje;
-        this.mensaje = null; // Lo reseteamos para la próxima recepción
         return aux;
     }
 
