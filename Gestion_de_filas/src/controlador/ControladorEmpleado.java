@@ -15,9 +15,8 @@ public class ControladorEmpleado implements ActionListener{
 	private String dniActual_emp ="", proxdni ="";
 	private boolean clienteAtendido = false;
 	private boolean sistemaIniciado = false;
-	private ControladorEmpleado()  {
-		this.iniciarEscuchaClientes();
-		
+	
+	private ControladorEmpleado()  {		
 	}
 	
 	public static ControladorEmpleado getInstance() {
@@ -44,7 +43,7 @@ public class ControladorEmpleado implements ActionListener{
 	private void manejarEmpleado(String comando) {
 		if (comando.equals("INICIAR")){
 			sistemaIniciado = true;
-			mostrarSigCliente();
+			pedirSigCliente();
 		}
 		else if (comando.equals("Llamar")) {
 			if (intentos == 3 && this.vistaEmpleado.getProximoDni() != null && this.vistaEmpleado.getProximoDni().equals("-"))
@@ -79,11 +78,9 @@ public class ControladorEmpleado implements ActionListener{
 	 * mostrarSigCliente debe ser llamada unicamente cuando el cliente actual fue atendido o cuando se inicia el sistema
 	 */
 	private void mostrarSigCliente() {
-		String mensaje = this.empleado.llamarCliente();
-		System.out.println("ControladorEmpleado 83: " + mensaje);
-		
-		if (mensaje != null) {
-		    
+		String mensaje = this.dniActual_emp;		
+		if (mensaje != null && !mensaje.isEmpty()) {
+		    System.out.println("No deberia mostrar ventana error: " + mensaje);
 			this.proxdni = mensaje;
 	        vistaEmpleado.setProximoDni(this.proxdni);
 	        intentos = 3;
@@ -93,6 +90,7 @@ public class ControladorEmpleado implements ActionListener{
 	        vistaEmpleado.mostrarPantalla("Llamada");
 	    } 
 		else {
+			System.out.println("Deberia mostrar ventana de error "+ mensaje);
 			this.proxdni = "-";
 			vistaEmpleado.setProximoDni(this.proxdni);
 			vistaEmpleado.setIntentos(0);
@@ -143,24 +141,24 @@ public class ControladorEmpleado implements ActionListener{
 	private void finalizarTurno() {
 	    vistaEmpleado.mostrarPantalla("Llamada");
 	    vistaEmpleado.setDniActual("-");
-	    mostrarSigCliente(); 
+	    pedirSigCliente(); 
 	}
 
-	
-	private void iniciarEscuchaClientes() {
+	private void pedirSigCliente() {
+		System.out.println("ControladorEmpleado 148");
         Thread hiloEscucha = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true) {
-                	dniActual_emp = empleado.llamarCliente();  
-                    
-                    if (dniActual_emp != null) {
-                        System.out.println("ControladorEmpleado: Cliente recibido -> " + dniActual_emp);
-                    }
-                }
+                	dniActual_emp = empleado.llamarCliente(); 
+                	javax.swing.SwingUtilities.invokeLater(new Runnable() {
+    					@Override
+    					public void run() {
+    						mostrarSigCliente(); // Llamamos a la parte visual
+    					}
+    				});
             }
         });
-        hiloEscucha.setDaemon(true); // Para que se cierre si cierras la ventana
+        hiloEscucha.setDaemon(true);
         hiloEscucha.start();
     }
 }

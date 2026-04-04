@@ -15,27 +15,17 @@ public class Empleado {
 		//this.escucharTerminal();
 	}
 	
-	public String llamarCliente() {
-		this.dniActual = this.recibirMensaje();
-		
-		if (dniActual != null)
-			this.emisor_pantalla.enviar(this.dniActual, PUERTO_PANTALLA);
-		return dniActual;
-	}
 	
-	/*
-	 * Funcion recibirMensaje que envia un mensaje a la terminal para que sepa que tiene que enviar
-	 * el primer dni de la cola. Luego se retorna el mensaje enviado por la terminal y usado en llamarCliente()
-	 */
-	public String recibirMensaje() {
-
-		
+	public String llamarCliente() {
 		this.emisor_terminal.enviar("----", Utils.PUERTO_CONFIRMACION);
 		
 		String msj = this.receptor.getMensaje();
-		System.out.println("Empleado 33: " + msj);
+		System.out.println("Empleado 23: " + msj);
+		if (msj != null)
+			this.emisor_pantalla.enviar(msj, PUERTO_PANTALLA);
 		return msj;
 	}
+	
 	
 	public String getDniActual() {
 		return dniActual;

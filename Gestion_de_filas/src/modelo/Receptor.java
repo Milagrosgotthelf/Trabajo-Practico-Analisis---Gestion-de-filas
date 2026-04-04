@@ -33,6 +33,7 @@ public class Receptor implements Runnable {
                  BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()))) {
                 
                 String leido = in.readLine();
+                System.out.println("Receptor 36 run: " + leido);
                 if (leido != null) {
                     synchronized (this) {
                         this.mensaje = leido;
@@ -47,14 +48,17 @@ public class Receptor implements Runnable {
 
     public synchronized String getMensaje() {
         while (this.mensaje == null) {
+        	System.out.println("Receptor 50 getMensaje: " + this.mensaje);
             try {
                 this.wait();
+                //Esto no es lo que esta bloqueando al boton iniciar
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return null;
             }
         }
         String aux = this.mensaje;
+        System.out.println("Receptor 60 getMensaje: "+aux);
         this.mensaje = null; 
         return aux;
     }
