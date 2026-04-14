@@ -16,7 +16,6 @@ public class ControladorRegistro implements ActionListener {
 		this.ventana_registro.setActionListener(this);
 		
 		// Iniciamos la escucha en segundo plano desde el primer momento
-		this.iniciarEscuchaConfirmaciones();
 	}
 	
 	@Override
@@ -40,30 +39,7 @@ public class ControladorRegistro implements ActionListener {
 	}
 	
 	public void agregarCliente(String dni) {
-		this.terminal.agregarCliente(new Cliente(dni));	
+		this.terminal.agregarCliente(dni);	
 		this.ventana_registro.mostrarMensajeTemporal("   Usted ha sido registrado con exito.  ", 155, 100, 240, 50);	
-	}
-	
-	private void iniciarEscuchaConfirmaciones() {
-		Thread hiloLlamada = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				
-				while (true) {
-					try {
-						String msj = terminal.getReceptor().getMensaje(); 
-						
-						if (msj != null) {
-							terminal.enviarCliente();
-							System.out.println("ControladorRegistro 60: Cliente enviado");
-						}
-					} catch (Exception e) {
-						System.out.println(e.getMessage());
-					}
-				}
-			}
-		});
-		hiloLlamada.setDaemon(true); // Permite que el hilo muera automáticamente si cierras la ventana principal
-		hiloLlamada.start();
 	}
 }

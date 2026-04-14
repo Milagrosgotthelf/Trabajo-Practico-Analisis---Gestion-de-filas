@@ -1,4 +1,4 @@
-package modelo;
+package servidor;
 
 import static modelo.Utils.IP;
 

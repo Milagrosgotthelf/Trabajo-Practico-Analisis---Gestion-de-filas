@@ -4,8 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import modelo.*;
 import vista.Ventana_empleado;
-import vista.Ventana_pantalla;
-import vista.Ventana_terminal_registro;
 public class ControladorEmpleado implements ActionListener{
 	
 	private static ControladorEmpleado instancia = null;
@@ -49,12 +47,11 @@ public class ControladorEmpleado implements ActionListener{
 			if (intentos == 3 && this.vistaEmpleado.getProximoDni() != null && this.vistaEmpleado.getProximoDni().equals("-"))
 				mostrarSigCliente();
 			else if (intentos>0) { 
-				this.empleado.enviarCliente_pantalla(this.dniActual_emp);
+				this.empleado.enviarCliente_Server(this.dniActual_emp);
 				rellamarCliente();
 			}
 			else {
 				verSiEsAusente();
-				System.out.println("manejarEmpleado intentos=0");
 				pedirSigCliente();
 				
 			}
@@ -125,25 +122,32 @@ public class ControladorEmpleado implements ActionListener{
 	private void finalizarTurno() {
 	    vistaEmpleado.mostrarPantalla("Llamada");
 	    vistaEmpleado.setDniActual("-");
-	    System.out.println("ControladorEmpleado finalizarTurno");
 	    pedirSigCliente(); 
 	}
 
 	private void pedirSigCliente() {
-        Thread hiloEscucha = new Thread(new Runnable() {
-            @Override
-            public void run() {
-            		ventanaLlamadaDefecto();
-                	dniActual_emp = empleado.llamarCliente(); 
-                	javax.swing.SwingUtilities.invokeLater(new Runnable() {
-    					@Override
-    					public void run() {
-    						mostrarSigCliente(); // Llamamos a la parte visual
-    					}
-    				});
-            }
-        });
-        hiloEscucha.setDaemon(true);
-        hiloEscucha.start();
-    }
+		System.out.println("PedirSigCliente");
+		Thread hiloEscucha = new Thread(new Runnable() {
+	        @Override
+	        public void run() {
+	            while (sistemaIniciado) {
+	                try {
+	                    ventanaLlamadaDefecto();
+	                    dniActual_emp = empleado.getReceptor_server().getMensaje();
+	                    System.out.println("ControladorEmpleado 135 " + dniActual_emp);
+	                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+	                        @Override
+	                        public void run() {
+	                            mostrarSigCliente();
+	                        }
+	                    });
+	                } catch (Exception e) {
+	                    System.out.println("Error en pedirSigCliente: " + e.getMessage());
+	                }
+	            }
+	        }
+	    });
+	    hiloEscucha.setDaemon(true);
+	    hiloEscucha.start();
+	}
 }

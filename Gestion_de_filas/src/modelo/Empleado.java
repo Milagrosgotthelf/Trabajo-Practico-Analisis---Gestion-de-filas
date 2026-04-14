@@ -1,42 +1,41 @@
 package modelo;
 
-import static modelo.Utils.*;
+
+import servidor.Emisor;
+import servidor.Receptor;
 public class Empleado {
-	private Receptor receptor = null;
-	private Emisor emisor_pantalla = null;
-	private Emisor emisor_terminal = null;
 	private String dniActual = null;
 	
+	
+	private Emisor emisor_server = new Emisor();
+	private Receptor receptor_server = new Receptor(Utils.Server_to_Empleado_base);
+	
 	public Empleado() {
-		this.receptor = new Receptor(PUERTO);
-		this.emisor_pantalla = new Emisor();
-		this.emisor_terminal = new Emisor();
 	}
 	
 	
-	public String llamarCliente() {
-		this.emisor_terminal.enviar("----", Utils.PUERTO_CONFIRMACION);
-		return this.receptor.getMensaje();
-	}
-	
-	public void enviarCliente_pantalla(String msj) {
-		if (msj != null)
-			this.emisor_pantalla.enviar(msj, PUERTO_PANTALLA);
+	public void enviarCliente_Server(String msj) {
+		System.out.println("enviarCliente_server");
+		if (msj != null) {
+			System.out.println("Empleado 19: " + msj);
+			this.emisor_server.enviar(msj, Utils.Empleado_to_Server);
+		}
+			
 	}
 	public String getDniActual() {
 		return dniActual;
 	}
 
-	public Emisor getEmisor_pantalla() {
-		return emisor_pantalla;
+	public Emisor getEmisor_server() {
+		return emisor_server;
 	}
 
-	public Emisor getEmisor_terminal() {
-		return emisor_terminal;
+	public Receptor getReceptor_server() {
+		return receptor_server;
 	}
 
 	public Receptor getReceptor() {
-		return receptor;
+		return receptor_server;
 	}
 	
 	

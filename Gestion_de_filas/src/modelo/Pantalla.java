@@ -2,6 +2,8 @@ package modelo;
 
 import java.util.LinkedList;
 
+import servidor.Receptor;
+
 public class Pantalla  {
 	
 	private static Pantalla instancia = null;
@@ -10,7 +12,7 @@ public class Pantalla  {
 	
 	private Pantalla() {
 		this.clientes = new LinkedList<String>();
-		this.receptor = new Receptor(Utils.PUERTO_PANTALLA);
+		this.receptor = new Receptor(Utils.Server_to_Pantalla);
 		//se inicializa con 5 lugares vacios
 		for (int i=0; i< 5; i++) {
 			clientes.add("-");
