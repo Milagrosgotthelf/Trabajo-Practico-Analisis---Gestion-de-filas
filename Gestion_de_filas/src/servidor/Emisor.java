@@ -23,6 +23,7 @@ public class Emisor {
             //Esta linea envia el DNI al receptor
             out.close();
             socket.close();
+            System.out.println("Emisor 26 " + cliente);
             Thread.sleep(30);
         } catch (Exception e) {
         	System.out.println("Excepcion en el emisor: " + puerto + " " + e.getMessage());

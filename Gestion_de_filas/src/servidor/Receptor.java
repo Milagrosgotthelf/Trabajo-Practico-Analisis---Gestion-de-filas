@@ -8,12 +8,13 @@ import java.net.Socket;
 public class Receptor implements Runnable {
     private String mensaje = null;
     private ServerSocket s = null;
-    
+
     public Receptor(String puerto) {
         try {
             this.s = new ServerSocket(Integer.parseInt(puerto));
             System.out.println("Receptor iniciado en el puerto " + puerto);
-            
+
+            // Iniciamos la escucha de red en segundo plano para que siempre reciba
             Thread hiloEscucha = new Thread(this);
             hiloEscucha.setDaemon(true);
             hiloEscucha.start();
@@ -22,20 +23,19 @@ public class Receptor implements Runnable {
             e.printStackTrace();
         }
     }
-    
+
     @Override
     public void run() {
         while (true) {
             try (Socket soc = this.s.accept();
                  BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()))) {
-                
-                String leido;
-                while ((leido = in.readLine()) != null) {  
-                    if (leido != null) {
-                        synchronized (this) {
-                            this.mensaje = leido;
-                            this.notifyAll();  
-                        }
+
+                String leido = in.readLine();
+                System.out.println("Receptor 36 run: " + leido);
+                if (leido != null) {
+                    synchronized (this) {
+                        this.mensaje = leido;
+                        this.notifyAll(); 
                     }
                 }
             } catch (Exception e) {
@@ -46,8 +46,8 @@ public class Receptor implements Runnable {
 
     public synchronized String getMensaje() {
         while (this.mensaje == null) {
+        	System.out.println("Receptor 50 getMensaje: " + this.mensaje);
             try {
-            	System.out.println("Waiting...");
                 this.wait();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -55,7 +55,7 @@ public class Receptor implements Runnable {
             }
         }
         String aux = this.mensaje;
-        System.out.println("Receptor getMensaje " + aux);
+        System.out.println("Receptor 60 getMensaje: "+aux);
         this.mensaje = null; 
         return aux;
     }

@@ -13,12 +13,12 @@ public class Servidor {
 	private Object lock = new Object();
 	
 	private LinkedList<Cliente> clientes= new LinkedList<Cliente>();
-	private boolean clienteEnviado = false;
+	
+	private Thread hiloRec;
 	public Servidor() {
 		System.out.println("Servidor iniciado");
 		this.hiloReg(this);
-		this.hiloRecEmp();
-		this.hiloEmiEmp(this);
+		this.hiloRecEmp(this);
 	}
 
 	
@@ -58,22 +58,31 @@ public class Servidor {
 		hilo.start();
 	}
 	
-	private void hiloRecEmp() {
-		Thread hilo = new Thread(new Runnable() {
+	private void hiloRecEmp(Servidor server) {
+		this.hiloRec = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				while (true) {
 					try {
 						
 						String msj = receptor_empleado.getMensaje(); 
-						System.out.println("Servidor 51 " + msj);
-						emisor_pantalla.enviar(msj, Utils.Server_to_Pantalla);
-						synchronized (lock) {
-	                        clienteEnviado = false;
-	                        lock.notifyAll();  // Notify hiloEmiEmp to send next client
-	                    }
-						
-					} catch (Exception e) {
+						if(msj != null)
+							if("----".equals(msj)) {
+								System.out.println("Servidor 71 if ---- =" + msj);
+								emisor_empleado.enviar(server.getClientes().removeFirst().getDni(), Utils.Server_to_Empleado_base);
+							}
+							else {
+								System.out.println("Sevidor if null != " + msj);
+								emisor_pantalla.enviar(msj, Utils.Server_to_Pantalla);
+								synchronized (lock) {
+			                        lock.notifyAll();  
+		                    }
+						}
+						else {
+							System.out.println("Servidor 82 msj null");
+						}
+					}
+						 catch (Exception e) {
 						System.out.println("Excepcion en hilo receptor del empleado" + e.getMessage());
 					}
 					
@@ -81,30 +90,13 @@ public class Servidor {
 				
 			}
 		});
-		hilo.setDaemon(true); 
-		hilo.start();
+		this.hiloRec.setDaemon(true); 
+		this.hiloRec.start();
+	}
+
+
+	public LinkedList<Cliente> getClientes() {
+		return clientes;
 	}
 	
-	private void hiloEmiEmp(Servidor server) {
-		Thread hilo = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while(true) {
-					try {
-						synchronized (lock) {
-							while (clienteEnviado || server.clientes.isEmpty()) {
-								lock.wait();
-							}
-							emisor_empleado.enviar(server.clientes.removeFirst().getDni(), Utils.Server_to_Empleado_base);
-							clienteEnviado = true;
-						}
-					} catch (Exception e) {
-						System.out.println("Excepcion en hilo emisor del empleado: " + e.getMessage());
-					}
-				}
-			}
-		});
-		hilo.setDaemon(true);
-		hilo.start();
-	}
 }

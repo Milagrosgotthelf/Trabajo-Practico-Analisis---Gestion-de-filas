@@ -13,11 +13,14 @@ public class Empleado {
 	public Empleado() {
 	}
 	
+	public String llamarCliente() {
+		this.emisor_server.enviar("----", Utils.Empleado_to_Server);
+		return this.receptor_server.getMensaje();
+	} 
+	
 	
 	public void enviarCliente_Server(String msj) {
-		System.out.println("enviarCliente_server");
 		if (msj != null) {
-			System.out.println("Empleado 19: " + msj);
 			this.emisor_server.enviar(msj, Utils.Empleado_to_Server);
 		}
 			

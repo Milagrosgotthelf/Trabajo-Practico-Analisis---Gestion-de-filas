@@ -126,15 +126,16 @@ public class ControladorEmpleado implements ActionListener{
 	}
 
 	private void pedirSigCliente() {
-		System.out.println("PedirSigCliente");
 		Thread hiloEscucha = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
-	            while (sistemaIniciado) {
 	                try {
 	                    ventanaLlamadaDefecto();
-	                    dniActual_emp = empleado.getReceptor_server().getMensaje();
+	                    dniActual_emp = empleado.llamarCliente(); 
 	                    System.out.println("ControladorEmpleado 135 " + dniActual_emp);
+	                    if (dniActual_emp == null) {
+	                        System.out.println("No se recibió un nuevo cliente. Volviendo a esperar...");    
+	                    }
 	                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
 	                        @Override
 	                        public void run() {
@@ -144,7 +145,6 @@ public class ControladorEmpleado implements ActionListener{
 	                } catch (Exception e) {
 	                    System.out.println("Error en pedirSigCliente: " + e.getMessage());
 	                }
-	            }
 	        }
 	    });
 	    hiloEscucha.setDaemon(true);
