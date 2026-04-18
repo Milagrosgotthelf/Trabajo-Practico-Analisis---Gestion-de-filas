@@ -367,4 +367,22 @@ public class Ventana_empleado extends JFrame {
 	public void activarBtnLlamar(boolean activar) {
 		this.btn_llamar.setEnabled(activar); //este para que cuando pasemos a la pantalla de llamados sin clientes no se pueda presionar el btn
 	}
+	
+
+	public void notificarLlamada(int intento) {
+		this.mostrarMensaje("Notificando: intento " + intento + " de 3");
+        
+	    try {
+	    	java.net.URL url = getClass().getResource("/sonidos/freesound_community-elevator-ding-at-arenco-tower-dubai-38520.wav");
+	    	//java.net.URL url = getClass().getResource("/sonidos/benkirb-electronic-doorbell-262895.wav");
+	        if (url !=null) {
+	            javax.sound.sampled.AudioInputStream audioStream = javax.sound.sampled.AudioSystem.getAudioInputStream(url);
+	            javax.sound.sampled.Clip clip = javax.sound.sampled.AudioSystem.getClip();
+	            clip.open(audioStream);
+	            clip.start();
+	        }
+	    } catch (Exception e) {
+	        System.err.println("No se pudo reproducir el sonido: " + e.getMessage());
+	    }
+	}
 }

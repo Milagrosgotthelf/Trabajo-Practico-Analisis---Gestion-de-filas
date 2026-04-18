@@ -72,9 +72,8 @@ public class ControladorEmpleado implements ActionListener{
 		if (intentos>0 && !clienteAtendido) {
 			vistaEmpleado.activarBtnLlamar(false);
 			
-			int nroIntento = 4 - intentos; 
-	        vistaEmpleado.mostrarMensaje("Notificando: intento " + nroIntento + " de 3");
-	        this.empleado.enviarCliente_Server(this.dniActual_emp);
+			this.vistaEmpleado.notificarLlamada(4-intentos);
+			this.empleado.enviarCliente_Server(this.dniActual_emp);
 	        rellamarCliente(); //desciento intentos y actualzo la vista
 
 	        //ACA ESTA LO NUEVO PARA VER SI SE PRESENTA
