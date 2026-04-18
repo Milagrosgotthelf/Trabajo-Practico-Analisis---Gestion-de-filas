@@ -46,7 +46,7 @@ public class ControladorEmpleado implements ActionListener{
 		else if (comando.equals("Llamar")) {
 			if (intentos == 3 && this.vistaEmpleado.getProximoDni() != null && this.vistaEmpleado.getProximoDni().equals("-"))
 				mostrarSigCliente();
-			else if (intentos>0) { 
+			/*else if (intentos>0) { 
 				this.empleado.enviarCliente_Server(this.dniActual_emp);
 				rellamarCliente();
 			}
@@ -54,7 +54,9 @@ public class ControladorEmpleado implements ActionListener{
 				verSiEsAusente();
 				pedirSigCliente();
 				
-			}
+			}*/
+			else
+				cicloLlamada();
 		}
 		else if (comando.equals("Iniciar turno")) {
 			iniciarTurno();
@@ -65,10 +67,40 @@ public class ControladorEmpleado implements ActionListener{
 	}
 	
 	
-	
+	private void cicloLlamada() {
+		// TODO Auto-generated method stub
+		if (intentos>0 && !clienteAtendido) {
+			vistaEmpleado.activarBtnLlamar(false);
+			
+			int nroIntento = 4 - intentos; 
+	        vistaEmpleado.mostrarMensaje("Notificando: intento " + nroIntento + " de 3");
+	        this.empleado.enviarCliente_Server(this.dniActual_emp);
+	        rellamarCliente(); //desciento intentos y actualzo la vista
+
+	        //ACA ESTA LO NUEVO PARA VER SI SE PRESENTA
+	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
+	            if (!clienteAtendido) {
+	                cicloLlamada(); 
+	            }
+	        });
+	        timerReintento.setRepeats(false);
+	        timerReintento.start();
+	    } else if (intentos<=0 && !clienteAtendido) {
+	        //no mas intentos 
+	    	vistaEmpleado.mostrarMensaje("Cliente ausente.");
+	    	vistaEmpleado.activarBtnLlamar(true);
+	    	pedirSigCliente();
+	    }
+	}
+
 	private void mostrarSigCliente() {
 			this.proxdni = dniActual_emp;
 	        vistaEmpleado.setProximoDni(this.proxdni);
+	        //VER> como ahora hay mas de un puesto de atencion y el proximo en la fila no es necesariamente el dni que va a 
+	        //atender el empleado tal vez deberiamos tener un label para Estado: hay o no clientes en la cola y abajo otro label 
+	        // que sea cliente llamado que empieza con "-" y toma el valor de dniActual cuando se presiona llamar por primera vez
+	        /*if (!proxdni.equals("-"))
+	        	vistaEmpleado.setProximoDni("Hay clientes esperando...");*/
 	        intentos = 3;
 	        vistaEmpleado.setIntentos(intentos);
 	        vistaEmpleado.activarBtnLlamar(true);
@@ -78,8 +110,11 @@ public class ControladorEmpleado implements ActionListener{
 	private void ventanaLlamadaDefecto() {
 			this.proxdni = "-";
 			vistaEmpleado.setProximoDni(this.proxdni);
+			//vistaEmpleado.setProximoDni("No hay clientes por atender");
 			intentos = 0;
 			vistaEmpleado.setIntentos(intentos);
+			
+			
 			vistaEmpleado.activarBtnLlamar(true);
 			vistaEmpleado.activarBtnIniciarTurno(false);
 			vistaEmpleado.mostrarMensaje("Aguarde...");

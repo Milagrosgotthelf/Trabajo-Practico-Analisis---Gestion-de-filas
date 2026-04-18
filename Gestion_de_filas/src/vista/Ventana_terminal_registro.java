@@ -271,8 +271,6 @@ public class Ventana_terminal_registro extends JFrame  {
 		this.lblMensaje.setBounds(x,y,ancho,alto);
 		this.lblMensaje.setForeground(Color.WHITE);
 		this.lblMensaje.setBackground(new Color(0,48,71));
-		//aca tuve que buscar como poner timer je, 
-		//no me parecia poner los carteles donde se tiene que presionar aceptar para salir asique lo hice asi
 		javax.swing.Timer timer = new javax.swing.Timer(2500, e -> {
 	        lblMensaje.setVisible(false);
 	    });
@@ -281,14 +279,48 @@ public class Ventana_terminal_registro extends JFrame  {
 		
 	}
 
+	public void habilitarTeclado(boolean hab) {
+		Button_0.setEnabled(hab);
+		Button_1.setEnabled(hab);
+		Button_2.setEnabled(hab);
+		Button_3.setEnabled(hab);
+		Button_4.setEnabled(hab);
+		Button_5.setEnabled(hab);
+		Button_6.setEnabled(hab);
+		Button_7.setEnabled(hab);
+		Button_8.setEnabled(hab);
+		Button_9.setEnabled(hab);
+	}
+	
 	public void validarLongitud() {
 		int longitud = this.getDni().length();
 		if (longitud >=7 && longitud<=8) {
+			habilitarTeclado(true);
 			this.habilitarAceptar(true);
-		} else {
+			
+			if (longitud == 8) {
+				this.textFieldDNI.setEditable(false);
+				habilitarTeclado(false);
+			}
+			
+		} else{
 			this.habilitarAceptar(false);
-		
 		}
+		
+	}
+
+	public int confirmarDNI(String dniActual) {
+		return JOptionPane.showConfirmDialog(
+				this,
+		        "¿El DNI ingresado " + dniActual + " es correcto?",
+		        "Confirmación de DNI",
+		        JOptionPane.YES_NO_OPTION
+		    );
+	}
+
+	public void resetearPantalla() {
+		habilitarTeclado(true);
+		textFieldDNI.setEditable(true);
 		
 	}
 }
