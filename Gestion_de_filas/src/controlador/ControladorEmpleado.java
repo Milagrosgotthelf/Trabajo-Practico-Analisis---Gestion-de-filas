@@ -35,15 +35,7 @@ public class ControladorEmpleado implements ActionListener{
 		else if (comando.equals("Llamar")) {
 			if (intentos == 3 && this.vistaEmpleado.getProximoDni() != null && this.vistaEmpleado.getProximoDni().equals("-"))
 				mostrarSigCliente();
-			/*else if (intentos>0) { 
-				this.empleado.enviarCliente_Server(this.dniActual_emp);
-				rellamarCliente();
-			}
-			else {
-				verSiEsAusente();
-				pedirSigCliente();
-				
-			}*/
+			
 			else
 				cicloLlamada();
 		}
@@ -57,7 +49,6 @@ public class ControladorEmpleado implements ActionListener{
 	
 	
 	private void cicloLlamada() {
-		// TODO Auto-generated method stub
 		if (intentos>0 && !clienteAtendido) {
 			vistaEmpleado.activarBtnLlamar(false);
 			
@@ -66,7 +57,6 @@ public class ControladorEmpleado implements ActionListener{
 	        rellamarCliente(); //desciento intentos y actualzo la vista
 
 	        //ACA ESTA LO NUEVO PARA VER SI SE PRESENTA
-	        //MILI: no se si debería estar en el controlador o deberia encargarse el server
 	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
 	            if (!clienteAtendido) {
 	                cicloLlamada(); 
@@ -154,12 +144,12 @@ public class ControladorEmpleado implements ActionListener{
 	        @Override
 	        public void run() {
 	                try {
-	                    ventanaLlamadaDefecto();
-	                    dniActual_emp = empleado.llamarCliente(); 
-	                    System.out.println("ControladorEmpleado 135 " + dniActual_emp);
-	                    if (dniActual_emp == null) {
-	                        System.out.println("No se recibió un nuevo cliente. Volviendo a esperar...");    
-	                    }
+	                	ventanaLlamadaDefecto();
+	                	dniActual_emp = empleado.llamarCliente(); 
+	                	System.out.println("ControladorEmpleado 135 " + dniActual_emp);
+	                	if (dniActual_emp == null) {
+	                		System.out.println("No se recibió un nuevo cliente. Volviendo a esperar...");    
+	                	}
 	                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
 	                        @Override
 	                        public void run() {
