@@ -6,23 +6,18 @@ import servidor.Receptor;
 
 public class TerminalRegistro {
 	Emisor emisor = new Emisor();
-	Receptor receptor = new Receptor(Utils.PUERTO_CONFIRMACION);
+	Receptor receptor = null;
+	private int numTerminal;
 	
 	private static TerminalRegistro instancia = null;
 	
-	private TerminalRegistro() {
-		
-	}
-	
-	public static TerminalRegistro getInstance() {
-		if(instancia == null) {
-			instancia = new TerminalRegistro();
-		}
-		return instancia;
+	public TerminalRegistro(int id) {
+		this.numTerminal = id;
+		this.receptor =  new Receptor(Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + this.numTerminal));
 	}
 	
 	public boolean agregarCliente(String cliente){
-		emisor.enviar(cliente, Utils.Registro_to_Server);
+		emisor.enviar(cliente, Integer.toString(Integer.parseInt(Utils.Registro_to_Server) + this.numTerminal));
 		System.out.println("Terminal: Esperando respuesta del servidor...");
 		
 		String respuesta = receptor.getMensaje();

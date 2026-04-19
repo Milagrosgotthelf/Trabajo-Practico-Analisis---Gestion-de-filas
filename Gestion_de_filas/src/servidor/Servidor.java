@@ -1,12 +1,16 @@
 package servidor;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import modelo.Cliente;
 import modelo.Utils;
 public class Servidor {
-	private Receptor receptor_registro = new Receptor(Utils.Registro_to_Server); //
-	private Receptor receptor_empleado = new Receptor(Utils.Empleado_to_Server);
+	private ArrayList<Receptor> receptoresReg = new ArrayList<Receptor>();
+	private ArrayList<Receptor> receptoresEmp = new ArrayList<Receptor>();
+	
+	//private Receptor receptor_registro = new Receptor(Utils.Registro_to_Server); //
+	//private Receptor receptor_empleado = new Receptor(Utils.Empleado_to_Server);
 	
 	private Emisor emisor_empleado = new Emisor();
 	private Emisor emisor_pantalla = new Emisor();
@@ -19,8 +23,17 @@ public class Servidor {
 	private Thread hiloRec;
 	public Servidor() {
 		System.out.println("Servidor iniciado");
-		this.hiloReg(this);
-		this.hiloRecEmp(this);
+		for (int i=0; i<Utils.cantidad_Puestos_Empleados;i++) {
+			this.agregarReceptoresEmp(i+1);
+			this.hiloRecEmp(this, i);
+		}
+		for (int i=0; i<Utils.cantidad_Terminales_Registro;i++) {
+			this.agregarReceptoresReg(i+1);
+			this.hiloReg(this, i);
+		}
+		
+		
+		
 	}
 
 	
@@ -28,24 +41,32 @@ public class Servidor {
 		clientes.addLast(cliente);
 	}
 	
+	public void agregarReceptoresReg(int id) {
+		this.receptoresReg.add(new Receptor(Utils.Registro_to_Server + id));
+	}
+	
+	public void agregarReceptoresEmp(int id) {
+		this.receptoresEmp.add(new Receptor(Utils.Empleado_to_Server + id));
+	}
+	
 	/*
 	 * Crea un hilo para la comunicación registro-empleado
 	 */
-	private void hiloReg(Servidor server) {
+	private void hiloReg(Servidor server, int id) {
 	    Thread hilo = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
 	            String msjAnterior = "";
 	            while (true) {
 	                try {
-	                    String msj = receptor_registro.getMensaje(); 
+	                    String msj = receptoresReg.get(id).getMensaje(); 
 	                    
 	                    if (msj != null) {
 	                        
 	                        if (!server.existeCliente(msj)) {
 	                            System.out.println("Servidor: Registrando nuevo cliente: " + msj);
 	                            server.clientes.addLast(new Cliente(msj));
-	                            emisor_registro.enviar("OK", Utils.PUERTO_CONFIRMACION);
+	                            emisor_registro.enviar("OK", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + id+1));
 	                            //con esto avisamos que hay un nuevo cliente (asi actualiza cuando vuelve a haber clientes dsp de estar vacia)
 	                            synchronized (lock) {
 	                                lock.notifyAll(); 
@@ -54,7 +75,7 @@ public class Servidor {
 	                        }
 	                        else {
 	                            System.out.println("Servidor: DNI REPETIDO detectado: " + msj);
-	                            emisor_registro.enviar("REPETIDO", Utils.PUERTO_CONFIRMACION);
+	                            emisor_registro.enviar("REPETIDO", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + id+1));
 	                        }
 	                        
 	                        msjAnterior = msj;
@@ -80,14 +101,14 @@ public class Servidor {
 	}
 
 
-	private void hiloRecEmp(Servidor server) {
+	private void hiloRecEmp(Servidor server, int id) {
 		this.hiloRec = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				while (true) {
 					try {
 						
-						String msj = receptor_empleado.getMensaje(); 
+						String msj = receptoresEmp.get(id).getMensaje(); 
 						if(msj != null)
 							if("----".equals(msj)) {
 								synchronized (lock) {
@@ -97,11 +118,11 @@ public class Servidor {
 		                        }
 								
 								System.out.println("Servidor 71 if ---- =" + msj);
-								emisor_empleado.enviar(server.getClientes().removeFirst().getDni(), Utils.Server_to_Empleado_base);
+								emisor_empleado.enviar(server.getClientes().removeFirst().getDni(), Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + id+1));
 							}
 							else {
 								System.out.println("Sevidor if null != " + msj);
-								emisor_pantalla.enviar(msj, Utils.Server_to_Pantalla);
+								emisor_pantalla.enviar(msj, Utils.Server_to_Pantalla); //HABRIA MANDAR ID PARA PONR NUM DE PUESTO
 								/*synchronized (lock) {
 			                        lock.notifyAll();  
 								}*/

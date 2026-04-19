@@ -43,6 +43,7 @@ public class Ventana_terminal_registro extends JFrame  {
 	private JButton Button_aceptar;
 	private ActionListener actionListener;
 	private JLabel lblMensaje; 
+	private int numTerminal;
 
 	/**
 	 * Launch the application.
@@ -51,7 +52,7 @@ public class Ventana_terminal_registro extends JFrame  {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Ventana_terminal_registro frame = new Ventana_terminal_registro();
+					Ventana_terminal_registro frame = new Ventana_terminal_registro(1);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -63,7 +64,8 @@ public class Ventana_terminal_registro extends JFrame  {
 	/**
 	 * Create the frame.
 	 */
-	public Ventana_terminal_registro() {
+	public Ventana_terminal_registro(int id) {
+		this.numTerminal = id;
 		Color colorAtras;
 		Color colorTeclas;
 		setTitle("Terminal de Registro");

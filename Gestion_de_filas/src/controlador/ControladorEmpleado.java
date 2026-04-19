@@ -14,18 +14,10 @@ public class ControladorEmpleado implements ActionListener{
 	private boolean clienteAtendido = false;
 	private boolean sistemaIniciado = false;
 	
-	private ControladorEmpleado()  {		
+	public ControladorEmpleado(int id)  {	
+		this.empleado = new Empleado(id);
 	}
 	
-	public static ControladorEmpleado getInstance() {
-		if(instancia == null) {
-			instancia = new ControladorEmpleado();
-			instancia.empleado = new Empleado();
-		}
-		return instancia;	
-	}
-	
-
 	public void setVistas(Ventana_empleado emp) {
 	    this.vistaEmpleado = emp;
 	    this.vistaEmpleado.setActionListener(this);

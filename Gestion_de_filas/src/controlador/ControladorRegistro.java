@@ -13,10 +13,12 @@ public class ControladorRegistro implements ActionListener {
 	
 	private TerminalRegistro terminal = null;
 	private Ventana_terminal_registro ventana_registro;
+	private int numTerminal;
 	
-	public ControladorRegistro(Ventana_terminal_registro reg) {
+	public ControladorRegistro(int id, Ventana_terminal_registro reg) {
+		this.numTerminal = id;
 		this.ventana_registro = reg;
-		this.terminal = TerminalRegistro.getInstance();
+		this.terminal = new TerminalRegistro(this.numTerminal);
 		this.ventana_registro.setActionListener(this);
 		
 		// Iniciamos la escucha en segundo plano desde el primer momento

@@ -66,6 +66,7 @@ public class Ventana_empleado extends JFrame {
 	private JLabel lblNumProxDNI;
 	private JLabel lblNumIntentosPend;
 	private JLabel lblNumDNIActual;
+	private int numPuesto;
 
 
 	/**
@@ -75,7 +76,7 @@ public class Ventana_empleado extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Ventana_empleado frame = new Ventana_empleado();
+					Ventana_empleado frame = new Ventana_empleado(1);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -87,9 +88,10 @@ public class Ventana_empleado extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Ventana_empleado() {
+	public Ventana_empleado(int numPuesto) {
+		this.numPuesto = numPuesto;
 		Color color;
-		setTitle("TERMINAL DE ATENCIÓN");
+		setTitle("TERMINAL DE ATENCIÓN - PUESTO "+this.numPuesto);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setMinimumSize(new Dimension(550,300));
 		setBounds(100, 100, 450, 300);
@@ -324,13 +326,13 @@ public class Ventana_empleado extends JFrame {
 		
 		switch (nombre) {
         case "Inicio":
-            setTitle("Inicio");
+            setTitle("Inicio - Puesto "+ this.numPuesto);
             break;
         case "Llamada":
-            setTitle("Llamado de clientes");
+            setTitle("Llamado de clientes - Puesto "+ this.numPuesto);
             break;
         case "Atencion":
-            setTitle("Atención al cliente");
+            setTitle("Atención al cliente - Puesto "+ this.numPuesto);
             break;
 		}
 	}
