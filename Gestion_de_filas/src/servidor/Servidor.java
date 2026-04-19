@@ -17,10 +17,9 @@ public class Servidor {
 	private Emisor emisor_registro = new Emisor();
 	
 	private Object lock = new Object();
-	
 	private LinkedList<Cliente> clientes= new LinkedList<Cliente>();
-	
 	private Thread hiloRec;
+	
 	public Servidor() {
 		System.out.println("Servidor iniciado");
 		for (int i=0; i<Utils.cantidad_Puestos_Empleados;i++) {
@@ -31,8 +30,6 @@ public class Servidor {
 			this.agregarReceptoresReg(i+1);
 			this.hiloReg(this, i);
 		}
-		
-		
 		
 	}
 
@@ -122,7 +119,7 @@ public class Servidor {
 							}
 							else {
 								System.out.println("Sevidor if null != " + msj);
-								emisor_pantalla.enviar(msj, Utils.Server_to_Pantalla); //HABRIA MANDAR ID PARA PONR NUM DE PUESTO
+								emisor_pantalla.enviar(msj+"/"+Integer.toString(id), Utils.Server_to_Pantalla); //HABRIA MANDAR ID PARA PONR NUM DE PUESTO
 								/*synchronized (lock) {
 			                        lock.notifyAll();  
 								}*/
