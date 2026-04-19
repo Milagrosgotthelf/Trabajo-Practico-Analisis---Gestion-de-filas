@@ -6,13 +6,11 @@ import modelo.*;
 import vista.Ventana_empleado;
 public class ControladorEmpleado implements ActionListener{
 	
-	private static ControladorEmpleado instancia = null;
 	private Empleado empleado = null;
 	private Ventana_empleado vistaEmpleado;
 	private int intentos =3;
 	private String dniActual_emp ="", proxdni ="";
 	private boolean clienteAtendido = false;
-	private boolean sistemaIniciado = false;
 	
 	public ControladorEmpleado(int id)  {	
 		this.empleado = new Empleado(id);
@@ -32,7 +30,6 @@ public class ControladorEmpleado implements ActionListener{
 	
 	private void manejarEmpleado(String comando) {
 		if (comando.equals("INICIAR")){
-			sistemaIniciado = true;
 			pedirSigCliente();
 		}
 		else if (comando.equals("Llamar")) {
@@ -111,7 +108,6 @@ public class ControladorEmpleado implements ActionListener{
 			vistaEmpleado.activarBtnLlamar(true);
 			vistaEmpleado.activarBtnIniciarTurno(false);
 			vistaEmpleado.mostrarMensaje("Aguarde...");
-			sistemaIniciado = false;
 			vistaEmpleado.mostrarPantalla("Llamada");	
 		}
 	

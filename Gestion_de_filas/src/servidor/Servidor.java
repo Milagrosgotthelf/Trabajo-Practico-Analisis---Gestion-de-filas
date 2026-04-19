@@ -39,11 +39,11 @@ public class Servidor {
 	}
 	
 	public void agregarReceptoresReg(int id) {
-		this.receptoresReg.add(new Receptor(Utils.Registro_to_Server + id));
+		this.receptoresReg.add(new Receptor(Integer.toString(Integer.parseInt(Utils.Registro_to_Server) + id)));
 	}
 	
 	public void agregarReceptoresEmp(int id) {
-		this.receptoresEmp.add(new Receptor(Utils.Empleado_to_Server + id));
+		this.receptoresEmp.add(new Receptor(Integer.toString(Integer.parseInt(Utils.Empleado_to_Server) + id)));
 	}
 	
 	/*
@@ -119,7 +119,7 @@ public class Servidor {
 							}
 							else {
 								System.out.println("Sevidor if null != " + msj);
-								emisor_pantalla.enviar(msj+"/"+Integer.toString(id), Utils.Server_to_Pantalla); //HABRIA MANDAR ID PARA PONR NUM DE PUESTO
+								emisor_pantalla.enviar(msj+"/"+Integer.toString(id+1), Utils.Server_to_Pantalla); //HABRIA MANDAR ID PARA PONR NUM DE PUESTO
 								/*synchronized (lock) {
 			                        lock.notifyAll();  
 								}*/

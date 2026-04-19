@@ -178,16 +178,19 @@ public class Ventana_pantalla extends JFrame {
 	}
 	
 	public String getDniMsj(String msj) {
+		System.out.println("VENTANA PANTALLA 181 " +msj);
 		String dni = "";
 		int i=0;
 		while(i<msj.length() && msj.charAt(i)!= '/') {
 			dni += msj.charAt(i);
 			i++;
 		}
+		System.out.println("VENTANA PANTALLA 188 " +dni);
 		return dni;
 	}
 	
 	public String getPuestoMsj(String msj) {
+		System.out.println("VENTANA PANTALLA 193 " +msj);
 		String puesto = "";
 		int i=0;
 		while(i<msj.length() && msj.charAt(i)!= '/') {
@@ -198,20 +201,21 @@ public class Ventana_pantalla extends JFrame {
 			puesto += msj.charAt(i);
 			i++;
 		}
+		System.out.println("VENTANA PANTALLA 204 " +puesto);
 		return puesto;
 	}
 	
-	public void actualizarTurnos(LinkedList<String> turnos) {
+	public void actualizarTurnos(LinkedList<String> turnos) {	
 		this.lbl_DNI1.setText("  DNI: " + getDniMsj(turnos.get(0)));
 		this.lbl_PUESTO1.setText("Puesto: "+ getPuestoMsj(turnos.get(0)));
 		this.lbl_DNI2.setText("  DNI: " + getDniMsj(turnos.get(1)));
-		this.lbl_PUESTO1.setText("Puesto: "+ getPuestoMsj(turnos.get(1)));
+		this.lbl_PUESTO2.setText("Puesto: "+ getPuestoMsj(turnos.get(1)));
 		this.lbl_DNI3.setText("  DNI: " + getDniMsj(turnos.get(2)));
-		this.lbl_PUESTO1.setText("Puesto: "+ getPuestoMsj(turnos.get(2)));
+		this.lbl_PUESTO3.setText("Puesto: "+ getPuestoMsj(turnos.get(2)));
 		this.lbl_DNI4.setText("  DNI: " + getDniMsj(turnos.get(3)));
-		this.lbl_PUESTO1.setText("Puesto: "+ getPuestoMsj(turnos.get(3)));
+		this.lbl_PUESTO4.setText("Puesto: "+ getPuestoMsj(turnos.get(3)));
 		this.lbl_DNI5.setText("  DNI: " + getDniMsj(turnos.get(4)));
-		this.lbl_PUESTO1.setText("Puesto: "+ getPuestoMsj(turnos.get(4)));
+		this.lbl_PUESTO5.setText("Puesto: "+ getPuestoMsj(turnos.get(4)));
 	}
 
 }

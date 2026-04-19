@@ -30,12 +30,14 @@ public class Pantalla  {
 	}
 	
 	public void escucharEmpleado() {
+		
 	    String mensajeRecibido = this.receptor.getMensaje();
-	    
+	    System.out.println(">>>>PANTALLA 35 RECIBE: "+mensajeRecibido);
 	    if (mensajeRecibido != null) {
 	        if (!this.clientes.isEmpty() && mensajeRecibido.equals(this.clientes.getFirst())) {
 	            return;
 	        }
+	        this.clientes.remove(mensajeRecibido);
 	        this.clientes.addFirst(mensajeRecibido);
 	        
 	        if (this.clientes.size() > 5) {
