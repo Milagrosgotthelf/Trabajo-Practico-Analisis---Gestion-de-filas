@@ -77,6 +77,7 @@ public class ControladorEmpleado implements ActionListener{
 	        rellamarCliente(); //desciento intentos y actualzo la vista
 
 	        //ACA ESTA LO NUEVO PARA VER SI SE PRESENTA
+	        //MILI: no se si debería estar en el controlador o deberia encargarse el server
 	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
 	            if (!clienteAtendido) {
 	                cicloLlamada(); 
@@ -108,6 +109,7 @@ public class ControladorEmpleado implements ActionListener{
 	    } 
 	private void ventanaLlamadaDefecto() {
 			this.proxdni = "-";
+			this.clienteAtendido = false;
 			vistaEmpleado.setProximoDni(this.proxdni);
 			//vistaEmpleado.setProximoDni("No hay clientes por atender");
 			intentos = 0;
