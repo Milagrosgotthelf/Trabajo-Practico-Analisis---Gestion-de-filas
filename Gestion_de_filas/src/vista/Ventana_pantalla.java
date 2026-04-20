@@ -60,7 +60,7 @@ public class Ventana_pantalla extends JFrame {
 	public Ventana_pantalla() {
 		Color color = Color.decode("#2683BF");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 600, 300);
 		this.contentPane = new JPanel();
 		this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(this.contentPane);
@@ -176,19 +176,16 @@ public class Ventana_pantalla extends JFrame {
 	}
 	
 	public String getDniMsj(String msj) {
-		System.out.println("VENTANA PANTALLA 181 " +msj);
 		String dni = "";
 		int i=0;
 		while(i<msj.length() && msj.charAt(i)!= '/') {
 			dni += msj.charAt(i);
 			i++;
 		}
-		System.out.println("VENTANA PANTALLA 188 " +dni);
 		return dni;
 	}
 	
 	public String getPuestoMsj(String msj) {
-		System.out.println("VENTANA PANTALLA 193 " +msj);
 		String puesto = "";
 		int i=0;
 		while(i<msj.length() && msj.charAt(i)!= '/') {
@@ -199,7 +196,6 @@ public class Ventana_pantalla extends JFrame {
 			puesto += msj.charAt(i);
 			i++;
 		}
-		System.out.println("VENTANA PANTALLA 204 " +puesto);
 		return puesto;
 	}
 	
