@@ -36,7 +36,7 @@ public class Ventana_pantalla extends JFrame {
 	private JLabel lbl_PUESTO3;
 	private JLabel lbl_PUESTO4;
 	private JLabel lbl_PUESTO5;
-	private JLabel lbl_PUESTO1 = new JLabel("Puesto:      ");
+	private JLabel lbl_PUESTO1 = new JLabel("Puesto:");
 
 	/**
 	 * Launch the application.
@@ -74,17 +74,15 @@ public class Ventana_pantalla extends JFrame {
 		this.panel_dni1 = new JPanel();
 		panel_dni1.setBackground(new Color(0, 160, 183));
 		this.panel.add(this.panel_dni1);
-		panel_dni1.setLayout(null);
+		this.panel_dni1.setLayout(new GridLayout(0, 2, 0, 0));
 		
 		this.lbl_DNI1 = new JLabel(" DNI:");
-		lbl_DNI1.setBounds(0, 0, 254, 42);
 		lbl_DNI1.setBackground(new Color(38, 131, 191));
 		lbl_DNI1.setHorizontalAlignment(SwingConstants.LEFT);
 		this.panel_dni1.add(this.lbl_DNI1);
 		this.lbl_DNI1.setFont(new Font("SansSerif", Font.BOLD, 32));
 		this.lbl_DNI1.setForeground(Color.WHITE);
-		lbl_PUESTO1.setBounds(257, 0, 169, 42);
-		lbl_PUESTO1.setHorizontalAlignment(SwingConstants.RIGHT);
+		lbl_PUESTO1.setHorizontalAlignment(SwingConstants.CENTER);
 		lbl_PUESTO1.setFont(new Font("SansSerif", Font.BOLD, 32));
 		lbl_PUESTO1.setForeground(new Color(255, 255, 255));
 		panel_dni1.add(lbl_PUESTO1);
