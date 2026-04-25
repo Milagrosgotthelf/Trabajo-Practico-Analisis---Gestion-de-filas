@@ -27,6 +27,7 @@ public class Emisor {
             Thread.sleep(30);
         } catch (Exception e) {
         	System.out.println("Excepcion en el emisor: " + puerto + " " + e.getMessage());
+        	e.printStackTrace();
             //e.printStackTrace(); 
         }
 		

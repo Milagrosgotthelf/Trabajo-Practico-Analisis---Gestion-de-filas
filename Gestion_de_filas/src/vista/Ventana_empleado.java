@@ -10,6 +10,8 @@ import java.awt.CardLayout;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.JLabel;
 import javax.swing.JButton;
@@ -26,8 +28,9 @@ import java.awt.FlowLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JTextField;
 
-public class Ventana_empleado extends JFrame {
+public class Ventana_empleado extends JFrame implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -67,6 +70,9 @@ public class Ventana_empleado extends JFrame {
 	private JLabel lblNumIntentosPend;
 	private JLabel lblNumDNIActual;
 	private int numPuesto;
+	private JLabel lblingrese;
+	private JTextField textField_numeroPuesto;
+	private JPanel panel_4;
 
 
 	/**
@@ -76,7 +82,7 @@ public class Ventana_empleado extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Ventana_empleado frame = new Ventana_empleado(1);
+					Ventana_empleado frame = new Ventana_empleado();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -88,10 +94,9 @@ public class Ventana_empleado extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Ventana_empleado(int numPuesto) {
-		this.numPuesto = numPuesto;
+	public Ventana_empleado() {
 		Color color;
-		setTitle("TERMINAL DE ATENCIÓN - PUESTO "+this.numPuesto);
+		setTitle("TERMINAL DE ATENCIÓN");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setMinimumSize(new Dimension(550,300));
 		setBounds(100, 100, 450, 300);
@@ -140,12 +145,30 @@ public class Ventana_empleado extends JFrame {
 		this.panel_8 = new JPanel();
 		panel_8.setBackground(new Color(229, 245, 255));
 		this.panel_central.add(this.panel_8);
+		this.panel_8.setLayout(new GridLayout(2, 1, 0, 0));
 		
+		this.lblingrese = new JLabel("Ingrese su número de puesto");
+		this.lblingrese.setForeground(new Color(0, 64, 128));
+		this.lblingrese.setFont(new Font("SansSerif", Font.BOLD, 12));
+		this.lblingrese.setHorizontalAlignment(SwingConstants.CENTER);
+		this.panel_8.add(this.lblingrese);
+		
+		this.panel_4 = new JPanel();
+		this.panel_4.setBackground(new Color(229, 245, 255));
+		this.panel_8.add(this.panel_4);
+		
+		this.textField_numeroPuesto = new JTextField();
+		this.panel_4.add(this.textField_numeroPuesto);
+		this.textField_numeroPuesto.setColumns(2);
+		this.textField_numeroPuesto.addKeyListener(this);
 		this.panel_6 = new JPanel();
+		FlowLayout flowLayout_4 = (FlowLayout) this.panel_6.getLayout();
+		flowLayout_4.setVgap(10);
 		panel_6.setBackground(new Color(229, 245, 255));
 		this.panel_central.add(this.panel_6);
 		
 		this.btn_iniciar = new JButton("INICIAR");
+		this.btn_iniciar.setEnabled(false);
 		//damos color
 		this.btn_iniciar.setFont(new Font("SansSerif", Font.BOLD, 15));
 		this.btn_iniciar.setBackground(new Color(0, 160, 183));
@@ -313,6 +336,10 @@ public class Ventana_empleado extends JFrame {
 
 	}
 
+	public String getTextField_numeroPuesto() {
+		return textField_numeroPuesto.getText();
+	}
+
 	public void setActionListener(ActionListener actionListener) {
 		this.btn_iniciar.addActionListener(actionListener);
 		this.btn_llamar.addActionListener(actionListener);
@@ -387,4 +414,40 @@ public class Ventana_empleado extends JFrame {
 	        System.err.println("No se pudo reproducir el sonido: " + e.getMessage());
 	    }
 	}
+
+	public void activariniciar() {
+		this.btn_iniciar.setEnabled(true);
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		
+		
+	}
+
+	
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		char c = e.getKeyChar();
+	    
+	    // Si no es un dígito, consumimos el evento (bloqueamos la entrada)
+	    if (!Character.isDigit(c)) {
+	        e.consume(); 
+	    }
+	}
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+		boolean valido = false;
+		
+		try {
+				if(!this.textField_numeroPuesto.getText().isEmpty() ) {
+					this.numPuesto = Integer.parseInt(this.textField_numeroPuesto.getText());
+					valido = true;
+				}
+				
+		} catch (NumberFormatException e) {
+		}
+		this.btn_iniciar.setEnabled(valido);
+		}	
 }

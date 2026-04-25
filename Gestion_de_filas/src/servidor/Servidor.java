@@ -19,6 +19,8 @@ public class Servidor {
 	private Object lock = new Object();
 	private LinkedList<Cliente> clientes= new LinkedList<Cliente>();
 	private Thread hiloRec;
+	private ArrayList<String> listaEmpleados = new ArrayList<String>();
+	
 	
 	public Servidor() {
 		System.out.println("Servidor iniciado");
@@ -60,7 +62,7 @@ public class Servidor {
 	                    
 	                    if (msj != null) {
 	                        
-	                        if (!server.existeCliente(msj)) {
+	                        if (msj.length() > 1 && !server.existeCliente(msj)) {
 	                            System.out.println("Servidor: Registrando nuevo cliente: " + msj);
 	                            server.clientes.addLast(new Cliente(msj));
 	                            emisor_registro.enviar("OK", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + id+1));
@@ -69,6 +71,11 @@ public class Servidor {
 	                                lock.notifyAll(); 
 	                            }
 	                            
+	                        }
+	                        else if (msj.length() == 1 && !server.existeEmpleado(msj)) {
+	                        	System.out.println("Servidor msj = " + msj);
+	                        	listaEmpleados.add(msj);
+	                        	
 	                        }
 	                        else {
 	                            System.out.println("Servidor: DNI REPETIDO detectado: " + msj);
@@ -118,8 +125,7 @@ public class Servidor {
 								emisor_empleado.enviar(server.getClientes().removeFirst().getDni(), Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + id+1));
 							}
 							else {
-								System.out.println("Sevidor if null != " + msj);
-								emisor_pantalla.enviar(msj+"/"+Integer.toString(id+1), Utils.Server_to_Pantalla); //HABRIA MANDAR ID PARA PONR NUM DE PUESTO
+								emisor_pantalla.enviar(msj+"/"+Integer.toString(id+1), Utils.Server_to_Pantalla); 
 								/*synchronized (lock) {
 			                        lock.notifyAll();  
 								}*/
@@ -143,6 +149,11 @@ public class Servidor {
 
 	public LinkedList<Cliente> getClientes() {
 		return clientes;
+	}
+	
+	public boolean existeEmpleado(String emp) {
+		return this.listaEmpleados.contains(emp);
+		
 	}
 	
 }

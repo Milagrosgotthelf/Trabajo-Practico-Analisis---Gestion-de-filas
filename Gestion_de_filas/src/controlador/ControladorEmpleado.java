@@ -12,8 +12,8 @@ public class ControladorEmpleado implements ActionListener{
 	private String dniActual_emp ="", proxdni ="";
 	private boolean clienteAtendido = false;
 	
-	public ControladorEmpleado(int id)  {	
-		this.empleado = new Empleado(id);
+	public ControladorEmpleado()  {	
+		this.empleado = new Empleado();
 	}
 	
 	public void setVistas(Ventana_empleado emp) {
@@ -29,7 +29,16 @@ public class ControladorEmpleado implements ActionListener{
 	}
 	
 	private void manejarEmpleado(String comando) {
+		String nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 		if (comando.equals("INICIAR")){
+			//Envia nro de puesto
+			nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
+			
+			
+			
+			this.empleado.enviarNroPuesto_Server(nroPuesto);
+			this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
+			
 			pedirSigCliente();
 		}
 		else if (comando.equals("Llamar")) {

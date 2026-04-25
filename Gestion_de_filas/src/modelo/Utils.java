@@ -1,8 +1,8 @@
 package modelo;
 
 public class Utils {
-	public static final int cantidad_Puestos_Empleados = 5;
-	public static final int cantidad_Terminales_Registro = 3;
+	public static final int cantidad_Puestos_Empleados = 2;
+	public static final int cantidad_Terminales_Registro = 1;
 	
 	public static final String IP = "127.0.0.1";
 	//Segunda etapa
