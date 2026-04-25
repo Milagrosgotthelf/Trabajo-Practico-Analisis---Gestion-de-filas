@@ -30,11 +30,12 @@ public class ControladorEmpleado implements ActionListener{
 	
 	private void manejarEmpleado(String comando) {
 		if (comando.equals("INICIAR")){
-			pedirSigCliente();
+        	ventanaLlamadaDefecto();
+
 		}
 		else if (comando.equals("Llamar")) {
 			if (intentos == 3 && this.vistaEmpleado.getProximoDni() != null && this.vistaEmpleado.getProximoDni().equals("-"))
-				mostrarSigCliente();
+				pedirSigCliente();
 			
 			else
 				cicloLlamada();
@@ -43,7 +44,7 @@ public class ControladorEmpleado implements ActionListener{
 			iniciarTurno();
 		}
 		else if (comando.equals("Finalizar turno")) {
-			finalizarTurno();
+			ventanaLlamadaDefecto();
 		}
 	}
 	
@@ -51,15 +52,18 @@ public class ControladorEmpleado implements ActionListener{
 	private void cicloLlamada() {
 		if (intentos>0 && !clienteAtendido) {
 			vistaEmpleado.activarBtnLlamar(false);
-			
+			String dni_llamar = this.dniActual_emp;
 			this.vistaEmpleado.notificarLlamada(4-intentos);
 			this.empleado.enviarCliente_Server(this.dniActual_emp);
 	        rellamarCliente(); //desciento intentos y actualzo la vista
 
 	        //ACA ESTA LO NUEVO PARA VER SI SE PRESENTA
-	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
-	            if (!clienteAtendido) {
+	        javax.swing.Timer timerReintento = new javax.swing.Timer(3000, e -> {
+	            if (!clienteAtendido && this.dniActual_emp==dni_llamar) {
 	                cicloLlamada(); 
+	            }
+	            else {
+	            	System.out.println("Rellamado rechazado por dni ");
 	            }
 	        });
 	        timerReintento.setRepeats(false);
@@ -103,7 +107,7 @@ public class ControladorEmpleado implements ActionListener{
 	
 	private void verSiEsAusente() {
 		clienteAtendido = false;
-		javax.swing.Timer timer = new javax.swing.Timer(3000, e -> { // NO SE SI NO SON MUCHOS SEGUNDOS O POCOS||| Son 0.6 segundos, realmente deberian ser mas
+		javax.swing.Timer timer = new javax.swing.Timer(300, e -> { 
 	        if (!clienteAtendido) {
 	            vistaEmpleado.mostrarPantalla("Llamada");
 	        }
@@ -136,7 +140,6 @@ public class ControladorEmpleado implements ActionListener{
 	private void finalizarTurno() {
 	    vistaEmpleado.mostrarPantalla("Llamada");
 	    vistaEmpleado.setDniActual("-");
-	    pedirSigCliente(); 
 	}
 
 	private void pedirSigCliente() {
@@ -144,9 +147,7 @@ public class ControladorEmpleado implements ActionListener{
 	        @Override
 	        public void run() {
 	                try {
-	                	ventanaLlamadaDefecto();
 	                	dniActual_emp = empleado.llamarCliente(); 
-	                	System.out.println("ControladorEmpleado 135 " + dniActual_emp);
 	                	if (dniActual_emp == null) {
 	                		System.out.println("No se recibió un nuevo cliente. Volviendo a esperar...");    
 	                	}
