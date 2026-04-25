@@ -29,21 +29,22 @@ public class ControladorEmpleado implements ActionListener{
 	}
 	
 	private void manejarEmpleado(String comando) {
-		String nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
+		
 		if (comando.equals("INICIAR")){
+			String nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 			nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 			
-			this.empleado.enviarNroPuesto_Server(nroPuesto);
+			this.empleado.enviarCliente_Server(nroPuesto);
 			
 			this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
+			
 			ventanaLlamadaDefecto();
-			pedirSigCliente();
 		}
 		else if (comando.equals("Llamar")) {
-			if (intentos == 3 && this.vistaEmpleado.getProximoDni() != null && this.vistaEmpleado.getProximoDni().equals("-"))
+			if (this.vistaEmpleado.getProximoDni() != null && this.vistaEmpleado.getProximoDni().equals("-"))
 				mostrarSigCliente();
-			else
-				cicloLlamada();
+			//this.empleado.enviarCliente_Server(this.dniActual_emp);
+	     	cicloLlamada();
 		}
 		else if (comando.equals("Iniciar turno")) {
 			iniciarTurno();
@@ -59,8 +60,9 @@ public class ControladorEmpleado implements ActionListener{
 			vistaEmpleado.activarBtnLlamar(false);
 			String dni_llamar = this.dniActual_emp;
 			this.vistaEmpleado.notificarLlamada(4-intentos);
+			
 			this.empleado.enviarCliente_Server(this.dniActual_emp);
-	        rellamarCliente(); //desciento intentos y actualzo la vista
+	        rellamarCliente(); //desciendo intentos y actualzo la vista
 
 	        javax.swing.Timer timerReintento = new javax.swing.Timer(3000, e -> {
 	            if (!clienteAtendido && this.dniActual_emp==dni_llamar) {
@@ -71,7 +73,7 @@ public class ControladorEmpleado implements ActionListener{
 	        timerReintento.start();
 	    } else if (intentos<=0 && !clienteAtendido) {
 	        //no mas intentos 
-	    	vistaEmpleado.mostrarMensaje("Cliente ausente.");
+	    	//vistaEmpleado.mostrarMensaje("Cliente ausente.");
 	    	vistaEmpleado.activarBtnLlamar(true);
 	    	pedirSigCliente();
 	    }
@@ -101,7 +103,6 @@ public class ControladorEmpleado implements ActionListener{
 			vistaEmpleado.mostrarPantalla("Llamada");	
 		}
 	
-	
 	private void rellamarCliente() {
 		intentos--;
 		vistaEmpleado.setIntentos(intentos);
@@ -117,7 +118,6 @@ public class ControladorEmpleado implements ActionListener{
         vistaEmpleado.mostrarPantalla("Atencion");
         clienteAtendido = true;
 	}
-
 
 
 	private void pedirSigCliente() {

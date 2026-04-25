@@ -104,14 +104,15 @@ public class Servidor {
 						String msj = receptor_empleado.getMensaje(); 
 						System.out.println("Servidor RecEmp " + msj);
 						if(msj != null)
-							if("----".equals(msj)) {
+							if(msj.startsWith("----")) {
 								synchronized (lock) {
-		                            while (server.getClientes().isEmpty()) {
+		                            while (server.clientes.isEmpty()) {
 		                                lock.wait(); // Espera a que hiloReg haga notifyAll()
 		                            }
 		                        }
+								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(getPuestoMsj(msj)));
 								
-								emisor_empleado.enviar(server.getClientes().removeFirst(), Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base)));
+								emisor_empleado.enviar(server.getClientes().removeFirst(), puerto);
 							}
 							else if (msj.length() < 7 && !server.existeEmpleado(msj)) {
 	                        	System.out.println("Servidor msj = " + msj);
@@ -146,6 +147,20 @@ public class Servidor {
 	public boolean existeEmpleado(String emp) {
 		return this.listaEmpleados.contains(emp);
 		
+	}
+	
+	public String getPuestoMsj(String msj) {
+		String puesto = "";
+		int i=0;
+		while(i<msj.length() && msj.charAt(i)!= '/') {
+			i++;
+		}
+		i++;
+		while(i<msj.length()) {
+			puesto += msj.charAt(i);
+			i++;
+		}
+		return puesto;
 	}
 	
 }

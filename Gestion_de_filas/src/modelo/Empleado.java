@@ -11,7 +11,7 @@ public class Empleado {
 	public void setNumeroDePuesto(int numeroDePuesto) {
 		
 		this.numeroDePuesto = numeroDePuesto;
-		this.puertoReceptor = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base));
+		this.puertoReceptor = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + this.numeroDePuesto);
 		System.out.println("EMPLEADO 16 "+this.puertoReceptor);
 		this.puertoEmisor = Integer.toString(Integer.parseInt(Utils.Empleado_to_Server));
 		System.out.println("EMPLEADO 18 "+this.puertoEmisor);
@@ -28,7 +28,7 @@ public class Empleado {
 	}
 	
 	public String llamarCliente() {
-		this.emisor_server.enviar("----", this.puertoEmisor);
+		this.emisor_server.enviar("----/"+this.numeroDePuesto, this.puertoEmisor);
 		return this.receptor_server.getMensaje();
 	} 
 	
@@ -40,12 +40,6 @@ public class Empleado {
 			
 	}
 	
-	public void enviarNroPuesto_Server(String msj) {
-		if (msj != null) {
-			this.emisor_server.enviar(msj, this.puertoEmisor);
-		}		
-		
-	}
 	public String getDniActual() {
 		return dniActual;
 	}
