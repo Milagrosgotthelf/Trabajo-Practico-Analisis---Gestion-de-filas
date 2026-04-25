@@ -13,11 +13,11 @@ public class TerminalRegistro {
 	
 	public TerminalRegistro(int id) {
 		this.numTerminal = id;
-		this.receptor =  new Receptor(Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + this.numTerminal));
+		this.receptor =  new Receptor(Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
 	}
 	
 	public boolean agregarCliente(String cliente){
-		emisor.enviar(cliente, Integer.toString(Integer.parseInt(Utils.Registro_to_Server) + this.numTerminal));
+		emisor.enviar(cliente, Integer.toString(Integer.parseInt(Utils.Registro_to_Server)));
 		System.out.println("Terminal: Esperando respuesta del servidor...");
 		
 		String respuesta = receptor.getMensaje();

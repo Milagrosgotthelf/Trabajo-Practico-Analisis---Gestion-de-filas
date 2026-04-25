@@ -6,14 +6,12 @@ import servidor.Receptor;
 public class Empleado {
 	private String dniActual = null;
 	private int numeroDePuesto;
-	public int getNumeroDePuesto() {
-		return numeroDePuesto;
-	}
+	
 
 	public void setNumeroDePuesto(int numeroDePuesto) {
 		
 		this.numeroDePuesto = numeroDePuesto;
-		this.puertoReceptor = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + this.numeroDePuesto);
+		this.puertoReceptor = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base));
 		System.out.println("EMPLEADO 16 "+this.puertoReceptor);
 		this.puertoEmisor = Integer.toString(Integer.parseInt(Utils.Empleado_to_Server));
 		System.out.println("EMPLEADO 18 "+this.puertoEmisor);
@@ -37,7 +35,7 @@ public class Empleado {
 	
 	public void enviarCliente_Server(String msj) {
 		if (msj != null) {
-			this.emisor_server.enviar(msj, this.puertoEmisor);
+			this.emisor_server.enviar(msj + "/" + this.numeroDePuesto, this.puertoEmisor);
 		}
 			
 	}
@@ -64,6 +62,9 @@ public class Empleado {
 		return receptor_server;
 	}
 	
+	public int getNumeroDePuesto() {
+		return numeroDePuesto;
+	}
 	
 	
 	

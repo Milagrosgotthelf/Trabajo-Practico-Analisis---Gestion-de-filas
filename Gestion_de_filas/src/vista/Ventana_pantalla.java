@@ -200,6 +200,7 @@ public class Ventana_pantalla extends JFrame {
 	}
 	
 	public void actualizarTurnos(LinkedList<String> turnos) {	
+		System.out.println(turnos);
 		this.lbl_DNI1.setText("  DNI: " + getDniMsj(turnos.get(0)));
 		this.lbl_PUESTO1.setText("Puesto: "+ getPuestoMsj(turnos.get(0)));
 		this.lbl_DNI2.setText("  DNI: " + getDniMsj(turnos.get(1)));

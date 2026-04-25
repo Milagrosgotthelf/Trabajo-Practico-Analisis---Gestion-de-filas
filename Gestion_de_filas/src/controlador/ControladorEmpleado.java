@@ -31,20 +31,17 @@ public class ControladorEmpleado implements ActionListener{
 	private void manejarEmpleado(String comando) {
 		String nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 		if (comando.equals("INICIAR")){
-			//Envia nro de puesto
 			nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 			
-			
-			
 			this.empleado.enviarNroPuesto_Server(nroPuesto);
-			this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
 			
+			this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
+			ventanaLlamadaDefecto();
 			pedirSigCliente();
 		}
 		else if (comando.equals("Llamar")) {
 			if (intentos == 3 && this.vistaEmpleado.getProximoDni() != null && this.vistaEmpleado.getProximoDni().equals("-"))
 				mostrarSigCliente();
-			
 			else
 				cicloLlamada();
 		}
@@ -52,7 +49,7 @@ public class ControladorEmpleado implements ActionListener{
 			iniciarTurno();
 		}
 		else if (comando.equals("Finalizar turno")) {
-			finalizarTurno();
+			ventanaLlamadaDefecto();
 		}
 	}
 	
@@ -60,14 +57,13 @@ public class ControladorEmpleado implements ActionListener{
 	private void cicloLlamada() {
 		if (intentos>0 && !clienteAtendido) {
 			vistaEmpleado.activarBtnLlamar(false);
-			
+			String dni_llamar = this.dniActual_emp;
 			this.vistaEmpleado.notificarLlamada(4-intentos);
 			this.empleado.enviarCliente_Server(this.dniActual_emp);
 	        rellamarCliente(); //desciento intentos y actualzo la vista
 
-	        //ACA ESTA LO NUEVO PARA VER SI SE PRESENTA
-	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
-	            if (!clienteAtendido) {
+	        javax.swing.Timer timerReintento = new javax.swing.Timer(3000, e -> {
+	            if (!clienteAtendido && this.dniActual_emp==dni_llamar) {
 	                cicloLlamada(); 
 	            }
 	        });
@@ -84,11 +80,6 @@ public class ControladorEmpleado implements ActionListener{
 	private void mostrarSigCliente() {
 			this.proxdni = dniActual_emp;
 	        vistaEmpleado.setProximoDni(this.proxdni);
-	        //VER> como ahora hay mas de un puesto de atencion y el proximo en la fila no es necesariamente el dni que va a 
-	        //atender el empleado tal vez deberiamos tener un label para Estado: hay o no clientes en la cola y abajo otro label 
-	        // que sea cliente llamado que empieza con "-" y toma el valor de dniActual cuando se presiona llamar por primera vez
-	        /*if (!proxdni.equals("-"))
-	        	vistaEmpleado.setProximoDni("Hay clientes esperando...");*/
 	        intentos = 3;
 	        vistaEmpleado.setIntentos(intentos);
 	        vistaEmpleado.activarBtnLlamar(true);
@@ -106,25 +97,11 @@ public class ControladorEmpleado implements ActionListener{
 			
 			vistaEmpleado.activarBtnLlamar(true);
 			vistaEmpleado.activarBtnIniciarTurno(false);
-			vistaEmpleado.mostrarMensaje("Aguarde...");
+			//vistaEmpleado.mostrarMensaje("Aguarde...");
 			vistaEmpleado.mostrarPantalla("Llamada");	
 		}
 	
-	private void verSiEsAusente() {
-		clienteAtendido = false;
-		javax.swing.Timer timer = new javax.swing.Timer(3000, e -> { // NO SE SI NO SON MUCHOS SEGUNDOS O POCOS||| Son 0.6 segundos, realmente deberian ser mas
-	        if (!clienteAtendido) {
-	            vistaEmpleado.mostrarPantalla("Llamada");
-	        }
-	    });
-	    timer.setRepeats(false);
-	    timer.start();
-	}
 	
-	/*
-	 * Rellamar tiene las mismas respponsabilidades que llamarCliente(), llamarCliente no es mas usada por ese motivo
-	 * 
-	 */
 	private void rellamarCliente() {
 		intentos--;
 		vistaEmpleado.setIntentos(intentos);
@@ -142,20 +119,13 @@ public class ControladorEmpleado implements ActionListener{
 	}
 
 
-	private void finalizarTurno() {
-	    vistaEmpleado.mostrarPantalla("Llamada");
-	    vistaEmpleado.setDniActual("-");
-	    pedirSigCliente(); 
-	}
 
 	private void pedirSigCliente() {
 		Thread hiloEscucha = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
 	                try {
-	                	ventanaLlamadaDefecto();
 	                	dniActual_emp = empleado.llamarCliente(); 
-	                	System.out.println("ControladorEmpleado 135 " + dniActual_emp);
 	                	if (dniActual_emp == null) {
 	                		System.out.println("No se recibió un nuevo cliente. Volviendo a esperar...");    
 	                	}
