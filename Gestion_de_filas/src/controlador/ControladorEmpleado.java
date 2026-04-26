@@ -41,10 +41,7 @@ public class ControladorEmpleado implements ActionListener{
 			ventanaLlamadaDefecto();
 		}
 		else if (comando.equals("Llamar")) {
-			if (this.vistaEmpleado.getProximoDni() != null && this.vistaEmpleado.getProximoDni().equals("-"))
-				mostrarSigCliente();
-			//this.empleado.enviarCliente_Server(this.dniActual_emp);
-	     	cicloLlamada();
+			cicloLlamada();
 		}
 		else if (comando.equals("Iniciar turno")) {
 			iniciarTurno();
@@ -62,7 +59,7 @@ public class ControladorEmpleado implements ActionListener{
 			this.vistaEmpleado.notificarLlamada(4-intentos);
 			
 			this.empleado.enviarCliente_Server(this.dniActual_emp);
-	        rellamarCliente(); //desciendo intentos y actualzo la vista
+	        rellamarCliente(); 
 
 	        javax.swing.Timer timerReintento = new javax.swing.Timer(3000, e -> {
 	            if (!clienteAtendido && this.dniActual_emp==dni_llamar) {
@@ -87,6 +84,8 @@ public class ControladorEmpleado implements ActionListener{
 	        vistaEmpleado.activarBtnLlamar(true);
 	        vistaEmpleado.activarBtnIniciarTurno(false);
 	        vistaEmpleado.mostrarPantalla("Llamada");
+	        cicloLlamada();
+	        
 	    } 
 	private void ventanaLlamadaDefecto() {
 			this.proxdni = "-";

@@ -6,20 +6,18 @@ import servidor.Receptor;
 public class Empleado {
 	private String dniActual = null;
 	private int numeroDePuesto;
-	
+	private String puertoEmisor = Utils.Empleado_to_Server;
 
 	public void setNumeroDePuesto(int numeroDePuesto) {
 		
 		this.numeroDePuesto = numeroDePuesto;
 		this.puertoReceptor = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + this.numeroDePuesto);
 		System.out.println("EMPLEADO 16 "+this.puertoReceptor);
-		this.puertoEmisor = Integer.toString(Integer.parseInt(Utils.Empleado_to_Server));
 		System.out.println("EMPLEADO 18 "+this.puertoEmisor);
 		this.receptor_server = new Receptor(this.puertoReceptor);
 	}
 
 	private String puertoReceptor;
-	private String puertoEmisor;
 	private Emisor emisor_server = new Emisor();
 	private Receptor receptor_server = null;
 	
