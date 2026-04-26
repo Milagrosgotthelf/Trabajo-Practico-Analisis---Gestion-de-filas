@@ -1,9 +1,6 @@
 package main;
 
-import java.util.ArrayList;
-
 import controlador.ControladorEmpleado;
-import modelo.Utils;
 import vista.Ventana_empleado;
 
 public class MainEmp {

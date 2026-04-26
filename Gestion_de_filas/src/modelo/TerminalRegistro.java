@@ -9,19 +9,29 @@ public class TerminalRegistro {
 	Receptor receptor = null;
 	private int numTerminal;
 	
-	private static TerminalRegistro instancia = null;
 	
 	public TerminalRegistro(int id) {
-		this.numTerminal = id;
-		this.receptor =  new Receptor(Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
+		solicitarNumero();
 	}
 	
-	public boolean agregarCliente(String cliente){
-		emisor.enviar(cliente, Integer.toString(Integer.parseInt(Utils.Registro_to_Server)));
-		System.out.println("Terminal: Esperando respuesta del servidor...");
+	public void solicitarNumero() {
+		
+		this.receptor =  new Receptor(Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
+		
+		emisor.enviar("TerminalActiva", Integer.toString(Integer.parseInt(Utils.Registro_to_Server)));
+		
 		
 		String respuesta = receptor.getMensaje();
-		System.out.println("Terminal: Respuesta recibida -> " + respuesta);
+		this.numTerminal = Integer.parseInt(respuesta);
+		this.receptor.kill();
+		this.receptor =  new Receptor(Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + this.numTerminal));
+	
+
+	}
+	public boolean agregarCliente(String cliente){
+		emisor.enviar(cliente+"/"+Integer.toString(this.numTerminal), Integer.toString(Integer.parseInt(Utils.Registro_to_Server)));
+		
+		String respuesta = receptor.getMensaje();
 		
 		return "OK".equals(respuesta);		
 	}

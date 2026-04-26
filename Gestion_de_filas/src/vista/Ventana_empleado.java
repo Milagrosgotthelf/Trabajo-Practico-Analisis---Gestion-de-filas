@@ -408,7 +408,7 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 	            javax.sound.sampled.AudioInputStream audioStream = javax.sound.sampled.AudioSystem.getAudioInputStream(url);
 	            javax.sound.sampled.Clip clip = javax.sound.sampled.AudioSystem.getClip();
 	            clip.open(audioStream);
-	            clip.start();
+	            //clip.start();
 	        }
 	    } catch (Exception e) {
 	        System.err.println("No se pudo reproducir el sonido: " + e.getMessage());
@@ -441,13 +441,16 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 		boolean valido = false;
 		
 		try {
-				if(!this.textField_numeroPuesto.getText().isEmpty() ) {
+				if(!this.textField_numeroPuesto.getText().isEmpty() && this.textField_numeroPuesto.getText().length() <7 ) {
 					this.numPuesto = Integer.parseInt(this.textField_numeroPuesto.getText());
 					valido = true;
 				}
+				else
+					this.textField_numeroPuesto.setText("");
 				
 		} catch (NumberFormatException e) {
 		}
 		this.btn_iniciar.setEnabled(valido);
 		}	
 }
+

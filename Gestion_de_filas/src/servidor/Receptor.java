@@ -12,7 +12,6 @@ public class Receptor implements Runnable {
     public Receptor(String puerto) {
         try {
             this.s = new ServerSocket(Integer.parseInt(puerto));
-            System.out.println("Receptor iniciado en el puerto " + puerto);
 
             // Iniciamos la escucha de red en segundo plano para que siempre reciba
             Thread hiloEscucha = new Thread(this);
@@ -31,7 +30,6 @@ public class Receptor implements Runnable {
                  BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()))) {
 
                 String leido = in.readLine();
-                System.out.println("Receptor 36 run: " + leido);
                 if (leido != null) {
                     synchronized (this) {
                         this.mensaje = leido;
@@ -39,14 +37,16 @@ public class Receptor implements Runnable {
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Excepcion en el receptor: " + e.getMessage());
+            	System.out.println("Excepcion en el receptor: " + e.getMessage()); 
+            	if (e.getMessage().equals("Socket is closed")) {
+					break; // Salir del bucle si el socket ha sido cerrado
+				}
             }
         }
     }
 
     public synchronized String getMensaje() {
         while (this.mensaje == null) {
-        	System.out.println("Receptor 50 getMensaje: " + this.mensaje);
             try {
                 this.wait();
             } catch (InterruptedException e) {
@@ -55,8 +55,18 @@ public class Receptor implements Runnable {
             }
         }
         String aux = this.mensaje;
-        System.out.println("Receptor 60 getMensaje: "+aux);
         this.mensaje = null; 
         return aux;
     }
+    
+    public void kill() {
+		try {
+			this.s.close();
+			
+		} catch (Exception e) {
+			System.out.println("Excepcion al cerrar el receptor: " + e.getMessage());
+			
+		}
+	}
+    
 }

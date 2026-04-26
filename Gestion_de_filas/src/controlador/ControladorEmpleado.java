@@ -54,6 +54,7 @@ public class ControladorEmpleado implements ActionListener{
 	
 	private void cicloLlamada() {
 		if (intentos>0 && !clienteAtendido) {
+			System.out.println("CicloLlamada if");
 			vistaEmpleado.activarBtnLlamar(false);
 			String dni_llamar = this.dniActual_emp;
 			this.vistaEmpleado.notificarLlamada(4-intentos);
@@ -62,15 +63,15 @@ public class ControladorEmpleado implements ActionListener{
 	        rellamarCliente(); 
 
 	        javax.swing.Timer timerReintento = new javax.swing.Timer(3000, e -> {
-	            if (!clienteAtendido && this.dniActual_emp==dni_llamar) {
+	            if (!clienteAtendido && this.dniActual_emp != "-" && this.dniActual_emp==dni_llamar) {
+	            	System.out.println("Timer cicloLlamada");
 	                cicloLlamada(); 
 	            }
 	        });
 	        timerReintento.setRepeats(false);
 	        timerReintento.start();
 	    } else if (intentos<=0 && !clienteAtendido) {
-	        //no mas intentos 
-	    	//vistaEmpleado.mostrarMensaje("Cliente ausente.");
+	    	System.out.println("CicloLlamada else");
 	    	vistaEmpleado.activarBtnLlamar(true);
 	    	pedirSigCliente();
 	    }

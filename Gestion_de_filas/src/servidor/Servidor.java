@@ -20,7 +20,7 @@ public class Servidor {
 	private LinkedList<String> clientes= new LinkedList<String>();
 	private Thread hiloRec;
 	private ArrayList<String> listaEmpleados = new ArrayList<String>();
-	
+	private int contadorReg = 1;
 	
 	public Servidor() {
 		System.out.println("Servidor iniciado");
@@ -53,24 +53,32 @@ public class Servidor {
 	            while (true) {
 	                try {
 	                    String msj = receptor_registro.getMensaje(); 
-	                    
+	                    System.out.println("SERVIDOR RECIBE MENSAJE: " + msj);
 	                    if (msj != null) {
-	                        
-	                        if (!server.existeCliente(msj)) {
-	                            System.out.println("Servidor: Registrando nuevo cliente: " + msj);
-	                            server.clientes.addLast(msj);
-	                            emisor_registro.enviar("OK", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
-	                            //con esto avisamos que hay un nuevo cliente (asi actualiza cuando vuelve a haber clientes dsp de estar vacia)
-	                            synchronized (lock) {
-	                                lock.notifyAll(); 
-	                            }
-	                            
+	                        if(!msj.equals("TerminalActiva")) {
+	                        	int puesto = Integer.parseInt(getPuestoMsj(msj));
+	                        	msj = getDniMsj(msj);
+		                        if (!server.existeCliente(msj)) {
+		                            server.clientes.addLast(msj);
+		                            
+		                            String puerto = Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + puesto);
+		                            System.out.println("SERVIDOR PUERTO REGISTRO: " + puerto);
+		                            
+		                            emisor_registro.enviar("OK", puerto);
+		                            //con esto avisamos que hay un nuevo cliente (asi actualiza cuando vuelve a haber clientes dsp de estar vacia)
+		                            synchronized (lock) {
+		                                lock.notifyAll(); 
+		                            }
+		                            
+		                        }
+		                        else
+		                            emisor_registro.enviar("REPETIDO", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
 	                        }
 	                        else {
-	                            System.out.println("Servidor: DNI REPETIDO detectado: " + msj);
-	                            emisor_registro.enviar("REPETIDO", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
+	                        	System.out.println("ELSE TERMINAL ACTIVA");
+	                        	emisor_registro.enviar(Integer.toString(server.contadorReg), Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
+	                        	server.contadorReg = server.contadorReg + 1;
 	                        }
-	                        
 	                        msjAnterior = msj;
 	                    }
 	                    
@@ -102,7 +110,6 @@ public class Servidor {
 					try {
 						
 						String msj = receptor_empleado.getMensaje(); 
-						System.out.println("Servidor RecEmp " + msj);
 						if(msj != null)
 							if(msj.startsWith("----")) {
 								synchronized (lock) {
@@ -115,7 +122,6 @@ public class Servidor {
 								emisor_empleado.enviar(server.getClientes().removeFirst(), puerto);
 							}
 							else if (msj.length() < 7 && !server.existeEmpleado(msj)) {
-	                        	System.out.println("Servidor msj = " + msj);
 	                        	listaEmpleados.add(msj);
 	                        	
 	                        }
@@ -161,6 +167,16 @@ public class Servidor {
 			i++;
 		}
 		return puesto;
+	}
+	
+	public String getDniMsj(String msj) {
+		String dni = "";
+		int i=0;
+		while(i<msj.length() && msj.charAt(i)!= '/') {
+			dni += msj.charAt(i);
+			i++;
+		}
+		return dni;
 	}
 	
 }
