@@ -17,15 +17,18 @@ public class Servidor {
 	private Emisor emisor_registro = new Emisor();
 	
 	private Object lock = new Object();
+	private Object lock2 = new Object();
 	private LinkedList<String> clientes= new LinkedList<String>();
-	private Thread hiloRec;
+	
 	private ArrayList<String> listaEmpleados = new ArrayList<String>();
 	private int contadorReg = 1;
+	private Thread hiloRec, hiloEstadoCol;
 	
 	public Servidor() {
 		System.out.println("Servidor iniciado");
 		this.hiloRecEmp(this);
 		this.hiloReg(this);
+		this.hiloEstadoCola(this);
 	
 	}
 
@@ -53,7 +56,6 @@ public class Servidor {
 	            while (true) {
 	                try {
 	                    String msj = receptor_registro.getMensaje(); 
-	                    System.out.println("SERVIDOR RECIBE MENSAJE: " + msj);
 	                    if (msj != null) {
 	                        if(!msj.equals("TerminalActiva")) {
 	                        	int puesto = Integer.parseInt(getPuestoMsj(msj));
@@ -62,7 +64,6 @@ public class Servidor {
 		                            server.clientes.addLast(msj);
 		                            
 		                            String puerto = Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + puesto);
-		                            System.out.println("SERVIDOR PUERTO REGISTRO: " + puerto);
 		                            
 		                            emisor_registro.enviar("OK", puerto);
 		                            //con esto avisamos que hay un nuevo cliente (asi actualiza cuando vuelve a haber clientes dsp de estar vacia)
@@ -108,38 +109,22 @@ public class Servidor {
 			public void run() {
 				while (true) {
 					try {
-						
 						String msj = receptor_empleado.getMensaje(); 
 						if(msj != null)
 							if(msj.startsWith("----")) {
 								
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(getPuestoMsj(msj)));
-								synchronized (lock) {
-								    if (server.clientes.isEmpty()) {
-								        // Avisamos que no hay nadie y el botón debe deshabilitarse
-								        emisor_empleado.enviar("LISTA_VACIA", puerto);
-								        
-								        // Esperamos a que entre alguien
-								        while (server.clientes.isEmpty()) {
-								            lock.wait(); 
-								        }
-								        
-								        emisor_empleado.enviar("HAY_CLIENTES", puerto);
-								        continue;
-								    }
-								}
 								if (msj.startsWith("----") && !server.getClientes().isEmpty()) {
-								  
 								    emisor_empleado.enviar(server.getClientes().removeFirst(), puerto);
 								}
 
 							}
 							else if (msj.length() < 7 && !server.existeEmpleado(msj)) {
-	                        	listaEmpleados.add(msj);
+								
+	                        	listaEmpleados.add(getDniMsj(msj));
 	                        	
 	                        }
 							else {
-								
 								emisor_pantalla.enviar(msj, Utils.Server_to_Pantalla); 
 						}
 						else {
@@ -157,7 +142,38 @@ public class Servidor {
 		//this.hiloRec.setDaemon(true); 
 		this.hiloRec.start();
 	}
-
+	
+	private void hiloEstadoCola(Servidor server) {
+		
+		this.hiloEstadoCol = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				System.out.println("Iniciando hilo estado de la cola");
+				while (true) {
+					try {
+						for (int i=0; i<=listaEmpleados.size(); i++) {
+							String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
+							System.out.println(puerto);
+							synchronized (lock2) {
+							    if (server.clientes.isEmpty())
+							    	emisor_empleado.enviar("LISTA_VACIA", puerto);
+							    else
+							    	emisor_empleado.enviar("HAY_CLIENTES", puerto);
+								lock2.wait(300);
+							}
+						}
+					}
+					catch(Exception e) {
+						System.out.println("Excepcion en hilo estado de la cola: " + e.getMessage());
+					}
+				}
+			}
+		});
+		
+		//this.hiloEstadoCol.setDaemon(true); 
+		this.hiloEstadoCol.start();
+	}
+		
 
 	public LinkedList<String> getClientes() {
 		return clientes;

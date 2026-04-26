@@ -32,18 +32,19 @@ public class ControladorEmpleado implements ActionListener{
 	private void manejarEmpleado(String comando) {
 		
 		if (comando.equals("INICIAR")){
+			
 			String nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 			nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 			
 			this.empleado.enviarCliente_Server(nroPuesto);
 			
 			this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
-			pedirSigCliente();
+			
+
 			ventanaLlamadaDefecto();
 			
 		}
 		else if (comando.equals("Llamar")) {
-			
 			vistaEmpleado.setLabelsVisibles(true);         
 			cicloLlamada();
 		}
@@ -53,6 +54,7 @@ public class ControladorEmpleado implements ActionListener{
 		else if (comando.equals("Finalizar turno")) {
 			detenerTodosLosTimers();
 			ventanaLlamadaDefecto();
+			
 		}
 	}
 	
@@ -82,32 +84,28 @@ public class ControladorEmpleado implements ActionListener{
 
 	private void mostrarSigCliente() {
 		if (this.dniActual_emp.equals("LISTA_VACIA")) {
+			System.out.println("LISTA VACIA MOSTRARSIGCLIENTE");
 	        vistaEmpleado.actualizarEstadoEspera(false);
-	        pedirSigCliente(); // Se queda escuchando al servidor hasta que mande "HAY_CLIENTES"
 	    } 
 	    else if (this.dniActual_emp.equals("HAY_CLIENTES")) {
-	        vistaEmpleado.actualizarEstadoEspera(true);
-	        // NO llamamos a pedirSigCliente() aquí. 
-	        // Esperamos a que el usuario presione el botón "Llamar".
-	        //cicloLlamada();
+	    	vistaEmpleado.actualizarEstadoEspera(true);
 	    } 
 	    else {
-	    	
-	    	vistaEmpleado.actualizarEstadoEspera(true); // Por si acaso
-	        
-	    	vistaEmpleado.setProximoDni(this.dniActual_emp);
-			this.proxdni = dniActual_emp;
+	    	System.out.println("ELSE MOSTRARSIGCLIENTE");
+	    	vistaEmpleado.actualizarEstadoEspera(true);
+	    	this.proxdni = dniActual_emp;
 	        vistaEmpleado.setProximoDni(this.proxdni);
 	        intentos = 3;
 	        vistaEmpleado.setIntentos(intentos);
 	        vistaEmpleado.activarBtnLlamar(true);
 	        vistaEmpleado.activarBtnIniciarTurno(false);
 	        vistaEmpleado.mostrarPantalla("Llamada");
-	        //cicloLlamada();
+	        
 	    }
 	        
 	    } 
 	private void ventanaLlamadaDefecto() {
+		vistaEmpleado.actualizarEstadoEspera(false);
 		this.proxdni = "-";
 	    this.clienteAtendido = false;
 	    intentos = 0;
@@ -116,6 +114,9 @@ public class ControladorEmpleado implements ActionListener{
 	    vistaEmpleado.activarBtnLlamar(false);          
 	    vistaEmpleado.activarBtnIniciarTurno(false);
 	    vistaEmpleado.mostrarPantalla("Llamada");
+	    pedirSigCliente();
+	    
+	    
 	}
 	
 	private void rellamarCliente() {
@@ -136,14 +137,12 @@ public class ControladorEmpleado implements ActionListener{
 
 
 	private void pedirSigCliente() {
+		//empleado.llamarCliente puede ser el que provoca que inicia y llama.
 		Thread hiloEscucha = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
 	                try {
 	                	dniActual_emp = empleado.llamarCliente(); 
-	                	if (dniActual_emp == null) {
-	                		System.out.println("No se recibió un nuevo cliente. Volviendo a esperar...");    
-	                	}
 	                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
 	                        @Override
 	                        public void run() {
