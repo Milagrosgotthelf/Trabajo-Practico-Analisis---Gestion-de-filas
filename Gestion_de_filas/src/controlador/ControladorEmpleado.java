@@ -45,8 +45,9 @@ public class ControladorEmpleado implements ActionListener{
 			
 		}
 		else if (comando.equals("Llamar")) {
-			vistaEmpleado.setLabelsVisibles(true);         
+			vistaEmpleado.setLabelsVisibles(true);    
 			cicloLlamada();
+			     
 		}
 		else if (comando.equals("Iniciar turno")) {
 			iniciarTurno();
@@ -84,15 +85,17 @@ public class ControladorEmpleado implements ActionListener{
 
 	private void mostrarSigCliente() {
 		if (this.dniActual_emp.equals("LISTA_VACIA")) {
-			System.out.println("LISTA VACIA MOSTRARSIGCLIENTE");
+			//System.out.println("LISTA VACIA MOSTRARSIGCLIENTE");
 	        vistaEmpleado.actualizarEstadoEspera(false);
+	        pedirSigCliente();
 	    } 
-	    else if (this.dniActual_emp.equals("HAY_CLIENTES")) {
+	    else if (this.dniActual_emp.equals("HAY_CLIENTES") && (intentos<3)) {
+	    	//System.out.println("LISTA con clientes MOSTRARSIGCLIENTE");
 	    	vistaEmpleado.actualizarEstadoEspera(true);
 	    } 
 	    else {
 	    	System.out.println("ELSE MOSTRARSIGCLIENTE");
-	    	vistaEmpleado.actualizarEstadoEspera(true);
+	    	//vistaEmpleado.actualizarEstadoEspera(true);
 	    	this.proxdni = dniActual_emp;
 	        vistaEmpleado.setProximoDni(this.proxdni);
 	        intentos = 3;
@@ -100,7 +103,7 @@ public class ControladorEmpleado implements ActionListener{
 	        vistaEmpleado.activarBtnLlamar(true);
 	        vistaEmpleado.activarBtnIniciarTurno(false);
 	        vistaEmpleado.mostrarPantalla("Llamada");
-	        
+	        cicloLlamada();
 	    }
 	        
 	    } 

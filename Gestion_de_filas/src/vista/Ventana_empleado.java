@@ -435,6 +435,7 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 	    if (hayClientes) {
 	        lblMensajeEstado.setText("Hay clientes esperando.");
 	        lblMensajeEstado.setVisible(true);
+	        this.btn_llamar.setEnabled(true);
 	       
 	    } else {
 	        lblMensajeEstado.setText("No hay clientes esperando.");
@@ -444,13 +445,15 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 	    }
 	}
 	public void setLabelsVisibles(boolean visible) {
-	    if (visible) {
-	    	lblMensajeEstado.setVisible(false);
-	    }
+		
 		lbl_prox.setVisible(visible);
 	    lblNumProxDNI.setVisible(visible);
 	    lbl_intentos.setVisible(visible);
 	    lblNumIntentosPend.setVisible(visible);
+	    if (visible) {
+	    	lblMensajeEstado.setVisible(false);
+	 	
+	    }
 	}
 	
 	@Override

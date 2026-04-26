@@ -76,7 +76,7 @@ public class Servidor {
 		                            emisor_registro.enviar("REPETIDO", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)+ puesto));
 	                        }
 	                        else {
-	                        	System.out.println("ELSE TERMINAL ACTIVA");
+	                        	//System.out.println("ELSE TERMINAL ACTIVA");
 	                        	emisor_registro.enviar(Integer.toString(server.contadorReg), Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
 	                        	server.contadorReg = server.contadorReg + 1;
 	                        }
@@ -84,7 +84,7 @@ public class Servidor {
 	                    }
 	                    
 	                } catch (Exception e) {
-	                    System.out.println("Excepcion en hilo receptor del registro " + e.getMessage());
+	                    //System.out.println("Excepcion en hilo receptor del registro " + e.getMessage());
 	                }
 	            }
 	        }
@@ -164,7 +164,7 @@ public class Servidor {
 						}
 					}
 					catch(Exception e) {
-						System.out.println("Excepcion en hilo estado de la cola: " + e.getMessage());
+						//System.out.println("Excepcion en hilo estado de la cola: " + e.getMessage());
 					}
 				}
 			}
