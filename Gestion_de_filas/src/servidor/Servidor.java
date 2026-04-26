@@ -112,14 +112,27 @@ public class Servidor {
 						String msj = receptor_empleado.getMensaje(); 
 						if(msj != null)
 							if(msj.startsWith("----")) {
-								synchronized (lock) {
-		                            while (server.clientes.isEmpty()) {
-		                                lock.wait(); // Espera a que hiloReg haga notifyAll()
-		                            }
-		                        }
-								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(getPuestoMsj(msj)));
 								
-								emisor_empleado.enviar(server.getClientes().removeFirst(), puerto);
+								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(getPuestoMsj(msj)));
+								synchronized (lock) {
+								    if (server.clientes.isEmpty()) {
+								        // Avisamos que no hay nadie y el botón debe deshabilitarse
+								        emisor_empleado.enviar("LISTA_VACIA", puerto);
+								        
+								        // Esperamos a que entre alguien
+								        while (server.clientes.isEmpty()) {
+								            lock.wait(); 
+								        }
+								        
+								        emisor_empleado.enviar("HAY_CLIENTES", puerto);
+								        continue;
+								    }
+								}
+								if (msj.startsWith("----") && !server.getClientes().isEmpty()) {
+								  
+								    emisor_empleado.enviar(server.getClientes().removeFirst(), puerto);
+								}
+
 							}
 							else if (msj.length() < 7 && !server.existeEmpleado(msj)) {
 	                        	listaEmpleados.add(msj);

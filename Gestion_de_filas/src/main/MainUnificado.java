@@ -8,6 +8,7 @@ public class MainUnificado {
 		MainEmp.main(args);
 		MainEmp.main(args);
 		MainPan.main(args);
+		MainReg.main(args);
 		
 
 	}

@@ -38,10 +38,12 @@ public class ControladorEmpleado implements ActionListener{
 			this.empleado.enviarCliente_Server(nroPuesto);
 			
 			this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
-			
+			pedirSigCliente();
 			ventanaLlamadaDefecto();
+			
 		}
 		else if (comando.equals("Llamar")) {
+			pedirSigCliente();
 			cicloLlamada();
 		}
 		else if (comando.equals("Iniciar turno")) {
@@ -78,6 +80,19 @@ public class ControladorEmpleado implements ActionListener{
 	}
 
 	private void mostrarSigCliente() {
+		if (this.dniActual_emp.equals("LISTA_VACIA")) {
+	        vistaEmpleado.actualizarEstadoEspera(false);
+	        pedirSigCliente(); // Se queda escuchando al servidor hasta que mande "HAY_CLIENTES"
+	    } 
+	    else if (this.dniActual_emp.equals("HAY_CLIENTES")) {
+	        vistaEmpleado.actualizarEstadoEspera(true);
+	        // NO llamamos a pedirSigCliente() aquí. 
+	        // Esperamos a que el usuario presione el botón "Llamar".
+	        cicloLlamada();
+	    } 
+	    else {
+	    	vistaEmpleado.actualizarEstadoEspera(true); // Por si acaso
+	        vistaEmpleado.setProximoDni(this.dniActual_emp);
 			this.proxdni = dniActual_emp;
 	        vistaEmpleado.setProximoDni(this.proxdni);
 	        intentos = 3;
@@ -86,6 +101,7 @@ public class ControladorEmpleado implements ActionListener{
 	        vistaEmpleado.activarBtnIniciarTurno(false);
 	        vistaEmpleado.mostrarPantalla("Llamada");
 	        cicloLlamada();
+	    }
 	        
 	    } 
 	private void ventanaLlamadaDefecto() {

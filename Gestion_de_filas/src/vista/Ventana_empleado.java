@@ -73,6 +73,7 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 	private JLabel lblingrese;
 	private JTextField textField_numeroPuesto;
 	private JPanel panel_4;
+	private JLabel lblMensajeEstado;
 
 
 	/**
@@ -211,10 +212,17 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 		lblNumProxDNI.setForeground(new Color(0, 160, 183));
 		lblNumProxDNI.setFont(new Font("SansSerif", Font.BOLD, 25));
 		panel_prox.add(lblNumProxDNI);
+		lblNumProxDNI.setVisible(false);
+		
+		lblMensajeEstado = new JLabel("New label");
+		lblMensajeEstado.setForeground(new Color(0, 160, 183));
+		lblMensajeEstado.setFont(new Font("SansSerif", Font.BOLD, 25));
+		panel_prox.add(lblMensajeEstado);
 		
 		this.panel_int = new JPanel();
 		panel_int.setBackground(colorPaneles);
 		this.panel_sup.add(this.panel_int);
+		
 		
 		this.lbl_intentos = new JLabel("Intentos pendientes: ");
 		this.panel_int.add(this.lbl_intentos);
@@ -225,7 +233,7 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 		lblNumIntentosPend.setForeground(new Color(0, 160, 183));
 		lblNumIntentosPend.setFont(new Font("SansSerif", Font.BOLD, 25));
 		panel_int.add(lblNumIntentosPend);
-		
+		lblNumIntentosPend.setVisible(false);
 		this.panel_inf = new JPanel();
 		this.panel_llamada.add(this.panel_inf);
 		this.panel_inf.setLayout(new GridLayout(0, 2, 0, 0));
@@ -357,6 +365,7 @@ public class Ventana_empleado extends JFrame implements KeyListener {
             break;
         case "Llamada":
             setTitle("Llamado de clientes - Puesto "+ this.numPuesto);
+            
             break;
         case "Atencion":
             setTitle("Atención al cliente - Puesto "+ this.numPuesto);
@@ -419,6 +428,25 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 		this.btn_iniciar.setEnabled(true);
 	}
 
+	
+
+	public void actualizarEstadoEspera(boolean hayClientes) {
+	    if (hayClientes) {
+	        lblMensajeEstado.setText("Hay clientes esperando.");
+	        btn_llamar.setEnabled(true);
+	    } else {
+	        lblMensajeEstado.setText("No hay clientes esperando.");
+	        btn_llamar.setEnabled(false);
+	        setLabelsVisibles(false); // Ocultamos todo lo referente a DNIs
+	    }
+	}
+	public void setLabelsVisibles(boolean visible) {
+	    lbl_prox.setVisible(visible);
+	    lblNumProxDNI.setVisible(visible);
+	    lbl_intentos.setVisible(visible);
+	    lblNumIntentosPend.setVisible(visible);
+	}
+	
 	@Override
 	public void keyPressed(KeyEvent e) {
 		
