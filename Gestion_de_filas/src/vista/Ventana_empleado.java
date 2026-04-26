@@ -218,6 +218,7 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 		lblMensajeEstado.setForeground(new Color(0, 160, 183));
 		lblMensajeEstado.setFont(new Font("SansSerif", Font.BOLD, 25));
 		panel_prox.add(lblMensajeEstado);
+		lblMensajeEstado.setVisible(true);
 		
 		this.panel_int = new JPanel();
 		panel_int.setBackground(colorPaneles);
@@ -433,15 +434,20 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 	public void actualizarEstadoEspera(boolean hayClientes) {
 	    if (hayClientes) {
 	        lblMensajeEstado.setText("Hay clientes esperando.");
-	        btn_llamar.setEnabled(true);
+	        lblMensajeEstado.setVisible(true);
+	       
 	    } else {
 	        lblMensajeEstado.setText("No hay clientes esperando.");
+	        lblMensajeEstado.setVisible(true);
 	        btn_llamar.setEnabled(false);
-	        setLabelsVisibles(false); // Ocultamos todo lo referente a DNIs
+	        setLabelsVisibles(false);
 	    }
 	}
 	public void setLabelsVisibles(boolean visible) {
-	    lbl_prox.setVisible(visible);
+	    if (visible) {
+	    	lblMensajeEstado.setVisible(false);
+	    }
+		lbl_prox.setVisible(visible);
 	    lblNumProxDNI.setVisible(visible);
 	    lbl_intentos.setVisible(visible);
 	    lblNumIntentosPend.setVisible(visible);

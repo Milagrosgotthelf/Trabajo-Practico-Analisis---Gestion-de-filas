@@ -43,7 +43,8 @@ public class ControladorEmpleado implements ActionListener{
 			
 		}
 		else if (comando.equals("Llamar")) {
-			pedirSigCliente();
+			
+			vistaEmpleado.setLabelsVisibles(true);         
 			cicloLlamada();
 		}
 		else if (comando.equals("Iniciar turno")) {
@@ -88,11 +89,13 @@ public class ControladorEmpleado implements ActionListener{
 	        vistaEmpleado.actualizarEstadoEspera(true);
 	        // NO llamamos a pedirSigCliente() aquí. 
 	        // Esperamos a que el usuario presione el botón "Llamar".
-	        cicloLlamada();
+	        //cicloLlamada();
 	    } 
 	    else {
+	    	
 	    	vistaEmpleado.actualizarEstadoEspera(true); // Por si acaso
-	        vistaEmpleado.setProximoDni(this.dniActual_emp);
+	        
+	    	vistaEmpleado.setProximoDni(this.dniActual_emp);
 			this.proxdni = dniActual_emp;
 	        vistaEmpleado.setProximoDni(this.proxdni);
 	        intentos = 3;
@@ -100,24 +103,20 @@ public class ControladorEmpleado implements ActionListener{
 	        vistaEmpleado.activarBtnLlamar(true);
 	        vistaEmpleado.activarBtnIniciarTurno(false);
 	        vistaEmpleado.mostrarPantalla("Llamada");
-	        cicloLlamada();
+	        //cicloLlamada();
 	    }
 	        
 	    } 
 	private void ventanaLlamadaDefecto() {
-			this.proxdni = "-";
-			this.clienteAtendido = false;
-			vistaEmpleado.setProximoDni(this.proxdni);
-			//vistaEmpleado.setProximoDni("No hay clientes por atender");
-			intentos = 0;
-			vistaEmpleado.setIntentos(intentos);
-			
-			
-			vistaEmpleado.activarBtnLlamar(true);
-			vistaEmpleado.activarBtnIniciarTurno(false);
-			//vistaEmpleado.mostrarMensaje("Aguarde...");
-			vistaEmpleado.mostrarPantalla("Llamada");	
-		}
+		this.proxdni = "-";
+	    this.clienteAtendido = false;
+	    intentos = 0;
+	    vistaEmpleado.setIntentos(intentos);
+	    vistaEmpleado.setLabelsVisibles(false);         
+	    vistaEmpleado.activarBtnLlamar(false);          
+	    vistaEmpleado.activarBtnIniciarTurno(false);
+	    vistaEmpleado.mostrarPantalla("Llamada");
+	}
 	
 	private void rellamarCliente() {
 		intentos--;
