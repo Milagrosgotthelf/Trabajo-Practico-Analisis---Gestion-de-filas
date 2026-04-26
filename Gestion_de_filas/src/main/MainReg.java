@@ -9,8 +9,11 @@ import vista.Ventana_terminal_registro;
 public class MainReg {
 
 	public static void main(String[] args) {
-		ArrayList<ControladorRegistro> controladores = new ArrayList<ControladorRegistro>();
-		ArrayList<Ventana_terminal_registro> vistasReg = new ArrayList<Ventana_terminal_registro>();
+
+		Ventana_terminal_registro vistasReg = new Ventana_terminal_registro(0);
+		ControladorRegistro controladores = new ControladorRegistro(0, vistasReg);
+		
+		vistasReg.setVisible(true);
 		
 	}
 
