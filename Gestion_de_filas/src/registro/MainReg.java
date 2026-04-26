@@ -1,8 +1,4 @@
-package main;
-
-
-import controlador.ControladorRegistro;
-import vista.Ventana_terminal_registro;
+package registro;
 
 public class MainReg {
 

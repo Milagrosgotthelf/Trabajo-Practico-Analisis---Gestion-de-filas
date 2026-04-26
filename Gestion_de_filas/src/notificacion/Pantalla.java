@@ -1,8 +1,9 @@
-package modelo;
+package notificacion;
 
 import java.util.LinkedList;
 
-import servidor.Receptor;
+import sfd.Receptor;
+import sfd.Utils;
 
 public class Pantalla  {
 	

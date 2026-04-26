@@ -1,9 +1,7 @@
-package controlador;
+package llamado;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import modelo.*;
-import vista.Ventana_empleado;
 public class ControladorEmpleado implements ActionListener{
 	
 	private Empleado empleado = null;

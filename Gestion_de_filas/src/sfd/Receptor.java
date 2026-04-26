@@ -1,4 +1,4 @@
-package servidor;
+package sfd;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

@@ -1,4 +1,4 @@
-package vista;
+package registro;
 
 import java.awt.EventQueue;
 

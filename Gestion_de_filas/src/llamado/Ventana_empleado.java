@@ -1,4 +1,4 @@
-package vista;
+package llamado;
 
 import java.awt.EventQueue;
 
@@ -202,7 +202,7 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 		panel_prox.setBackground(colorPaneles);
 		this.panel_sup.add(this.panel_prox);
 		
-		this.lbl_prox = new JLabel("Próximo DNI:");
+		this.lbl_prox = new JLabel("Cliente llamado:");
 		this.lbl_prox.setVerticalAlignment(SwingConstants.BOTTOM);
 		this.panel_prox.add(this.lbl_prox);
 		this.lbl_prox.setFont(new Font("SansSerif", Font.PLAIN, 25));
@@ -412,13 +412,13 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 		this.mostrarMensaje("Notificando: intento " + intento + " de 3");
         
 	    try {
-	    	java.net.URL url = getClass().getResource("/sonidos/freesound_community-elevator-ding-at-arenco-tower-dubai-38520.wav");
+	    	java.net.URL url = getClass().getResource("/notificacion/freesound_community-elevator-ding-at-arenco-tower-dubai-38520.wav");
 	    	//java.net.URL url = getClass().getResource("/sonidos/benkirb-electronic-doorbell-262895.wav");
 	        if (url !=null) {
 	            javax.sound.sampled.AudioInputStream audioStream = javax.sound.sampled.AudioSystem.getAudioInputStream(url);
 	            javax.sound.sampled.Clip clip = javax.sound.sampled.AudioSystem.getClip();
 	            clip.open(audioStream);
-	            //clip.start();
+	            clip.start();
 	        }
 	    } catch (Exception e) {
 	        System.err.println("No se pudo reproducir el sonido: " + e.getMessage());

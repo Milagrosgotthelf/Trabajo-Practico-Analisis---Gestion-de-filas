@@ -1,7 +1,5 @@
-package controlador;
+package notificacion;
 
-import modelo.*;
-import vista.Ventana_pantalla;
 
 public class ControladorPantalla {
 	

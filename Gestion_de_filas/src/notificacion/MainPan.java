@@ -1,7 +1,4 @@
-package main;
-
-import controlador.ControladorPantalla;
-import vista.Ventana_pantalla;
+package notificacion;
 
 public class MainPan {
 

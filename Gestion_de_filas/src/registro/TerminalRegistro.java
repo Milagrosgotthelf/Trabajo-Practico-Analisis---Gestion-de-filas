@@ -1,8 +1,9 @@
-package modelo;
+package registro;
 
 
-import servidor.Emisor;
-import servidor.Receptor;
+import sfd.Emisor;
+import sfd.Receptor;
+import sfd.Utils;
 
 public class TerminalRegistro {
 	Emisor emisor = new Emisor();

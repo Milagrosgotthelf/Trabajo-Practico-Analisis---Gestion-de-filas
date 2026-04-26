@@ -1,7 +1,4 @@
-package main;
-
-import controlador.ControladorEmpleado;
-import vista.Ventana_empleado;
+package llamado;
 
 public class MainEmp {
 

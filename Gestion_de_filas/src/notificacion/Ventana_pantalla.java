@@ -1,4 +1,4 @@
-package vista;
+package notificacion;
 
 import java.awt.EventQueue;
 

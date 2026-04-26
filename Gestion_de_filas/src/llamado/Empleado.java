@@ -1,8 +1,9 @@
-package modelo;
+package llamado;
 
 
-import servidor.Emisor;
-import servidor.Receptor;
+import sfd.Emisor;
+import sfd.Receptor;
+import sfd.Utils;
 public class Empleado {
 	private String dniActual = null;
 	private int numeroDePuesto;

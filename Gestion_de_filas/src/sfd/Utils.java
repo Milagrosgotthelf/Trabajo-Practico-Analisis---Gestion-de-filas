@@ -1,4 +1,4 @@
-package modelo;
+package sfd;
 
 public class Utils {
 	public static final int cantidad_Puestos_Empleados = 2;

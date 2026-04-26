@@ -1,6 +1,5 @@
-package main;
+package sfd;
 
-import servidor.Servidor;
 public class MainServer {
 	
 

@@ -1,6 +1,6 @@
-package servidor;
+package sfd;
 
-import static modelo.Utils.IP;
+import static sfd.Utils.IP;
 
 import java.io.PrintWriter;
 import java.net.Socket;

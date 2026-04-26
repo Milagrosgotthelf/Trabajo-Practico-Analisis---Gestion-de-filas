@@ -1,10 +1,7 @@
-package servidor;
+package sfd;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-
-import modelo.Cliente;
-import modelo.Utils;
 public class Servidor {
 	private ArrayList<Receptor> receptoresReg = new ArrayList<Receptor>();
 	private ArrayList<Receptor> receptoresEmp = new ArrayList<Receptor>();
