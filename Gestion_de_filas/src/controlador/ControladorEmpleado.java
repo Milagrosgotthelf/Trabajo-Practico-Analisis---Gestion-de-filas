@@ -11,6 +11,7 @@ public class ControladorEmpleado implements ActionListener{
 	private int intentos =3;
 	private String dniActual_emp ="", proxdni ="";
 	private boolean clienteAtendido = false;
+	private java.util.List<javax.swing.Timer> timers = new java.util.ArrayList<>();
 	
 	public ControladorEmpleado()  {	
 		this.empleado = new Empleado();
@@ -47,6 +48,7 @@ public class ControladorEmpleado implements ActionListener{
 			iniciarTurno();
 		}
 		else if (comando.equals("Finalizar turno")) {
+			detenerTodosLosTimers();
 			ventanaLlamadaDefecto();
 		}
 	}
@@ -54,7 +56,6 @@ public class ControladorEmpleado implements ActionListener{
 	
 	private void cicloLlamada() {
 		if (intentos>0 && !clienteAtendido) {
-			System.out.println("CicloLlamada if");
 			vistaEmpleado.activarBtnLlamar(false);
 			String dni_llamar = this.dniActual_emp;
 			this.vistaEmpleado.notificarLlamada(4-intentos);
@@ -62,16 +63,15 @@ public class ControladorEmpleado implements ActionListener{
 			this.empleado.enviarCliente_Server(this.dniActual_emp);
 	        rellamarCliente(); 
 
-	        javax.swing.Timer timerReintento = new javax.swing.Timer(3000, e -> {
+	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
 	            if (!clienteAtendido && this.dniActual_emp != "-" && this.dniActual_emp==dni_llamar) {
-	            	System.out.println("Timer cicloLlamada");
 	                cicloLlamada(); 
 	            }
 	        });
 	        timerReintento.setRepeats(false);
+	        timers.add(timerReintento);
 	        timerReintento.start();
 	    } else if (intentos<=0 && !clienteAtendido) {
-	    	System.out.println("CicloLlamada else");
 	    	vistaEmpleado.activarBtnLlamar(true);
 	    	pedirSigCliente();
 	    }
@@ -142,5 +142,14 @@ public class ControladorEmpleado implements ActionListener{
 	    });
 	    hiloEscucha.setDaemon(true);
 	    hiloEscucha.start();
+	}
+	
+	private void detenerTodosLosTimers() {
+		for (javax.swing.Timer timer : timers) {
+			if (timer.isRunning()) {
+				timer.stop();
+			}
+		}
+		timers.clear();
 	}
 }

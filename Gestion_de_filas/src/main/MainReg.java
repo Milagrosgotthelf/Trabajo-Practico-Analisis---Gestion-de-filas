@@ -1,9 +1,7 @@
 package main;
 
-import java.util.ArrayList;
 
 import controlador.ControladorRegistro;
-import modelo.Utils;
 import vista.Ventana_terminal_registro;
 
 public class MainReg {
