@@ -2,6 +2,7 @@ package sfd;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -9,18 +10,18 @@ public class Receptor implements Runnable {
     private String mensaje = null;
     private ServerSocket s = null;
 
-    public Receptor(String puerto) {
+    public Receptor(String puerto) throws BindException {
         try {
             this.s = new ServerSocket(Integer.parseInt(puerto));
 
-            // Iniciamos la escucha de red en segundo plano para que siempre reciba
             Thread hiloEscucha = new Thread(this);
             hiloEscucha.setDaemon(true);
             hiloEscucha.start();
-        } catch (Exception e) {
-            System.out.println("Excepcion al iniciar el receptor: " + e.getMessage());
-            e.printStackTrace();
-        }
+        } catch (BindException e) {
+			throw e;
+		} catch (Exception e) {
+			System.out.println("Excepcion al iniciar el receptor: " + e.getMessage());
+		}
     }
 
     @Override
@@ -39,7 +40,7 @@ public class Receptor implements Runnable {
             } catch (Exception e) {
             	System.out.println("Excepcion en el receptor: " + e.getMessage()); 
             	if (e.getMessage().equals("Socket is closed")) {
-					break; // Salir del bucle si el socket ha sido cerrado
+					break; 
 				}
             }
         }

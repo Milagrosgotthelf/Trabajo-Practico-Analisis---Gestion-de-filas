@@ -1,6 +1,8 @@
 package llamado;
 
 
+import java.net.BindException;
+
 import sfd.Emisor;
 import sfd.Receptor;
 import sfd.Utils;
@@ -29,13 +31,11 @@ public class Empleado {
 			
 	}
 	
-	public void setNumeroDePuesto(int numeroDePuesto) {
+	public void setNumeroDePuesto(int numeroDePuesto) throws BindException{
 			
 		this.numeroDePuesto = numeroDePuesto;
 		this.puertoReceptor = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + this.numeroDePuesto);
-		System.out.println("EMPLEADO 16 "+this.puertoReceptor);
-		System.out.println("EMPLEADO 18 "+this.puertoEmisor);
-		this.receptor_server = new Receptor(this.puertoReceptor); 
+		this.receptor_server = new Receptor(this.puertoReceptor);
 	}
 	
 	public String getDniActual() {

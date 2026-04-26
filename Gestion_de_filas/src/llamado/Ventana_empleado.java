@@ -348,6 +348,9 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 	public String getTextField_numeroPuesto() {
 		return textField_numeroPuesto.getText();
 	}
+	public void cleanTextField_numeroPuesto() {
+		this.textField_numeroPuesto.setText("");
+	}
 
 	public void setActionListener(ActionListener actionListener) {
 		this.btn_iniciar.addActionListener(actionListener);

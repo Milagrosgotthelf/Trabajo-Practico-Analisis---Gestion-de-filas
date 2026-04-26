@@ -1,13 +1,12 @@
 package sfd;
 
+import java.net.BindException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 public class Servidor {
-	private ArrayList<Receptor> receptoresReg = new ArrayList<Receptor>();
-	private ArrayList<Receptor> receptoresEmp = new ArrayList<Receptor>();
 	
-	private Receptor receptor_registro = new Receptor(Utils.Registro_to_Server); //
-	private Receptor receptor_empleado = new Receptor(Utils.Empleado_to_Server);
+	private Receptor receptor_registro; //
+	private Receptor receptor_empleado;
 	
 	private Emisor emisor_empleado = new Emisor();
 	private Emisor emisor_pantalla = new Emisor();
@@ -23,24 +22,27 @@ public class Servidor {
 	
 	public Servidor() {
 		System.out.println("Servidor iniciado");
+		try {
+			iniciaReptores();
+		} catch (BindException e) {
+			e.printStackTrace();
+		}
 		this.hiloRecEmp(this);
 		this.hiloReg(this);
 		this.hiloEstadoCola(this);
 	
 	}
 
+	public void iniciaReptores() throws BindException {
+		this.receptor_registro = new Receptor(Utils.Registro_to_Server);
+		this.receptor_empleado = new Receptor(Utils.Empleado_to_Server);
+		
+	}
 	
 	public void agregarCliente(String cliente) {
 		clientes.addLast(cliente);
 	}
 	
-	public void agregarReceptoresReg(int id) {
-		this.receptoresReg.add(new Receptor(Integer.toString(Integer.parseInt(Utils.Registro_to_Server))));
-	}
-	
-	public void agregarReceptoresEmp(int id) {
-		this.receptoresEmp.add(new Receptor(Integer.toString(Integer.parseInt(Utils.Empleado_to_Server))));
-	}
 	
 	/*
 	 * Crea un hilo para la comunicación registro-empleado

@@ -1,6 +1,8 @@
 package registro;
 
 
+import java.net.BindException;
+
 import sfd.Emisor;
 import sfd.Receptor;
 import sfd.Utils;
@@ -17,7 +19,11 @@ public class TerminalRegistro {
 	
 	public void solicitarNumero() {
 		
-		this.receptor =  new Receptor(Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
+		try {
+			this.receptor =  new Receptor(Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
+		} catch (BindException e) {
+			e.printStackTrace();
+		}
 		
 		emisor.enviar("TerminalActiva", Integer.toString(Integer.parseInt(Utils.Registro_to_Server)));
 		
@@ -25,7 +31,13 @@ public class TerminalRegistro {
 		String respuesta = receptor.getMensaje();
 		this.numTerminal = Integer.parseInt(respuesta);
 		this.receptor.kill();
-		this.receptor =  new Receptor(Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + this.numTerminal));
+		
+		
+		try {
+			this.receptor =  new Receptor(Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + this.numTerminal));
+		} catch (BindException e) {
+			e.printStackTrace();
+		}
 	
 
 	}

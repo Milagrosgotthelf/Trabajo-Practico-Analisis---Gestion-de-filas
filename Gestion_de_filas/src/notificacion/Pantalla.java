@@ -1,5 +1,6 @@
 package notificacion;
 
+import java.net.BindException;
 import java.util.LinkedList;
 
 import sfd.Receptor;
@@ -11,7 +12,7 @@ public class Pantalla  {
 	private Receptor receptor = null;
 	private LinkedList<String> clientes = null;
 	
-	private Pantalla() {
+	private Pantalla() throws BindException {
 		this.clientes = new LinkedList<String>();
 		this.receptor = new Receptor(Utils.Server_to_Pantalla);
 		//se inicializa con 5 lugares vacios
@@ -24,7 +25,11 @@ public class Pantalla  {
 	
 	public static Pantalla getInstance() {
 		if (instancia == null) {
-			instancia = new Pantalla();
+			try {
+				instancia = new Pantalla();
+			} catch (BindException e) {
+				e.printStackTrace();
+			}
 		}
 		return instancia;
 		

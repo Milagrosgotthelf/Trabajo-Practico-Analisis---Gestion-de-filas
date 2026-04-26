@@ -2,6 +2,7 @@ package llamado;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.BindException;
 public class ControladorEmpleado implements ActionListener{
 	
 	private Empleado empleado = null;
@@ -36,10 +37,17 @@ public class ControladorEmpleado implements ActionListener{
 			
 			this.empleado.enviarCliente_Server(nroPuesto);
 			
-			this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
+			try {
+				this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
+				ventanaLlamadaDefecto();
+			} catch (BindException e) {
+				this.vistaEmpleado.mostrarMensaje("Puerto ocupado");
+				this.vistaEmpleado.cleanTextField_numeroPuesto();
+				
+			}
 			
 
-			ventanaLlamadaDefecto();
+			
 			
 		}
 		else if (comando.equals("Llamar")) {
