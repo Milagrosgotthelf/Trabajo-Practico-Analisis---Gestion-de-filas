@@ -72,7 +72,7 @@ public class Servidor {
 		                            
 		                        }
 		                        else
-		                            emisor_registro.enviar("REPETIDO", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
+		                            emisor_registro.enviar("REPETIDO", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)+ puesto));
 	                        }
 	                        else {
 	                        	System.out.println("ELSE TERMINAL ACTIVA");
