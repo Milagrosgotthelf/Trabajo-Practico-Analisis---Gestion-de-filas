@@ -41,7 +41,7 @@ public class ControladorEmpleado implements ActionListener{
 				this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
 				ventanaLlamadaDefecto();
 			} catch (BindException e) {
-				this.vistaEmpleado.mostrarMensaje("Puerto ocupado");
+				this.vistaEmpleado.mostrarMensaje("Número de Puesto ocupado");
 				this.vistaEmpleado.cleanTextField_numeroPuesto();
 				
 			}
