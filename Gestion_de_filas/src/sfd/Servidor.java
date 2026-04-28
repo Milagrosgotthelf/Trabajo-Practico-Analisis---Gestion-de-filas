@@ -3,6 +3,7 @@ package sfd;
 import java.net.BindException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import sfd.Utils;
 public class Servidor {
 	
 	private Receptor receptor_registro; //
@@ -119,11 +120,10 @@ public class Servidor {
 
 							}
 							else if (msj.length() < 7 && !server.existeEmpleado(msj)) {
-								
 	                        	listaEmpleados.add(getDniMsj(msj));
-	                        	
 	                        }
 							else {
+								System.out.println("HILORECEMP ELSE "+ msj);
 								emisor_pantalla.enviar(msj, Utils.Server_to_Pantalla); 
 						}
 						else {
@@ -152,13 +152,12 @@ public class Servidor {
 					try {
 						for (int i=0; i<=listaEmpleados.size(); i++) {
 							String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
-							System.out.println(puerto);
 							synchronized (lock2) {
 							    if (server.clientes.isEmpty())
-							    	emisor_empleado.enviar("LISTA_VACIA", puerto);
+							    	emisor_empleado.enviar(Utils.FILA_VACIA, puerto);
 							    else
-							    	emisor_empleado.enviar("HAY_CLIENTES", puerto);
-								lock2.wait(300);
+							    	emisor_empleado.enviar(Utils.HAY_CLIENTES, puerto);
+								lock2.wait(30);
 							}
 						}
 					}

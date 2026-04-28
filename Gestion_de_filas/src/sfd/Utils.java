@@ -17,4 +17,7 @@ public class Utils {
 	//Server_to_Empleado y Empleado_to_Server tienen la misma cantidad
 	public static final String Server_to_Empleado_base = "4050";
 	public static final String Empleado_to_Server = "5050"; //de aca para adelante puede crecer idenfinidamente
+	
+	public static final String HAY_CLIENTES = "HAY_CLIENTES";
+	public static final String FILA_VACIA = "FILA_VACIA";
 }

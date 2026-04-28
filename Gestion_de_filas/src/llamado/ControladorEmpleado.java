@@ -3,6 +3,8 @@ package llamado;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.BindException;
+
+import sfd.Utils;
 public class ControladorEmpleado implements ActionListener{
 	
 	private Empleado empleado = null;
@@ -11,6 +13,7 @@ public class ControladorEmpleado implements ActionListener{
 	private String dniActual_emp ="", proxdni ="";
 	private boolean clienteAtendido = false;
 	private java.util.List<javax.swing.Timer> timers = new java.util.ArrayList<>();
+	private String estadoActual = "";
 	
 	public ControladorEmpleado()  {	
 		this.empleado = new Empleado();
@@ -40,19 +43,15 @@ public class ControladorEmpleado implements ActionListener{
 			try {
 				this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
 				ventanaLlamadaDefecto();
+				pedirEstado();
 			} catch (BindException e) {
 				this.vistaEmpleado.mostrarMensaje("Número de Puesto ocupado");
 				this.vistaEmpleado.cleanTextField_numeroPuesto();
 				
 			}
-			
-
-			
-			
 		}
 		else if (comando.equals("Llamar")) {
-			vistaEmpleado.setLabelsVisibles(true);    
-			cicloLlamada();
+			pedirSigCliente();
 			     
 		}
 		else if (comando.equals("Iniciar turno")) {
@@ -61,22 +60,27 @@ public class ControladorEmpleado implements ActionListener{
 		else if (comando.equals("Finalizar turno")) {
 			detenerTodosLosTimers();
 			ventanaLlamadaDefecto();
+			pedirEstado();
 			
 		}
 	}
 	
-	
+	private void info() {
+		System.out.println("INTENTOS: " + intentos);
+		System.out.println("PROX DNI: " + proxdni);
+		System.out.println("dniActual_emp: " + dniActual_emp);
+	}
 	private void cicloLlamada() {
 		if (intentos>0 && !clienteAtendido) {
 			vistaEmpleado.activarBtnLlamar(false);
-			String dni_llamar = this.dniActual_emp;
+			info();
+			String dni_llamar = this.proxdni;
 			this.vistaEmpleado.notificarLlamada(4-intentos);
-			
-			this.empleado.enviarCliente_Server(this.dniActual_emp);
+			this.empleado.enviarCliente_Server(dni_llamar);
 	        rellamarCliente(); 
 
 	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
-	            if (!clienteAtendido && this.dniActual_emp != "-" && this.dniActual_emp==dni_llamar) {
+	            if (!clienteAtendido && this.proxdni != "-" && this.proxdni==dni_llamar) {
 	                cicloLlamada(); 
 	            }
 	        });
@@ -85,48 +89,44 @@ public class ControladorEmpleado implements ActionListener{
 	        timerReintento.start();
 	    } else if (intentos<=0 && !clienteAtendido) {
 	    	vistaEmpleado.activarBtnLlamar(true);
-	    	pedirSigCliente();
 	    }
 	}
-
-	private void mostrarSigCliente() {
-		if (this.dniActual_emp.equals("LISTA_VACIA")) {
-			//System.out.println("LISTA VACIA MOSTRARSIGCLIENTE");
-	        vistaEmpleado.actualizarEstadoEspera(false);
-	        pedirSigCliente();
-	    } 
-	    else if (this.dniActual_emp.equals("HAY_CLIENTES") && (intentos<3)) {
-	    	//System.out.println("LISTA con clientes MOSTRARSIGCLIENTE");
-	    	vistaEmpleado.actualizarEstadoEspera(true);
-	    } 
-	    else {
-	    	System.out.println("ELSE MOSTRARSIGCLIENTE");
-	    	//vistaEmpleado.actualizarEstadoEspera(true);
-	    	this.proxdni = dniActual_emp;
-	        vistaEmpleado.setProximoDni(this.proxdni);
-	        intentos = 3;
-	        vistaEmpleado.setIntentos(intentos);
-	        vistaEmpleado.activarBtnLlamar(true);
-	        vistaEmpleado.activarBtnIniciarTurno(false);
-	        vistaEmpleado.mostrarPantalla("Llamada");
-	        cicloLlamada();
-	    }
+	
+		
+	private void mostrarSigCliente(){
+    	this.proxdni = dniActual_emp;
+    	vistaEmpleado.setProximoDni(this.proxdni);
+        intentos = 3;
+        vistaEmpleado.setIntentos(intentos);
+        vistaEmpleado.activarBtnLlamar(true);
+        vistaEmpleado.activarBtnIniciarTurno(false);
+        vistaEmpleado.mostrarPantalla("Llamada");
+        cicloLlamada();
+        
+	}
+	
+	
+	private void ventanaConsulta() {
+		if(this.estadoActual.equals(Utils.FILA_VACIA)) {
+			vistaEmpleado.actualizarEstadoEspera(false);
+			pedirEstado();
+		}
+		else if (this.estadoActual.equals(Utils.HAY_CLIENTES)){
+			vistaEmpleado.actualizarEstadoEspera(true);
+		}
+		
+	}
 	        
-	    } 
 	private void ventanaLlamadaDefecto() {
-		vistaEmpleado.actualizarEstadoEspera(false);
 		this.proxdni = "-";
-	    this.clienteAtendido = false;
 	    intentos = 0;
 	    vistaEmpleado.setIntentos(intentos);
 	    vistaEmpleado.setLabelsVisibles(false);         
 	    vistaEmpleado.activarBtnLlamar(false);          
 	    vistaEmpleado.activarBtnIniciarTurno(false);
 	    vistaEmpleado.mostrarPantalla("Llamada");
-	    pedirSigCliente();
-	    
-	    
-	}
+	    }
+	
 	
 	private void rellamarCliente() {
 		intentos--;
@@ -134,10 +134,6 @@ public class ControladorEmpleado implements ActionListener{
 		vistaEmpleado.activarBtnIniciarTurno(true); 
 	}
 
-	/*
-	 * Iniciar turno no debe activar la comunicacion, se supone que todo lo que necesita lo tiene.
-	 * Solo debe cambiar la ventana. Luego finalizar turno va a ocuparse de lo demas
-	 */
 	private void iniciarTurno() {
         vistaEmpleado.setDniActual(this.proxdni);
         vistaEmpleado.mostrarPantalla("Atencion");
@@ -145,13 +141,18 @@ public class ControladorEmpleado implements ActionListener{
 	}
 
 
-	private void pedirSigCliente() {
-		//empleado.llamarCliente puede ser el que provoca que inicia y llama.
+	
+	
+	private synchronized void pedirSigCliente() {
 		Thread hiloEscucha = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
 	                try {
-	                	dniActual_emp = empleado.llamarCliente(); 
+	                	dniActual_emp = null;
+	                	while (dniActual_emp == null || dniActual_emp.equals(Utils.FILA_VACIA) || dniActual_emp.equals(Utils.HAY_CLIENTES)) {
+	                		dniActual_emp = empleado.llamarCliente();
+	                		System.out.println("DNIACTUAL_EMP"+dniActual_emp);
+	                	}
 	                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
 	                        @Override
 	                        public void run() {
@@ -165,6 +166,27 @@ public class ControladorEmpleado implements ActionListener{
 	    });
 	    hiloEscucha.setDaemon(true);
 	    hiloEscucha.start();
+	}
+	
+	private synchronized void pedirEstado() {
+		Thread hiloEscuchaFila = new Thread(new Runnable() {
+	        @Override
+	        public void run() {
+	                try {
+	                	estadoActual = empleado.pedirEstado();
+	                	javax.swing.SwingUtilities.invokeLater(new Runnable() {
+	                        @Override
+	                        public void run() {
+	                        	ventanaConsulta();
+	                        }
+	                    });
+	                } catch (Exception e) {
+	                    System.out.println("Error en pedirSigCliente: " + e.getMessage());
+	                }
+	        }
+	    });
+	    hiloEscuchaFila.setDaemon(true);
+	    hiloEscuchaFila.start();
 	}
 	
 	private void detenerTodosLosTimers() {

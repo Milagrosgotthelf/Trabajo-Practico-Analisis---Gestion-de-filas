@@ -23,6 +23,10 @@ public class Empleado {
 		return this.receptor_server.getMensaje();
 	} 
 	
+	public String pedirEstado() {
+		
+		return this.receptor_server.getMensaje();
+	}
 	
 	public void enviarCliente_Server(String msj) {
 		if (msj != null) {
