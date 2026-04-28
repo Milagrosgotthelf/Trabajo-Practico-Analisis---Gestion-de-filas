@@ -152,7 +152,7 @@ public class Servidor {
 					try {
 						for (int i=0; i<=listaEmpleados.size(); i++) {
 							String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
-							System.out.println(puerto);
+							//System.out.println(puerto);
 							synchronized (lock2) {
 							    if (server.clientes.isEmpty())
 							    	emisor_empleado.enviar("LISTA_VACIA", puerto);

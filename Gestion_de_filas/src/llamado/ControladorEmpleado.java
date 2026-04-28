@@ -92,15 +92,19 @@ public class ControladorEmpleado implements ActionListener{
 	private void mostrarSigCliente() {
 		if (this.dniActual_emp.equals("LISTA_VACIA")) {
 			//System.out.println("LISTA VACIA MOSTRARSIGCLIENTE");
-	        vistaEmpleado.actualizarEstadoEspera(false);
+	     //   vistaEmpleado.actualizarEstadoEspera(false);
+			ventanaConsulta();
 	        pedirSigCliente();
 	    } 
 	    else if (this.dniActual_emp.equals("HAY_CLIENTES") && (intentos<3)) {
 	    	//System.out.println("LISTA con clientes MOSTRARSIGCLIENTE");
-	    	vistaEmpleado.actualizarEstadoEspera(true);
+	    	//vistaEmpleado.actualizarEstadoEspera(true);
+	    	ventanaConsulta();
 	    } 
+		
 	    else {
 	    	System.out.println("ELSE MOSTRARSIGCLIENTE");
+	    	
 	    	//vistaEmpleado.actualizarEstadoEspera(true);
 	    	this.proxdni = dniActual_emp;
 	        vistaEmpleado.setProximoDni(this.proxdni);
@@ -109,14 +113,26 @@ public class ControladorEmpleado implements ActionListener{
 	        vistaEmpleado.activarBtnLlamar(true);
 	        vistaEmpleado.activarBtnIniciarTurno(false);
 	        vistaEmpleado.mostrarPantalla("Llamada");
-	        cicloLlamada();
+	        //cicloLlamada();
 	    }
 	        
-	    } 
+	} 
+	
+	private void ventanaConsulta() {
+		System.out.println("ControladorEmpleado 121 "+this.dniActual_emp);
+		if (this.dniActual_emp.equals("LISTA_VACIA")&& this.proxdni.equals("-")) {
+			vistaEmpleado.actualizarEstadoEspera(false);
+		}
+		else if (this.dniActual_emp.equals("HAY_CLIENTES") || this.proxdni.equals("-") ) {
+			vistaEmpleado.actualizarEstadoEspera(true);
+		}
+	}
+	
 	private void ventanaLlamadaDefecto() {
-		vistaEmpleado.actualizarEstadoEspera(false);
 		this.proxdni = "-";
-	    this.clienteAtendido = false;
+		ventanaConsulta();
+		
+		this.clienteAtendido = false;
 	    intentos = 0;
 	    vistaEmpleado.setIntentos(intentos);
 	    vistaEmpleado.setLabelsVisibles(false);         
@@ -124,8 +140,6 @@ public class ControladorEmpleado implements ActionListener{
 	    vistaEmpleado.activarBtnIniciarTurno(false);
 	    vistaEmpleado.mostrarPantalla("Llamada");
 	    pedirSigCliente();
-	    
-	    
 	}
 	
 	private void rellamarCliente() {
