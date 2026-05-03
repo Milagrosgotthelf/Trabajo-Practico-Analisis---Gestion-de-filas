@@ -18,6 +18,7 @@ public class Servidor {
 	private LinkedList<String> clientes= new LinkedList<String>();
 	
 	private ArrayList<String> listaEmpleados = new ArrayList<String>();
+	private ArrayList<Integer> listaEstadosEmpleado = new ArrayList<Integer>();
 	private int contadorReg = 1;
 	private Thread hiloRec, hiloEstadoCol;
 	
@@ -108,23 +109,30 @@ public class Servidor {
 			@Override
 			public void run() {
 				while (true) {
+					int index;
 					try {
 						String msj = receptor_empleado.getMensaje(); 
-						if(msj != null)
+						
+						if(msj != null) {
+							index = listaEmpleados.indexOf(getPuestoMsj(msj));
 							if(msj.startsWith("----")) {
-								
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(getPuestoMsj(msj)));
+								System.out.println("Recibido mensaje de empleado: " + msj + " puerto: " + puerto);
 								if (msj.startsWith("----") && !server.getClientes().isEmpty()) {
+									System.out.println("Enviando cliente al empleado: " + server.getClientes().getFirst() + " puerto: " + puerto);
+									listaEstadosEmpleado.set(index, 1);
+									System.out.println("LISTA: " + listaEstadosEmpleado.toString());
 								    emisor_empleado.enviar(server.getClientes().removeFirst(), puerto);
 								}
-
 							}
 							else if (msj.length() < 7 && !server.existeEmpleado(msj)) {
 	                        	listaEmpleados.add(getDniMsj(msj));
+	                        	listaEstadosEmpleado.add(0);
 	                        }
 							else {
-								System.out.println("HILORECEMP ELSE "+ msj);
 								emisor_pantalla.enviar(msj, Utils.Server_to_Pantalla); 
+								listaEstadosEmpleado.set(index, 0);
+							}
 						}
 						else {
 							System.out.println("Servidor 82 msj null");
@@ -152,11 +160,17 @@ public class Servidor {
 					try {
 						for (int i=0; i<=listaEmpleados.size(); i++) {
 							String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
+							String msjAnterior = null;
 							synchronized (lock2) {
-							    if (server.clientes.isEmpty())
-							    	emisor_empleado.enviar(Utils.FILA_VACIA, puerto);
-							    else
-							    	emisor_empleado.enviar(Utils.HAY_CLIENTES, puerto);
+								if(listaEstadosEmpleado.get(i) == 0)
+								    if (server.clientes.isEmpty() && (msjAnterior == null || !msjAnterior.equals(Utils.FILA_VACIA))) {
+								    	emisor_empleado.enviar(Utils.FILA_VACIA, puerto);
+								    	msjAnterior = Utils.FILA_VACIA;
+								    }
+								    else if ((msjAnterior == null || !msjAnterior.equals(Utils.HAY_CLIENTES))) {
+								    	emisor_empleado.enviar(Utils.HAY_CLIENTES, puerto);
+								    	msjAnterior = Utils.HAY_CLIENTES;
+								    }
 								lock2.wait(30);
 							}
 						}

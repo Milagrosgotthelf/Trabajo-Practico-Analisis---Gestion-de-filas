@@ -14,6 +14,7 @@ public class ControladorEmpleado implements ActionListener{
 	private boolean clienteAtendido = false;
 	private java.util.List<javax.swing.Timer> timers = new java.util.ArrayList<>();
 	private String estadoActual = "";
+	private int estadoAtencion = 0;
 	
 	public ControladorEmpleado()  {	
 		this.empleado = new Empleado();
@@ -60,7 +61,6 @@ public class ControladorEmpleado implements ActionListener{
 		else if (comando.equals("Finalizar turno")) {
 			detenerTodosLosTimers();
 			ventanaLlamadaDefecto();
-			pedirEstado();
 			
 		}
 	}
@@ -94,6 +94,8 @@ public class ControladorEmpleado implements ActionListener{
 	
 		
 	private void mostrarSigCliente(){
+
+    	estadoAtencion = 1;
     	this.proxdni = dniActual_emp;
     	vistaEmpleado.setProximoDni(this.proxdni);
         intentos = 3;
@@ -109,7 +111,6 @@ public class ControladorEmpleado implements ActionListener{
 	private void ventanaConsulta() {
 		if(this.estadoActual.equals(Utils.FILA_VACIA)) {
 			vistaEmpleado.actualizarEstadoEspera(false);
-			pedirEstado();
 		}
 		else if (this.estadoActual.equals(Utils.HAY_CLIENTES)){
 			vistaEmpleado.actualizarEstadoEspera(true);
@@ -118,6 +119,7 @@ public class ControladorEmpleado implements ActionListener{
 	}
 	        
 	private void ventanaLlamadaDefecto() {
+		estadoAtencion = 0;
 		this.proxdni = "-";
 	    intentos = 0;
 	    vistaEmpleado.setIntentos(intentos);
@@ -143,16 +145,15 @@ public class ControladorEmpleado implements ActionListener{
 
 	
 	
-	private synchronized void pedirSigCliente() {
+	private void pedirSigCliente() {
 		Thread hiloEscucha = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
 	                try {
 	                	dniActual_emp = null;
-	                	while (dniActual_emp == null || dniActual_emp.equals(Utils.FILA_VACIA) || dniActual_emp.equals(Utils.HAY_CLIENTES)) {
-	                		dniActual_emp = empleado.llamarCliente();
-	                		System.out.println("DNIACTUAL_EMP"+dniActual_emp);
-	                	}
+	                	System.out.println("PEDIRSIGCLIENTE");
+                		dniActual_emp = empleado.llamarCliente();
+                		System.out.println("DNIACTUAL_EMP"+dniActual_emp);
 	                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
 	                        @Override
 	                        public void run() {
@@ -172,11 +173,13 @@ public class ControladorEmpleado implements ActionListener{
 		Thread hiloEscuchaFila = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
+	        	while(true) {
 	                try {
 	                	estadoActual = empleado.pedirEstado();
 	                	javax.swing.SwingUtilities.invokeLater(new Runnable() {
 	                        @Override
 	                        public void run() {
+	                        	if(estadoAtencion != 1)
 	                        	ventanaConsulta();
 	                        }
 	                    });
@@ -184,6 +187,7 @@ public class ControladorEmpleado implements ActionListener{
 	                    System.out.println("Error en pedirSigCliente: " + e.getMessage());
 	                }
 	        }
+	       }
 	    });
 	    hiloEscuchaFila.setDaemon(true);
 	    hiloEscuchaFila.start();
