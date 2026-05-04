@@ -104,7 +104,7 @@ public class Servidor {
 	}
 
 
-	private void hiloRecEmp(Servidor server) {
+	private synchronized void hiloRecEmp(Servidor server) {
 		this.hiloRec = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -115,15 +115,26 @@ public class Servidor {
 						
 						if(msj != null) {
 							index = listaEmpleados.indexOf(getPuestoMsj(msj));
+							
+							
+							
 							if(msj.startsWith("----")) {
+								
+								if (getEstado(index) == 1) {
+									cambioEstado(index, 0);
+								}
+								
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(getPuestoMsj(msj)));
-								System.out.println("Recibido mensaje de empleado: " + msj + " puerto: " + puerto);
+								
+								
+								
 								if (msj.startsWith("----") && !server.getClientes().isEmpty()) {
-									System.out.println("Enviando cliente al empleado: " + server.getClientes().getFirst() + " puerto: " + puerto);
-									listaEstadosEmpleado.set(index, 1);
-									System.out.println("LISTA: " + listaEstadosEmpleado.toString());
+									cambioEstado(index, 1);
 								    emisor_empleado.enviar(server.getClientes().removeFirst(), puerto);
 								}
+								
+								
+								
 							}
 							else if (msj.length() < 7 && !server.existeEmpleado(msj)) {
 	                        	listaEmpleados.add(getDniMsj(msj));
@@ -131,7 +142,6 @@ public class Servidor {
 	                        }
 							else {
 								emisor_pantalla.enviar(msj, Utils.Server_to_Pantalla); 
-								listaEstadosEmpleado.set(index, 0);
 							}
 						}
 						else {
@@ -146,32 +156,33 @@ public class Servidor {
 				
 			}
 		});
-		//this.hiloRec.setDaemon(true); 
 		this.hiloRec.start();
 	}
 	
-	private void hiloEstadoCola(Servidor server) {
+	private synchronized void hiloEstadoCola(Servidor server) {
 		
 		this.hiloEstadoCol = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				System.out.println("Iniciando hilo estado de la cola");
+				String msjAnterior = null;
 				while (true) {
 					try {
 						for (int i=0; i<=listaEmpleados.size(); i++) {
 							String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
-							String msjAnterior = null;
 							synchronized (lock2) {
-								if(listaEstadosEmpleado.get(i) == 0)
+								if(getEstado(i) == 0) {
 								    if (server.clientes.isEmpty() && (msjAnterior == null || !msjAnterior.equals(Utils.FILA_VACIA))) {
 								    	emisor_empleado.enviar(Utils.FILA_VACIA, puerto);
 								    	msjAnterior = Utils.FILA_VACIA;
 								    }
-								    else if ((msjAnterior == null || !msjAnterior.equals(Utils.HAY_CLIENTES))) {
+								    else if (!server.clientes.isEmpty() && (msjAnterior == null || !msjAnterior.equals(Utils.HAY_CLIENTES))) {
 								    	emisor_empleado.enviar(Utils.HAY_CLIENTES, puerto);
 								    	msjAnterior = Utils.HAY_CLIENTES;
 								    }
-								lock2.wait(30);
+								    lock2.wait(1000);
+								}
+								
 							}
 						}
 					}
@@ -218,6 +229,15 @@ public class Servidor {
 			i++;
 		}
 		return dni;
+	}
+	
+	public synchronized void cambioEstado(int index, int estado) {
+		listaEstadosEmpleado.set(index, estado);
+		
+	}
+	
+	public int getEstado(int index) {
+		return listaEstadosEmpleado.get(index);
 	}
 	
 }

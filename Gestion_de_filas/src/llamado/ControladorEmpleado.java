@@ -52,7 +52,10 @@ public class ControladorEmpleado implements ActionListener{
 			}
 		}
 		else if (comando.equals("Llamar")) {
-			pedirSigCliente();
+			if (this.estadoAtencion == 0)
+				pedirSigCliente();
+			else
+				cicloLlamada();
 			     
 		}
 		else if (comando.equals("Iniciar turno")) {
@@ -61,6 +64,7 @@ public class ControladorEmpleado implements ActionListener{
 		else if (comando.equals("Finalizar turno")) {
 			detenerTodosLosTimers();
 			ventanaLlamadaDefecto();
+			ventanaConsulta();
 			
 		}
 	}
@@ -70,6 +74,7 @@ public class ControladorEmpleado implements ActionListener{
 		System.out.println("PROX DNI: " + proxdni);
 		System.out.println("dniActual_emp: " + dniActual_emp);
 	}
+	
 	private void cicloLlamada() {
 		if (intentos>0 && !clienteAtendido) {
 			vistaEmpleado.activarBtnLlamar(false);
@@ -79,7 +84,7 @@ public class ControladorEmpleado implements ActionListener{
 			this.empleado.enviarCliente_Server(dni_llamar);
 	        rellamarCliente(); 
 
-	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
+	        javax.swing.Timer timerReintento = new javax.swing.Timer(3000, e -> {
 	            if (!clienteAtendido && this.proxdni != "-" && this.proxdni==dni_llamar) {
 	                cicloLlamada(); 
 	            }
@@ -91,22 +96,18 @@ public class ControladorEmpleado implements ActionListener{
 	    	vistaEmpleado.activarBtnLlamar(true);
 	    }
 	}
-	
-		
+			
 	private void mostrarSigCliente(){
-
     	estadoAtencion = 1;
     	this.proxdni = dniActual_emp;
     	vistaEmpleado.setProximoDni(this.proxdni);
+    	vistaEmpleado.setLabelsVisibles(true);
         intentos = 3;
         vistaEmpleado.setIntentos(intentos);
         vistaEmpleado.activarBtnLlamar(true);
         vistaEmpleado.activarBtnIniciarTurno(false);
         vistaEmpleado.mostrarPantalla("Llamada");
-        cicloLlamada();
-        
 	}
-	
 	
 	private void ventanaConsulta() {
 		if(this.estadoActual.equals(Utils.FILA_VACIA)) {
@@ -123,12 +124,11 @@ public class ControladorEmpleado implements ActionListener{
 		this.proxdni = "-";
 	    intentos = 0;
 	    vistaEmpleado.setIntentos(intentos);
-	    vistaEmpleado.setLabelsVisibles(false);         
+	    vistaEmpleado.setLabelsVisibles(false);
 	    vistaEmpleado.activarBtnLlamar(false);          
 	    vistaEmpleado.activarBtnIniciarTurno(false);
 	    vistaEmpleado.mostrarPantalla("Llamada");
 	    }
-	
 	
 	private void rellamarCliente() {
 		intentos--;
@@ -142,18 +142,13 @@ public class ControladorEmpleado implements ActionListener{
         clienteAtendido = true;
 	}
 
-
-	
-	
-	private void pedirSigCliente() {
+	private synchronized void pedirSigCliente() {
 		Thread hiloEscucha = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
 	                try {
-	                	dniActual_emp = null;
 	                	System.out.println("PEDIRSIGCLIENTE");
                 		dniActual_emp = empleado.llamarCliente();
-                		System.out.println("DNIACTUAL_EMP"+dniActual_emp);
 	                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
 	                        @Override
 	                        public void run() {
@@ -175,14 +170,19 @@ public class ControladorEmpleado implements ActionListener{
 	        public void run() {
 	        	while(true) {
 	                try {
-	                	estadoActual = empleado.pedirEstado();
-	                	javax.swing.SwingUtilities.invokeLater(new Runnable() {
-	                        @Override
-	                        public void run() {
-	                        	if(estadoAtencion != 1)
-	                        	ventanaConsulta();
-	                        }
-	                    });
+	                	if(estadoAtencion != 1) {
+	                		if (estadoActual.equals("") || estadoActual.equals(Utils.FILA_VACIA)) {
+		                		estadoActual = empleado.pedirEstado();
+			                	javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			                        @Override
+			                        public void run() {
+			                        	ventanaConsulta();
+			                        }
+			                    });
+	                		}
+	                		else 
+	                			Thread.sleep(30);
+	                	}
 	                } catch (Exception e) {
 	                    System.out.println("Error en pedirSigCliente: " + e.getMessage());
 	                }

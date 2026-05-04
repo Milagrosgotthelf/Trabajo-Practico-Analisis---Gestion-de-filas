@@ -13,6 +13,7 @@ public class Empleado {
 	private String puertoReceptor;
 	private Emisor emisor_server = new Emisor();
 	private Receptor receptor_server = null;
+
 	
 	
 	public Empleado() {
