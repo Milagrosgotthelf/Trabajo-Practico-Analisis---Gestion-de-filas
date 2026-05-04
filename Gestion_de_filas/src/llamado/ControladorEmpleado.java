@@ -8,7 +8,7 @@ public class ControladorEmpleado implements ActionListener{
 	private Empleado empleado = null;
 	private Ventana_empleado vistaEmpleado;
 	private int intentos =3;
-	private String dniActual_emp ="", proxdni ="";
+	private String dniActual_emp ="", proxdni ="", estadoCola="";
 	private boolean clienteAtendido = false;
 	private java.util.List<javax.swing.Timer> timers = new java.util.ArrayList<>();
 	
@@ -40,19 +40,20 @@ public class ControladorEmpleado implements ActionListener{
 			try {
 				this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
 				ventanaLlamadaDefecto();
+				pedirSigCliente();
+				
 			} catch (BindException e) {
 				this.vistaEmpleado.mostrarMensaje("Número de Puesto ocupado");
 				this.vistaEmpleado.cleanTextField_numeroPuesto();
-				
 			}
-			
-
-			
-			
 		}
 		else if (comando.equals("Llamar")) {
-			vistaEmpleado.setLabelsVisibles(true);    
-			cicloLlamada();
+			if(clienteAtendido)
+				cicloLlamada();
+			else {
+				pedirSigCliente();
+			}
+				
 			     
 		}
 		else if (comando.equals("Iniciar turno")) {
@@ -61,13 +62,13 @@ public class ControladorEmpleado implements ActionListener{
 		else if (comando.equals("Finalizar turno")) {
 			detenerTodosLosTimers();
 			ventanaLlamadaDefecto();
-			
+			ventanaEstado();
 		}
 	}
 	
 	
 	private void cicloLlamada() {
-		if (intentos>0 && !clienteAtendido) {
+		if (intentos>0 && clienteAtendido) {
 			vistaEmpleado.activarBtnLlamar(false);
 			String dni_llamar = this.dniActual_emp;
 			this.vistaEmpleado.notificarLlamada(4-intentos);
@@ -76,7 +77,7 @@ public class ControladorEmpleado implements ActionListener{
 	        rellamarCliente(); 
 
 	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
-	            if (!clienteAtendido && this.dniActual_emp != "-" && this.dniActual_emp==dni_llamar) {
+	            if (clienteAtendido && this.dniActual_emp != "-" && this.dniActual_emp==dni_llamar) {
 	                cicloLlamada(); 
 	            }
 	        });
@@ -90,48 +91,18 @@ public class ControladorEmpleado implements ActionListener{
 	}
 
 	private void mostrarSigCliente() {
-		if (this.dniActual_emp.equals("LISTA_VACIA")) {
-			//System.out.println("LISTA VACIA MOSTRARSIGCLIENTE");
-	     //   vistaEmpleado.actualizarEstadoEspera(false);
-			ventanaConsulta();
-	        pedirSigCliente();
-	    } 
-	    else if (this.dniActual_emp.equals("HAY_CLIENTES") && (intentos<3)) {
-	    	//System.out.println("LISTA con clientes MOSTRARSIGCLIENTE");
-	    	//vistaEmpleado.actualizarEstadoEspera(true);
-	    	ventanaConsulta();
-	    } 
-		
-	    else {
-	    	System.out.println("ELSE MOSTRARSIGCLIENTE");
-	    	
-	    	//vistaEmpleado.actualizarEstadoEspera(true);
-	    	this.proxdni = dniActual_emp;
-	        vistaEmpleado.setProximoDni(this.proxdni);
-	        intentos = 3;
-	        vistaEmpleado.setIntentos(intentos);
-	        vistaEmpleado.activarBtnLlamar(true);
-	        vistaEmpleado.activarBtnIniciarTurno(false);
-	        vistaEmpleado.mostrarPantalla("Llamada");
-	        //cicloLlamada();
-	    }
-	        
-	} 
-	
-	private void ventanaConsulta() {
-		System.out.println("ControladorEmpleado 121 "+this.dniActual_emp);
-		if (this.dniActual_emp.equals("LISTA_VACIA")&& this.proxdni.equals("-")) {
-			vistaEmpleado.actualizarEstadoEspera(false);
-		}
-		else if (this.dniActual_emp.equals("HAY_CLIENTES") || this.proxdni.equals("-") ) {
-			vistaEmpleado.actualizarEstadoEspera(true);
-		}
-	}
-	
+		this.proxdni = dniActual_emp;
+        vistaEmpleado.setProximoDni(this.proxdni);
+        intentos = 3;
+        clienteAtendido = true;
+        vistaEmpleado.setLabelsVisibles(true);
+        vistaEmpleado.setIntentos(intentos);
+        vistaEmpleado.activarBtnLlamar(true);
+        vistaEmpleado.activarBtnIniciarTurno(false);
+        vistaEmpleado.mostrarPantalla("Llamada");
+	}	
 	private void ventanaLlamadaDefecto() {
 		this.proxdni = "-";
-		ventanaConsulta();
-		
 		this.clienteAtendido = false;
 	    intentos = 0;
 	    vistaEmpleado.setIntentos(intentos);
@@ -139,7 +110,6 @@ public class ControladorEmpleado implements ActionListener{
 	    vistaEmpleado.activarBtnLlamar(false);          
 	    vistaEmpleado.activarBtnIniciarTurno(false);
 	    vistaEmpleado.mostrarPantalla("Llamada");
-	    pedirSigCliente();
 	}
 	
 	private void rellamarCliente() {
@@ -147,29 +117,44 @@ public class ControladorEmpleado implements ActionListener{
 		vistaEmpleado.setIntentos(intentos);
 		vistaEmpleado.activarBtnIniciarTurno(true); 
 	}
-
-	/*
-	 * Iniciar turno no debe activar la comunicacion, se supone que todo lo que necesita lo tiene.
-	 * Solo debe cambiar la ventana. Luego finalizar turno va a ocuparse de lo demas
-	 */
+	
 	private void iniciarTurno() {
         vistaEmpleado.setDniActual(this.proxdni);
         vistaEmpleado.mostrarPantalla("Atencion");
         clienteAtendido = true;
 	}
 
+	private void ventanaEstado() {
+		if (this.estadoCola.equals("LISTA_VACIA")) {
+			vistaEmpleado.actualizarEstadoEspera(false);
+	        pedirSigCliente();
+	    } 
+	    else if (this.estadoCola.equals("HAY_CLIENTES") && (intentos<3)) {
+	    	vistaEmpleado.actualizarEstadoEspera(true);
+	    	vistaEmpleado.activarBtnLlamar(true);
+	    	
+	    } 
+	}
 
 	private void pedirSigCliente() {
-		//empleado.llamarCliente puede ser el que provoca que inicia y llama.
 		Thread hiloEscucha = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
 	                try {
-	                	dniActual_emp = empleado.llamarCliente(); 
+	                	String aux = empleado.llamarCliente();
+	                	System.out.println("AUX"+aux);
+	                	if(aux.equals("LISTA_VACIA") || aux.equals("HAY_CLIENTES")) {
+	                		estadoCola = aux;
+	                		ventanaEstado();
+	                	}
+	                	else {
+	                		dniActual_emp = aux;
+	                		mostrarSigCliente();
+	                	}
 	                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
 	                        @Override
 	                        public void run() {
-	                            mostrarSigCliente();
+	                            ;
 	                        }
 	                    });
 	                } catch (Exception e) {
