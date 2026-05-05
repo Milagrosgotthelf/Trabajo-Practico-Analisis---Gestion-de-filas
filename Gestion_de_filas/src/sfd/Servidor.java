@@ -50,8 +50,6 @@ public class Servidor {
 	public void inicioSecundario() {
 		try {
 			this.estadoSec = true;
-			this.receptor_registro = new Receptor(Utils.Registro_to_Server2);
-			this.receptor_empleado = new Receptor(Utils.Empleado_to_Server2);
 			this.receptor_server_heartbeat = new Receptor(Utils.Server_to_Server2);
 			this.hiloHeartbeat();
 			
@@ -235,6 +233,7 @@ public class Servidor {
 	        while (true) {
 	            try {
 	                if (estadoSec) {
+	                	System.out.println("HILOHEARTHBEAT SECUNDARIO");
 	                    String msj = receptor_server_heartbeat.getHeartbeat();
 	                    
 	                    if ("HEARTBEAT".equals(msj)) {
@@ -251,11 +250,34 @@ public class Servidor {
 	            }
 	        }
 	    });
-	    hiloHeartbeat.setDaemon(true);
 	    hiloHeartbeat.start();
 	}
 	
+	/*
+	 * public void hiloRecHeartbeat() {
+		Thread hilo = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						
+						String msj = receptor_server_heartbeat.getHeartbeat();
+						if (msj != null && msj.equals("HEARTBEAT")) {
+							servidorPpalVivo();
+						} else {
+							servidorPpalMuerto();
+						}
+						msj = null;
+					} catch (Exception e) {
+						System.out.println("Excepcion en hilo receptor del heartbeat: " + e.getMessage());
+					}
+				}
+			}
+		});
+		hilo.start();
+	}
 	
+	 */
 	
 	public void servidorPpalVivo() {
 		System.out.println("Servidor principal vivo");

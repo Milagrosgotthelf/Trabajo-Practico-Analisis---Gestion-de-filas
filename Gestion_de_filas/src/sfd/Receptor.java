@@ -60,12 +60,12 @@ public class Receptor implements Runnable {
         return aux;
     }
     
-    public synchronized String getHeartbeat(){       
+    public synchronized String getHeartbeat(){     
+    	
     	try {
             this.wait(6000);
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return null;
+            e.printStackTrace();
         }
         String aux = this.mensaje;
         this.mensaje = null; 
