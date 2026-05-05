@@ -60,6 +60,18 @@ public class Receptor implements Runnable {
         return aux;
     }
     
+    public synchronized String getHeartbeat(){       
+    	try {
+            this.wait(6000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
+        }
+        String aux = this.mensaje;
+        this.mensaje = null; 
+        return aux;
+    }
+    
     public void kill() {
 		try {
 			this.s.close();

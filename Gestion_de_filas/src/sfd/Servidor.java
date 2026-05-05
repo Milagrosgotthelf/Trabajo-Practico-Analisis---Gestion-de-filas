@@ -13,7 +13,7 @@ public class Servidor {
 	private Emisor emisor_pantalla = new Emisor();
 	private Emisor emisor_registro = new Emisor();
 	
-	private Emisor emisor_server_heartbeat;
+	private Emisor emisor_server_heartbeat = null;
 	private Object lock = new Object();
 	private Object lock2 = new Object();
 	private LinkedList<String> clientes= new LinkedList<String>();
@@ -21,7 +21,7 @@ public class Servidor {
 	private ArrayList<String> listaEmpleados = new ArrayList<String>();
 	private int contadorReg = 1;
 	private Thread hiloRec, hiloEstadoCol;
-	private boolean estadoSec = false ;
+	private volatile boolean estadoSec = false ;
 	
 	 
 	public Servidor() {
@@ -29,14 +29,15 @@ public class Servidor {
 		try {
 			iniciaReceptores();
 			this.emisor_server_heartbeat = new Emisor();
+			this.hiloRecEmp(this);
+			this.hiloReg(this);
+			this.hiloEstadoCola(this);
+			this.hiloHeartbeat();
 		} catch (BindException e) {
 			System.out.println("Iniciando servidor secundario");
 			inicioSecundario();
 		}
-		this.hiloRecEmp(this);
-		this.hiloReg(this);
-		this.hiloEstadoCola(this);
-		this.hiloHeartbeat();
+		
 		
 	
 	}
@@ -53,6 +54,7 @@ public class Servidor {
 			this.receptor_empleado = new Receptor(Utils.Empleado_to_Server2);
 			this.receptor_server_heartbeat = new Receptor(Utils.Server_to_Server2);
 			this.hiloHeartbeat();
+			
 		}
 		catch (BindException e) {
 			System.out.println("Puerto en uso, no se pudo iniciar el servidor: " + e.getMessage());
@@ -86,7 +88,6 @@ public class Servidor {
 		                            String puerto = Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + puesto);
 		                            
 		                            emisor_registro.enviar("OK", puerto);
-		                            //con esto avisamos que hay un nuevo cliente (asi actualiza cuando vuelve a haber clientes dsp de estar vacia)
 		                            synchronized (lock) {
 		                                lock.notifyAll(); 
 		                            }
@@ -227,35 +228,34 @@ public class Servidor {
 		return dni;
 	}
 	
+	//ITERACION 3
+	
 	public void hiloHeartbeat() {
-		Thread hiloHeartbeat = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (true) {
-					try {
-						if (estadoSec) {
-							String msj = receptor_server_heartbeat.getMensaje();
-							//Continuar problema
-							if (msj != null) {
-								servidorPpalVivo();
-							}
-							else {
-								servidorPpalMuerto();
-							}
-						}
-						else {
-							Thread.sleep(3000); // Espera 5 segundos antes de enviar el heartbeat
-							emisor_server_heartbeat.enviar("HEARTBEAT", Utils.Server_to_Server2);
-						}
-					} catch (Exception e) {
-						System.out.println("Excepcion en hilo heartbeat: " + e.getMessage());
-					}
-				}
-			}
-		});
-		hiloHeartbeat.setDaemon(true);
-		hiloHeartbeat.start();
+	    Thread hiloHeartbeat = new Thread(() -> {
+	        while (true) {
+	            try {
+	                if (estadoSec) {
+	                    String msj = receptor_server_heartbeat.getHeartbeat();
+	                    
+	                    if ("HEARTBEAT".equals(msj)) {
+	                        servidorPpalVivo();
+	                    } else {
+	                        servidorPpalMuerto();
+	                    }
+	                } else {
+	                    Thread.sleep(2000); 
+	                    emisor_server_heartbeat.enviar("HEARTBEAT", Utils.Server_to_Server2);
+	                }
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	            }
+	        }
+	    });
+	    hiloHeartbeat.setDaemon(true);
+	    hiloHeartbeat.start();
 	}
+	
+	
 	
 	public void servidorPpalVivo() {
 		System.out.println("Servidor principal vivo");
