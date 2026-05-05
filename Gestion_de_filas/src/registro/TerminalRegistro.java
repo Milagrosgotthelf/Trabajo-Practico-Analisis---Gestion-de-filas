@@ -2,6 +2,7 @@ package registro;
 
 
 import java.net.BindException;
+import java.net.ConnectException;
 
 import sfd.Emisor;
 import sfd.Receptor;
@@ -13,11 +14,11 @@ public class TerminalRegistro {
 	private int numTerminal;
 	
 	
-	public TerminalRegistro(int id) {
+	public TerminalRegistro(int id) throws ConnectException {
 		solicitarNumero();
 	}
 	
-	public void solicitarNumero() {
+	public void solicitarNumero() throws ConnectException {
 		
 		try {
 			this.receptor =  new Receptor(Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
@@ -41,7 +42,7 @@ public class TerminalRegistro {
 	
 
 	}
-	public boolean agregarCliente(String cliente){
+	public boolean agregarCliente(String cliente) throws ConnectException{
 		emisor.enviar(cliente+"/"+Integer.toString(this.numTerminal), Integer.toString(Integer.parseInt(Utils.Registro_to_Server)));
 		
 		String respuesta = receptor.getMensaje();

@@ -2,7 +2,9 @@ package sfd;
 
 import static sfd.Utils.IP;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.Socket;
 
 public class Emisor {
@@ -14,7 +16,7 @@ public class Emisor {
 	 * Habra que crear otro con parametro tipo cliente en un futuro
 	 * @param cliente
 	 */
-	public void enviar(String cliente, String puerto) {
+	public void enviar(String cliente, String puerto) throws ConnectException {
 		try {
 			
             this.socket = new Socket(IP,Integer.parseInt(puerto));
@@ -22,14 +24,20 @@ public class Emisor {
             out.println(cliente);
             //Esta linea envia el DNI al receptor
             out.close();
-            socket.close();
-            Thread.sleep(30);
-        } catch (Exception e) {
+            try {
+				socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Thread.sleep(30);
+        } catch (ConnectException e) {
+        	throw e;
+            //e.printStackTrace(); 
+        }catch (Exception e) {
         	System.out.println("Excepcion en el emisor: " + puerto + " " + e.getMessage());
         	e.printStackTrace();
-            //e.printStackTrace(); 
         }
-		
 	}
 
 }

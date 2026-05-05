@@ -3,6 +3,7 @@ package llamado;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.BindException;
+import java.net.ConnectException;
 public class ControladorEmpleado implements ActionListener{
 	
 	private Empleado empleado = null;
@@ -35,7 +36,11 @@ public class ControladorEmpleado implements ActionListener{
 			String nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 			nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 			
-			this.empleado.enviarCliente_Server(nroPuesto);
+			try {
+				this.empleado.enviarCliente_Server(nroPuesto);
+			} catch (ConnectException e) {
+				reconexionServer();
+			}
 			
 			try {
 				this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
@@ -62,10 +67,10 @@ public class ControladorEmpleado implements ActionListener{
 		else if (comando.equals("Finalizar turno")) {
 			detenerTodosLosTimers();
 			ventanaLlamadaDefecto();
+			this.estadoCola = "HAY_CLIENTES";
 			ventanaEstado();
 		}
 	}
-	
 	
 	private void cicloLlamada() {
 		if (intentos>0 && clienteAtendido) {
@@ -73,7 +78,12 @@ public class ControladorEmpleado implements ActionListener{
 			String dni_llamar = this.dniActual_emp;
 			this.vistaEmpleado.notificarLlamada(4-intentos);
 			
-			this.empleado.enviarCliente_Server(this.dniActual_emp);
+			try {
+				this.empleado.enviarCliente_Server(this.dniActual_emp);
+			} catch (ConnectException e) {
+				System.out.println("EXCEPCION EN CICLO LLAMADA");
+				reconexionServer();
+			}
 	        rellamarCliente(); 
 
 	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
@@ -101,6 +111,7 @@ public class ControladorEmpleado implements ActionListener{
         vistaEmpleado.activarBtnIniciarTurno(false);
         vistaEmpleado.mostrarPantalla("Llamada");
 	}	
+	
 	private void ventanaLlamadaDefecto() {
 		this.proxdni = "-";
 		this.clienteAtendido = false;
@@ -140,26 +151,26 @@ public class ControladorEmpleado implements ActionListener{
 		Thread hiloEscucha = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
+	        	boolean exit=false;
+	        	while(exit==false) {
+	        		
 	                try {
 	                	String aux = empleado.llamarCliente();
-	                	System.out.println("AUX"+aux);
 	                	if(aux.equals("LISTA_VACIA") || aux.equals("HAY_CLIENTES")) {
 	                		estadoCola = aux;
 	                		ventanaEstado();
+	                		exit = true;
 	                	}
 	                	else {
 	                		dniActual_emp = aux;
 	                		mostrarSigCliente();
+	                		exit=true;
 	                	}
-	                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
-	                        @Override
-	                        public void run() {
-	                            ;
-	                        }
-	                    });
-	                } catch (Exception e) {
-	                    System.out.println("Error en pedirSigCliente: " + e.getMessage());
+	                } catch (ConnectException e) {
+	                	System.out.println("EXCEPCION EN PEDIR SIG");
+	                	reconexionServer();
 	                }
+	        	}
 	        }
 	    });
 	    hiloEscucha.setDaemon(true);
@@ -174,4 +185,10 @@ public class ControladorEmpleado implements ActionListener{
 		}
 		timers.clear();
 	}
+
+	public void reconexionServer() {
+		this.vistaEmpleado.mostrarMensaje("Error de conexión con el servidor");
+		this.empleado.cambiarConexion();
+	}
+
 }
