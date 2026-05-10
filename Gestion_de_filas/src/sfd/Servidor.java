@@ -1,6 +1,7 @@
 package sfd;
 
 import java.net.BindException;
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 public class Servidor {
@@ -22,47 +23,22 @@ public class Servidor {
 	private int contadorReg = 1;
 	private Thread hiloRec, hiloEstadoCol;
 	private volatile boolean estadoSec = false ;
+	private boolean primerHeartBeat = true; 
 	
 	 
 	public Servidor() {
 		System.out.println("Servidor iniciado");
 		try {
 			iniciaReceptores();
-			this.emisor_server_heartbeat = new Emisor();
-			this.hiloRecEmp(this);
-			this.hiloReg(this);
-			this.hiloEstadoCola(this);
+			this.hilosPpales();
 			this.hiloHeartbeat();
 		} catch (BindException e) {
 			System.out.println("Iniciando servidor secundario");
 			inicioSecundario();
 		}
-		
-		
-	
-	}
-
-	public void iniciaReceptores() throws BindException {
-		this.receptor_registro = new Receptor(Utils.Registro_to_Server);
-		this.receptor_empleado = new Receptor(Utils.Empleado_to_Server);
 	}
 	
-	public void inicioSecundario() {
-		try {
-			this.estadoSec = true;
-			this.receptor_server_heartbeat = new Receptor(Utils.Server_to_Server2);
-			this.hiloHeartbeat();
-			
-		}
-		catch (BindException e) {
-			System.out.println("Puerto en uso, no se pudo iniciar el servidor: " + e.getMessage());
-			System.exit(1);
-		}
-		 catch (Exception e) {
-			 System.out.println("Excepcion al iniciar los receptores: " + e.getMessage());
-			 System.exit(1);
-		 }
-	}
+	
 	
 	public void agregarCliente(String cliente) {
 		clientes.addLast(cliente);
@@ -81,13 +57,22 @@ public class Servidor {
 	                        	int puesto = Integer.parseInt(getPuestoMsj(msj));
 	                        	msj = getDniMsj(msj);
 		                        if (!server.existeCliente(msj)) {
+		                        	
 		                            server.clientes.addLast(msj);
 		                            
-		                            String puerto = Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + puesto);
-		                            
-		                            emisor_registro.enviar("OK", puerto);
-		                            synchronized (lock) {
-		                                lock.notifyAll(); 
+		                            try {
+			                            server.emisor_server_heartbeat.enviar("Agregar/" + msj, Utils.Server_to_Server2);
+		                            }
+	                            	catch(Exception e) {
+	                            		System.out.println("No hay servidor secundario");
+	                            	}
+		                            finally {
+		                            	String puerto = Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + puesto);
+			                            
+			                            emisor_registro.enviar("OK", puerto);
+			                            synchronized (lock) {
+			                                lock.notifyAll(); 
+			                            }
 		                            }
 		                            
 		                        }
@@ -133,13 +118,26 @@ public class Servidor {
 								
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(getPuestoMsj(msj)));
 								if (msj.startsWith("----") && !server.getClientes().isEmpty()) {
-								    emisor_empleado.enviar(server.getClientes().removeFirst(), puerto);
+								    String dni = server.getClientes().removeFirst();
+									emisor_empleado.enviar(dni, puerto);
+									try {
+										emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2);
+									}
+									catch(Exception e) {
+										System.out.println("No hay servidor secundario");
+									}
 								}
 
 							}
 							else if (msj.length() < 7 && !server.existeEmpleado(msj)) {
 								
 	                        	listaEmpleados.add(getDniMsj(msj));
+	                        	try {
+	                        		emisor_server_heartbeat.enviar("Agregar empleado/"+getDniMsj(msj),Utils.Server_to_Server2);
+	                        	}catch(Exception e) {
+	                        		System.out.println("No hay servidor secundario");
+	                        	}
+	                        	
 	                        	
 	                        }
 							else {
@@ -233,51 +231,92 @@ public class Servidor {
 	        while (true) {
 	            try {
 	                if (estadoSec) {
-	                	System.out.println("HILOHEARTHBEAT SECUNDARIO");
 	                    String msj = receptor_server_heartbeat.getHeartbeat();
-	                    
-	                    if ("HEARTBEAT".equals(msj)) {
-	                        servidorPpalVivo();
-	                    } else {
+	                    if(msj != null) {
+		                    if ("HEARTBEAT".equals(msj)) {
+		                        servidorPpalVivo();
+		                    }
+		                    else {
+		                    	String[] vector = msj.split("/");
+		                    	String orden = vector[0];
+		                    	//System.out.println("orden"+ orden);
+		                    	String dni = vector[1];
+		                    	//System.out.println("dni"+ dni);
+		                    	
+		                    	if(orden.equals("Agregar")) {
+		                    		this.clientes.addLast(dni);
+		                    		System.out.println("HILOHEARTBEAT AGREGAR");
+		                    	}
+		                    	else if (orden.equals("Eliminar")) {
+		                    		this.clientes.remove(dni);
+		                    		System.out.println("HILOHEARTBEAT ELIMINAR");
+		                    	}
+		                    	else if(orden.equals("Agregar empleado")){
+		                    		listaEmpleados.add(dni);
+		                    		System.out.println("HILOHEARTBEAT AGREGAREMPLEADO "+listaEmpleados);
+		                    	}
+		                    	else if(orden.equals("Eliminar empleado")) {
+		                    		System.out.println("Elimiar empleado servidor secundario");
+		                    	}
+		                    	else if(orden.equals("SincronizacionDni")) {
+		                    		for(int i=1;i<vector.length;i++) {
+		                    			this.clientes.addLast(vector[i]);
+		                    		}
+		                    	}
+		                    	else if(orden.equals("SincronizacionEmp")) {
+		                    		for(int i=1;i<vector.length;i++) {
+		                    			this.listaEmpleados.add(vector[i]);
+		                    		}
+		                    
+		                    	}
+		                    }
+	                    }
+	                    else {
 	                        servidorPpalMuerto();
+	                        estadoSec = false;
 	                    }
 	                } else {
-	                    Thread.sleep(2000); 
-	                    emisor_server_heartbeat.enviar("HEARTBEAT", Utils.Server_to_Server2);
+	                	try {
+	                		emisor_server_heartbeat.enviar(".", Utils.Server_to_Server2);
+	                		if(this.primerHeartBeat) {
+		                		String listaDNI = "";
+		                		if(!this.clientes.isEmpty()) {
+		                			System.out.println("SERVIDOR 289");
+			                		for(int i=0; i<this.clientes.size();i++) {
+			                			listaDNI+=clientes.get(i)+"/";
+			                		}
+			                        emisor_server_heartbeat.enviar("SincronizacionDni/"+listaDNI, Utils.Server_to_Server2);
+		                		}
+		                        String listaPuestoEmp = "";
+		                        if(!this.listaEmpleados.isEmpty()) {
+			                        for(int i=0; i<this.listaEmpleados.size();i++) {
+			                        	listaPuestoEmp+=listaEmpleados.get(i)+"/";
+			                		}
+			                        emisor_server_heartbeat.enviar("SincronizacionEmp/"+listaPuestoEmp, Utils.Server_to_Server2);
+		                        }
+		                        this.primerHeartBeat=false;
+		                	}
+	                	else {
+		                    Thread.sleep(5000); 
+		                    emisor_server_heartbeat.enviar("HEARTBEAT", Utils.Server_to_Server2);
+	                		}
+	                	}
+	                	catch(Exception e) {
+	                		System.out.println("284 No hay servidor secundario");
+	                	}
 	                }
-	            } catch (Exception e) {
+	            }catch(ArrayIndexOutOfBoundsException e) {
+	            	System.out.println(e.getMessage());
+	            }
+	            catch (Exception e) {
 	                e.printStackTrace();
+	                
 	            }
 	        }
 	    });
 	    hiloHeartbeat.start();
 	}
 	
-	/*
-	 * public void hiloRecHeartbeat() {
-		Thread hilo = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (true) {
-					try {
-						
-						String msj = receptor_server_heartbeat.getHeartbeat();
-						if (msj != null && msj.equals("HEARTBEAT")) {
-							servidorPpalVivo();
-						} else {
-							servidorPpalMuerto();
-						}
-						msj = null;
-					} catch (Exception e) {
-						System.out.println("Excepcion en hilo receptor del heartbeat: " + e.getMessage());
-					}
-				}
-			}
-		});
-		hilo.start();
-	}
-	
-	 */
 	
 	public void servidorPpalVivo() {
 		System.out.println("Servidor principal vivo");
@@ -285,5 +324,37 @@ public class Servidor {
 	
 	public void servidorPpalMuerto() {
 		System.out.println("Servidor principal muerto, iniciando servidor secundario");
+		try {
+			iniciaReceptores();
+			this.receptor_server_heartbeat.kill();
+			this.hilosPpales();
+			this.hiloHeartbeat();
+		} catch (BindException e) { 
+			System.out.println(e.getMessage());
+		}
+	}
+	public void hilosPpales() {
+		this.emisor_server_heartbeat = new Emisor();
+		this.hiloRecEmp(this);
+		this.hiloReg(this);
+		this.hiloEstadoCola(this);
+	}
+
+	public void iniciaReceptores() throws BindException {
+		this.receptor_registro = new Receptor(Utils.Registro_to_Server);
+		this.receptor_empleado = new Receptor(Utils.Empleado_to_Server);
+	}
+	
+	public void inicioSecundario() {
+		try {
+			this.estadoSec = true;
+			this.receptor_server_heartbeat = new Receptor(Utils.Server_to_Server2);
+			this.hiloHeartbeat();
+			
+		}
+		 catch (Exception e) {
+			 System.out.println("Excepcion al iniciar los receptores: " + e.getMessage());
+			 System.exit(1);
+		 }
 	}
 }	
