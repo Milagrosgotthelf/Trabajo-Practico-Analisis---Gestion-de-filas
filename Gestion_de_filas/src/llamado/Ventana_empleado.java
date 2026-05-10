@@ -214,7 +214,7 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 		panel_prox.add(lblNumProxDNI);
 		lblNumProxDNI.setVisible(false);
 		
-		lblMensajeEstado = new JLabel("New label");
+		lblMensajeEstado = new JLabel("No hay clientes esperando.");
 		lblMensajeEstado.setForeground(new Color(0, 160, 183));
 		lblMensajeEstado.setFont(new Font("SansSerif", Font.BOLD, 25));
 		panel_prox.add(lblMensajeEstado);
