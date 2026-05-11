@@ -105,6 +105,7 @@ public class ControladorEmpleado implements ActionListener{
 		this.proxdni = "-";
 		this.clienteAtendido = false;
 	    intentos = 0;
+	    this.estadoCola = "HAY_CLIENTES";
 	    vistaEmpleado.setIntentos(intentos);
 	    vistaEmpleado.setLabelsVisibles(false);         
 	    vistaEmpleado.activarBtnLlamar(false);          
