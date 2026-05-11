@@ -114,6 +114,7 @@ public class Servidor {
 						String msj = receptor_empleado.getMensaje(); 
 						
 						if(msj != null) {
+<<<<<<< Updated upstream
 							index = listaEmpleados.indexOf(getPuestoMsj(msj));
 							
 							
@@ -122,6 +123,22 @@ public class Servidor {
 								
 								if (getEstado(index) == 1) {
 									cambioEstado(index, 0);
+=======
+							String[] vector = msj.split("/");
+							System.out.println("SERVIDOR 115 "+vector[0] + vector[1]);
+							msj = vector[0];
+							if(msj.equals("Cliente")) {
+								
+								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
+								if (!server.getClientes().isEmpty()) {
+								    String dni = server.getClientes().removeFirst();
+									emisor_empleado.enviar(dni, puerto);
+									try {
+										emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2);
+									}
+									catch(Exception e) {
+									}
+>>>>>>> Stashed changes
 								}
 								
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(getPuestoMsj(msj)));
@@ -136,16 +153,32 @@ public class Servidor {
 								
 								
 							}
+							else if (msj.equals("Estado")) {
+								
+								
+							}
 							else if (msj.length() < 7 && !server.existeEmpleado(msj)) {
 	                        	listaEmpleados.add(getDniMsj(msj));
+<<<<<<< Updated upstream
 	                        	listaEstadosEmpleado.add(0);
+=======
+	                        	try {
+	                        		emisor_server_heartbeat.enviar("Agregar empleado/"+vector[1],Utils.Server_to_Server2);
+	                        	}catch(Exception e) {
+	                        	}
+	                        	
+	                        	
+>>>>>>> Stashed changes
 	                        }
 							else {
 								emisor_pantalla.enviar(msj, Utils.Server_to_Pantalla); 
 							}
+<<<<<<< Updated upstream
 						}
 						else {
 							System.out.println("Servidor 82 msj null");
+=======
+>>>>>>> Stashed changes
 						}
 					}
 						 catch (Exception e) {
@@ -167,9 +200,11 @@ public class Servidor {
 				System.out.println("Iniciando hilo estado de la cola");
 				String msjAnterior = null;
 				while (true) {
+					
 					try {
 						for (int i=0; i<=listaEmpleados.size(); i++) {
 							String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
+							System.out.println("HILOESTADOCOLA "+ server.clientes.isEmpty());
 							synchronized (lock2) {
 								if(getEstado(i) == 0) {
 								    if (server.clientes.isEmpty() && (msjAnterior == null || !msjAnterior.equals(Utils.FILA_VACIA))) {

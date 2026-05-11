@@ -7,7 +7,10 @@ import registro.MainReg;
 public class MainUnificado {
 
 	public static void main(String[] args) {
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 		MainServer.main(args);
 		MainPan.main(args);
 		MainReg.main(args);

@@ -37,7 +37,6 @@ public class ControladorEmpleado implements ActionListener{
 		if (comando.equals("INICIAR")){
 			
 			String nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
-			nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 			
 			this.empleado.enviarCliente_Server(nroPuesto);
 			
@@ -146,6 +145,7 @@ public class ControladorEmpleado implements ActionListener{
 		Thread hiloEscucha = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
+<<<<<<< Updated upstream
 	                try {
 	                	System.out.println("PEDIRSIGCLIENTE");
                 		dniActual_emp = empleado.llamarCliente();
@@ -157,6 +157,25 @@ public class ControladorEmpleado implements ActionListener{
 	                    });
 	                } catch (Exception e) {
 	                    System.out.println("Error en pedirSigCliente: " + e.getMessage());
+=======
+	        	while(true) {
+	        		
+	                try {
+	                	String aux = empleado.llamarCliente();
+	                	if(aux.equals("LISTA_VACIA") || aux.equals("HAY_CLIENTES")) {
+	                		estadoCola = aux;
+	                		ventanaEstado();
+	                		break;
+	                	}
+	                	else {
+	                		dniActual_emp = aux;
+	                		mostrarSigCliente();
+	                		break;
+	                	}
+	                } catch (ConnectException e) {
+	                	System.out.println("EXCEPCION EN PEDIR SIG");
+	                	reconexionServer();
+>>>>>>> Stashed changes
 	                }
 	        }
 	    });
@@ -164,6 +183,7 @@ public class ControladorEmpleado implements ActionListener{
 	    hiloEscucha.start();
 	}
 	
+<<<<<<< Updated upstream
 	private synchronized void pedirEstado() {
 		Thread hiloEscuchaFila = new Thread(new Runnable() {
 	        @Override
@@ -192,6 +212,9 @@ public class ControladorEmpleado implements ActionListener{
 	    hiloEscuchaFila.setDaemon(true);
 	    hiloEscuchaFila.start();
 	}
+=======
+	
+>>>>>>> Stashed changes
 	
 	private void detenerTodosLosTimers() {
 		for (javax.swing.Timer timer : timers) {

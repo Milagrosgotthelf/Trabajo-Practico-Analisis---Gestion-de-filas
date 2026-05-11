@@ -19,8 +19,18 @@ public class Empleado {
 	public Empleado() {
 	}
 	
+<<<<<<< Updated upstream
 	public String llamarCliente() {
 		this.emisor_server.enviar("----/"+this.numeroDePuesto, this.puertoEmisor);
+=======
+	public String llamarCliente() throws ConnectException {
+		this.emisor_server.enviar("Cliente/"+this.numeroDePuesto, this.puertoEmisor);
+		return this.receptor_server.getMensaje();
+	} 
+	
+	public String PedirEstado() throws ConnectException {
+		this.emisor_server.enviar("Estado/"+this.numeroDePuesto, this.puertoEmisor);
+>>>>>>> Stashed changes
 		return this.receptor_server.getMensaje();
 	} 
 	
