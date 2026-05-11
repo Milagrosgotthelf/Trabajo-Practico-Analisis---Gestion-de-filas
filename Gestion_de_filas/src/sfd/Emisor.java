@@ -18,22 +18,14 @@ public class Emisor {
 	 */
 	public void enviar(String cliente, String puerto) throws ConnectException {
 		try {
-			
             this.socket = new Socket(IP,Integer.parseInt(puerto));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             out.println(cliente);
-            //Esta linea envia el DNI al receptor
             out.close();
-            try {
-				socket.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			socket.close();
 			Thread.sleep(30);
         } catch (ConnectException e) {
         	throw e;
-            //e.printStackTrace(); 
         }catch (Exception e) {
         	System.out.println("Excepcion en el emisor: " + puerto + " " + e.getMessage());
         	e.printStackTrace();

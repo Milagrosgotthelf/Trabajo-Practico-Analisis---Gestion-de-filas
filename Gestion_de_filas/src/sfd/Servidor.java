@@ -48,7 +48,6 @@ public class Servidor {
 	    Thread hilo = new Thread(new Runnable() {
 	        @Override
 	        public void run() {
-	            String msjAnterior = "";
 	            while (true) {
 	                try {
 	                    String msj = receptor_registro.getMensaje(); 
@@ -64,7 +63,6 @@ public class Servidor {
 			                            server.emisor_server_heartbeat.enviar("Agregar/" + msj, Utils.Server_to_Server2);
 		                            }
 	                            	catch(Exception e) {
-	                            		System.out.println("No hay servidor secundario");
 	                            	}
 		                            finally {
 		                            	String puerto = Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + puesto);
@@ -80,15 +78,13 @@ public class Servidor {
 		                            emisor_registro.enviar("REPETIDO", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)+ puesto));
 	                        }
 	                        else {
-	                        	//System.out.println("ELSE TERMINAL ACTIVA");
 	                        	emisor_registro.enviar(Integer.toString(server.contadorReg), Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
 	                        	server.contadorReg = server.contadorReg + 1;
 	                        }
-	                        msjAnterior = msj;
 	                    }
 	                    
 	                } catch (Exception e) {
-	                    //System.out.println("Excepcion en hilo receptor del registro " + e.getMessage());
+	                    System.out.println("Excepcion en hilo receptor del registro " + e.getMessage());
 	                }
 	            }
 	        }
@@ -124,7 +120,6 @@ public class Servidor {
 										emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2);
 									}
 									catch(Exception e) {
-										System.out.println("No hay servidor secundario");
 									}
 								}
 
@@ -135,7 +130,6 @@ public class Servidor {
 	                        	try {
 	                        		emisor_server_heartbeat.enviar("Agregar empleado/"+getDniMsj(msj),Utils.Server_to_Server2);
 	                        	}catch(Exception e) {
-	                        		System.out.println("No hay servidor secundario");
 	                        	}
 	                        	
 	                        	
@@ -169,14 +163,12 @@ public class Servidor {
 					try {
 						for (int i=0; i<=listaEmpleados.size(); i++) {
 							String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
-							//System.out.println(puerto);
 							synchronized (lock2) {
 							    if (server.clientes.isEmpty())
 							    	emisor_empleado.enviar("LISTA_VACIA", puerto);
 							    else
 							    	emisor_empleado.enviar("HAY_CLIENTES", puerto);
 								lock2.wait(300);
-								//O:Cuando quiere enviar un mensaje pero no hay nadie que lo escuche sale excepcion
 							}
 						}
 					}
@@ -302,7 +294,6 @@ public class Servidor {
 	                		}
 	                	}
 	                	catch(Exception e) {
-	                		System.out.println("284 No hay servidor secundario");
 	                	}
 	                }
 	            }catch(ArrayIndexOutOfBoundsException e) {
@@ -316,7 +307,6 @@ public class Servidor {
 	    });
 	    hiloHeartbeat.start();
 	}
-	
 	
 	public void servidorPpalVivo() {
 		System.out.println("Servidor principal vivo");
@@ -333,6 +323,7 @@ public class Servidor {
 			System.out.println(e.getMessage());
 		}
 	}
+	
 	public void hilosPpales() {
 		this.emisor_server_heartbeat = new Emisor();
 		this.hiloRecEmp(this);
