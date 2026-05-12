@@ -13,6 +13,8 @@ public class ControladorEmpleado implements ActionListener{
 	private boolean clienteAtendido = false;
 	private java.util.List<javax.swing.Timer> timers = new java.util.ArrayList<>();
 	
+	private boolean pidiendoCliente = false;
+	
 	public ControladorEmpleado()  {	
 		this.empleado = new Empleado();
 	}
@@ -45,7 +47,8 @@ public class ControladorEmpleado implements ActionListener{
 			try {
 				this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
 				ventanaLlamadaDefecto();
-				pedirSigCliente();
+				//pedirSigCliente();
+				pedirEstado();
 				
 			} catch (BindException e) {
 				this.vistaEmpleado.mostrarMensaje("Número de Puesto ocupado");
@@ -53,10 +56,10 @@ public class ControladorEmpleado implements ActionListener{
 			}
 		}
 		else if (comando.equals("Llamar")) {
-			if(clienteAtendido)
-				cicloLlamada();
-			else {
+			if(!clienteAtendido) {
 				pedirSigCliente();
+				System.out.println(this.intentos);
+				cicloLlamada();
 			}
 				
 			     
@@ -67,13 +70,12 @@ public class ControladorEmpleado implements ActionListener{
 		else if (comando.equals("Finalizar turno")) {
 			detenerTodosLosTimers();
 			ventanaLlamadaDefecto();
-			this.estadoCola = "HAY_CLIENTES";
-			ventanaEstado();
+			pedirEstado();
 		}
 	}
 	
 	private void cicloLlamada() {
-		if (intentos>0 && clienteAtendido) {
+		if (intentos>0) {
 			vistaEmpleado.activarBtnLlamar(false);
 			String dni_llamar = this.dniActual_emp;
 			this.vistaEmpleado.notificarLlamada(4-intentos);
@@ -87,16 +89,17 @@ public class ControladorEmpleado implements ActionListener{
 	        rellamarCliente(); 
 
 	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
-	            if (clienteAtendido && this.dniActual_emp != "-" && this.dniActual_emp==dni_llamar) {
+	            if (clienteAtendido && !this.dniActual_emp.equals("-") && this.dniActual_emp.equals(dni_llamar)) {
 	                cicloLlamada(); 
 	            }
 	        });
 	        timerReintento.setRepeats(false);
 	        timers.add(timerReintento);
 	        timerReintento.start();
-	    } else if (intentos<=0 && !clienteAtendido) {
+	    } else if (intentos<=0) {
 	    	vistaEmpleado.activarBtnLlamar(true);
-	    	pedirSigCliente();
+	    	ventanaLlamadaDefecto(); 
+	    	pedirEstado();
 	    }
 	}
 
@@ -138,7 +141,6 @@ public class ControladorEmpleado implements ActionListener{
 	private void ventanaEstado() {
 		if (this.estadoCola.equals("LISTA_VACIA")) {
 			vistaEmpleado.actualizarEstadoEspera(false);
-	        pedirSigCliente();
 	    } 
 	    else if (this.estadoCola.equals("HAY_CLIENTES") && (intentos<3)) {
 	    	vistaEmpleado.actualizarEstadoEspera(true);
@@ -148,33 +150,45 @@ public class ControladorEmpleado implements ActionListener{
 	}
 
 	private void pedirSigCliente() {
-		Thread hiloEscucha = new Thread(new Runnable() {
-	        @Override
+		while(!pidiendoCliente) {
+    		pidiendoCliente = true;
+            try {
+            	String aux = empleado.llamarCliente();
+            	if(!aux.equals("HAY_CLIENTES") && !aux.equals("LISTA_VACIA")){
+            		dniActual_emp = aux;
+            		pidiendoCliente = false;
+            		mostrarSigCliente();
+            		break;
+            	}
+        } catch (ConnectException e) {
+            	reconexionServer();
+            }
+    	}
+	}
+	
+	private void pedirEstado() {
+		Thread hiloEstado = new Thread(new Runnable() {
+			@Override
 	        public void run() {
-	        	boolean exit=false;
-	        	while(exit==false) {
+	        	String aux = null, auxAnt = null;
+	        	while(aux == null || !aux.equals("HAY_CLIENTES")) {
 	        		
 	                try {
-	                	String aux = empleado.llamarCliente();
-	                	if(aux.equals("LISTA_VACIA") || aux.equals("HAY_CLIENTES")) {
-	                		estadoCola = aux;
+	                	aux = empleado.pedirEstado();
+	                	System.out.println("PEDIRESTADO "+aux);
+	                	estadoCola = aux;
+	                	if(!aux.equals(auxAnt)) {
+	                		auxAnt=aux;
 	                		ventanaEstado();
-	                		exit = true;
-	                	}
-	                	else {
-	                		dniActual_emp = aux;
-	                		mostrarSigCliente();
-	                		exit=true;
 	                	}
 	                } catch (ConnectException e) {
-	                	System.out.println("EXCEPCION EN PEDIR SIG");
 	                	reconexionServer();
 	                }
 	        	}
 	        }
 	    });
-	    hiloEscucha.setDaemon(true);
-	    hiloEscucha.start();
+		hiloEstado.setDaemon(true);
+		hiloEstado.start();
 	}
 	
 	private void detenerTodosLosTimers() {

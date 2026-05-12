@@ -109,11 +109,13 @@ public class Servidor {
 				while (true) {
 					try {
 						String msj = receptor_empleado.getMensaje(); 
+						String[] vector = msj.split("/");
+						msj = vector[0];
 						if(msj != null)
-							if(msj.startsWith("----")) {
-								
-								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(getPuestoMsj(msj)));
-								if (msj.startsWith("----") && !server.getClientes().isEmpty()) {
+							if(msj.equals("Cliente")) {
+								System.out.println("SERVIDOR ENVIAR CLIENTE");
+								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
+								if (!server.getClientes().isEmpty()) {
 								    String dni = server.getClientes().removeFirst();
 									emisor_empleado.enviar(dni, puerto);
 									try {
@@ -124,11 +126,15 @@ public class Servidor {
 								}
 
 							}
+							else if (msj.equals("Estado")) {
+								Thread.sleep(30);
+							}
+						
 							else if (msj.length() < 7 && !server.existeEmpleado(msj)) {
 								
 	                        	listaEmpleados.add(getDniMsj(msj));
 	                        	try {
-	                        		emisor_server_heartbeat.enviar("Agregar empleado/"+getDniMsj(msj),Utils.Server_to_Server2);
+	                        		emisor_server_heartbeat.enviar("Agregar empleado/"+vector[1],Utils.Server_to_Server2);
 	                        	}catch(Exception e) {
 	                        	}
 	                        	

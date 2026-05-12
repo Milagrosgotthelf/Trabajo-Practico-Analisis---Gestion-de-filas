@@ -21,7 +21,12 @@ public class Empleado {
 	}
 	
 	public String llamarCliente() throws ConnectException {
-		this.emisor_server.enviar("----/"+this.numeroDePuesto, this.puertoEmisor);
+		this.emisor_server.enviar("Cliente/"+this.numeroDePuesto, this.puertoEmisor);
+		return this.receptor_server.getMensaje();
+	} 
+	
+	public String pedirEstado() throws ConnectException {
+		this.emisor_server.enviar("Estado/"+this.numeroDePuesto, this.puertoEmisor);
 		return this.receptor_server.getMensaje();
 	} 
 	
