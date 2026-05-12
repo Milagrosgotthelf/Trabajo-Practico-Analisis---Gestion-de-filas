@@ -10,10 +10,13 @@ public class ControladorEmpleado implements ActionListener{
 	private Ventana_empleado vistaEmpleado;
 	private int intentos =3;
 	private String dniActual_emp ="", proxdni ="", estadoCola="";
-	private boolean clienteAtendido = false;
+	private volatile boolean clienteAtendido = false;
+	private boolean ventanaEstado = false;
 	private java.util.List<javax.swing.Timer> timers = new java.util.ArrayList<>();
+	private final Object lockEstado = new Object();
+	private final Object lockButton = new Object();
 	
-	private boolean pidiendoCliente = false;
+	private volatile boolean pidiendoCliente = false;
 	
 	public ControladorEmpleado()  {	
 		this.empleado = new Empleado();
@@ -56,13 +59,13 @@ public class ControladorEmpleado implements ActionListener{
 			}
 		}
 		else if (comando.equals("Llamar")) {
-			if(!clienteAtendido) {
-				pedirSigCliente();
-				System.out.println(this.intentos);
-				cicloLlamada();
+			synchronized(lockButton) {
+				if(!clienteAtendido && !pidiendoCliente) {
+					pedirSigCliente();
+					cicloLlamada();
+				}
 			}
 				
-			     
 		}
 		else if (comando.equals("Iniciar turno")) {
 			iniciarTurno();
@@ -71,7 +74,10 @@ public class ControladorEmpleado implements ActionListener{
 		else if (comando.equals("Finalizar turno")) {
 			
 			ventanaLlamadaDefecto();
-			pedirEstado();
+			synchronized(lockEstado) {
+				lockEstado.notifyAll();
+			}
+			ventanaEstado();
 		}
 	}
 	
@@ -100,11 +106,12 @@ public class ControladorEmpleado implements ActionListener{
 	    } else if (intentos<=0) {
 	    	vistaEmpleado.activarBtnLlamar(true);
 	    	ventanaLlamadaDefecto(); 
-	    	pedirEstado();
+	    	ventanaEstado();
 	    }
 	}
 
 	private void mostrarSigCliente() {
+		ventanaEstado = false;
 		this.proxdni = dniActual_emp;
         vistaEmpleado.setProximoDni(this.proxdni);
         intentos = 3;
@@ -117,6 +124,7 @@ public class ControladorEmpleado implements ActionListener{
 	}	
 	
 	private void ventanaLlamadaDefecto() {
+		ventanaEstado = false;
 		this.proxdni = "-";
 		this.clienteAtendido = false;
 	    intentos = 0;
@@ -125,6 +133,7 @@ public class ControladorEmpleado implements ActionListener{
 	    vistaEmpleado.activarBtnLlamar(false);          
 	    vistaEmpleado.activarBtnIniciarTurno(false);
 	    vistaEmpleado.mostrarPantalla("Llamada");
+	    
 	}
 	
 	private void rellamarCliente() {
@@ -140,10 +149,13 @@ public class ControladorEmpleado implements ActionListener{
 	}
 
 	private void ventanaEstado() {
+		
 		if (this.estadoCola.equals("LISTA_VACIA")) {
+			ventanaEstado = true;
 			vistaEmpleado.actualizarEstadoEspera(false);
 	    } 
 	    else if (this.estadoCola.equals("HAY_CLIENTES") && (intentos<3)) {
+	    	ventanaEstado = true;
 	    	vistaEmpleado.actualizarEstadoEspera(true);
 	    	vistaEmpleado.activarBtnLlamar(true);
 	    	
@@ -151,45 +163,57 @@ public class ControladorEmpleado implements ActionListener{
 	}
 
 	private void pedirSigCliente() {
-		while(!pidiendoCliente) {
-    		pidiendoCliente = true;
-            try {
-            	String aux = empleado.llamarCliente();
-            	if(!aux.equals("HAY_CLIENTES") && !aux.equals("LISTA_VACIA")){
-            		dniActual_emp = aux;
-            		pidiendoCliente = false;
-            		mostrarSigCliente();
-            		break;
-            	}
-        } catch (ConnectException e) {
-            	reconexionServer();
-            }
-    	}
+	    synchronized (lockEstado) {
+	        if (pidiendoCliente) return;
+	        pidiendoCliente = true;
+	    }
+
+	    try {
+	        String aux = empleado.llamarCliente();
+	        if(!aux.equals("HAY_CLIENTES") && !aux.equals("LISTA_VACIA")) {
+		        dniActual_emp = aux;
+	            mostrarSigCliente();
+	        }
+	    } catch (ConnectException e) {
+	        reconexionServer(); 
+	    } finally {
+	        synchronized (lockEstado) {
+	            pidiendoCliente = false;
+	            lockEstado.notifyAll(); 
+	        }
+	    }
 	}
 	
 	private void pedirEstado() {
-		Thread hiloEstado = new Thread(new Runnable() {
-			@Override
-	        public void run() {
-	        	String aux = null, auxAnt = null;
-	        	while(aux == null || !aux.equals("HAY_CLIENTES")) {
-	        		
-	                try {
-	                	aux = empleado.pedirEstado();
-	                	System.out.println("PEDIRESTADO "+aux);
-	                	estadoCola = aux;
-	                	if(!aux.equals(auxAnt)) {
-	                		auxAnt=aux;
-	                		ventanaEstado();
-	                	}
-	                } catch (ConnectException e) {
-	                	reconexionServer();
+	    Thread hiloEstado = new Thread(() -> {
+	        String auxAnt = "";
+	        while (true) {
+	            try {
+	                synchronized (lockEstado) {
+	                    while (pidiendoCliente || clienteAtendido) {
+	                        lockEstado.wait(); 
+	                    }
 	                }
-	        	}
+	                estadoCola = empleado.pedirEstado();
+	                System.out.println(estadoCola);
+	                if (!ventanaEstado || !estadoCola.equals(auxAnt)) {
+	                    auxAnt = estadoCola;
+	                    ventanaEstado();
+	                }
+	                Thread.sleep(1000);
+	                //O: Este sleep existe porque a veces no daba el tiempo para detener este hilo para llamar
+	                //Entiendo que alcanza para evitar fallos
+
+	            } catch (ConnectException e) {
+	                reconexionServer();
+	            } catch (InterruptedException e) {
+	                Thread.currentThread().interrupt();
+	                break;
+	            }
 	        }
 	    });
-		hiloEstado.setDaemon(true);
-		hiloEstado.start();
+	    hiloEstado.setDaemon(true);
+	    hiloEstado.start();
 	}
 	
 	private void detenerTodosLosTimers() {
