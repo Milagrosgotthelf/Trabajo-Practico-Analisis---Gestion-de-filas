@@ -131,17 +131,17 @@ public class Servidor {
 							}
 						
 							else if (msj.length() < 7 && !server.existeEmpleado(msj)) {
-								
-	                        	listaEmpleados.add(getDniMsj(msj));
+								//Al llegar aca, msj es el puesto del empleado (vector[0])
+	                        	listaEmpleados.add(msj);
 	                        	try {
-	                        		emisor_server_heartbeat.enviar("Agregar empleado/"+vector[1],Utils.Server_to_Server2);
+	                        		emisor_server_heartbeat.enviar("Agregar empleado/"+msj,Utils.Server_to_Server2);
 	                        	}catch(Exception e) {
 	                        	}
 	                        	
 	                        	
 	                        }
 							else {
-								emisor_pantalla.enviar(msj, Utils.Server_to_Pantalla); 
+								emisor_pantalla.enviar(msj+"/"+vector[1], Utils.Server_to_Pantalla); 
 						}
 						else {
 							System.out.println("Servidor 82 msj null");

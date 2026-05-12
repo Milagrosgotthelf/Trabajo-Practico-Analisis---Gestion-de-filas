@@ -66,9 +66,10 @@ public class ControladorEmpleado implements ActionListener{
 		}
 		else if (comando.equals("Iniciar turno")) {
 			iniciarTurno();
+			detenerTodosLosTimers();
 		}
 		else if (comando.equals("Finalizar turno")) {
-			detenerTodosLosTimers();
+			
 			ventanaLlamadaDefecto();
 			pedirEstado();
 		}
