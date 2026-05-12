@@ -232,14 +232,13 @@ public class Servidor {
 	                    String msj = receptor_server_heartbeat.getHeartbeat();
 	                    if(msj != null) {
 		                    if ("HEARTBEAT".equals(msj)) {
-		                        servidorPpalVivo();
+		                        //servidorPpalVivo();
 		                    }
 		                    else {
 		                    	String[] vector = msj.split("/");
 		                    	String orden = vector[0];
-		                    	//System.out.println("orden"+ orden);
 		                    	String dni = vector[1];
-		                    	//System.out.println("dni"+ dni);
+		                    	System.out.println(vector);
 		                    	
 		                    	if(orden.equals("Agregar")) {
 		                    		this.clientes.addLast(dni);
@@ -254,6 +253,8 @@ public class Servidor {
 		                    		System.out.println("HILOHEARTBEAT AGREGAREMPLEADO "+listaEmpleados);
 		                    	}
 		                    	else if(orden.equals("Eliminar empleado")) {
+		                    		//Aca falta organizar como se elimina el empleado
+		                    		//O: Tomi dijo que se pueden vincular acciones a las salidas del sistema, podriamos hacer eso y con la X para cerrar ventanas tambien
 		                    		System.out.println("Elimiar empleado servidor secundario");
 		                    	}
 		                    	else if(orden.equals("SincronizacionDni")) {
@@ -265,7 +266,6 @@ public class Servidor {
 		                    		for(int i=1;i<vector.length;i++) {
 		                    			this.listaEmpleados.add(vector[i]);
 		                    		}
-		                    
 		                    	}
 		                    }
 	                    }
@@ -274,39 +274,37 @@ public class Servidor {
 	                        estadoSec = false;
 	                    }
 	                } else {
-	                	try {
-	                		emisor_server_heartbeat.enviar(".", Utils.Server_to_Server2);
-	                		if(this.primerHeartBeat) {
-		                		String listaDNI = "";
-		                		if(!this.clientes.isEmpty()) {
-		                			System.out.println("SERVIDOR 289");
-			                		for(int i=0; i<this.clientes.size();i++) {
-			                			listaDNI+=clientes.get(i)+"/";
-			                		}
-			                        emisor_server_heartbeat.enviar("SincronizacionDni/"+listaDNI, Utils.Server_to_Server2);
+                		emisor_server_heartbeat.enviar(".", Utils.Server_to_Server2);
+                		
+                		//Este mensaje era para saber si alguien esta escuchando y que no salte una excepcion mas adelante
+                		if(this.primerHeartBeat) {
+	                		String listaDNI = "";
+	                		if(!this.clientes.isEmpty()) {
+	                			System.out.println("SERVIDOR 289");
+		                		for(int i=0; i<this.clientes.size();i++) {
+		                			listaDNI+=clientes.get(i)+"/";
 		                		}
-		                        String listaPuestoEmp = "";
-		                        if(!this.listaEmpleados.isEmpty()) {
-			                        for(int i=0; i<this.listaEmpleados.size();i++) {
-			                        	listaPuestoEmp+=listaEmpleados.get(i)+"/";
-			                		}
-			                        emisor_server_heartbeat.enviar("SincronizacionEmp/"+listaPuestoEmp, Utils.Server_to_Server2);
-		                        }
-		                        this.primerHeartBeat=false;
-		                	}
-	                	else {
-		                    Thread.sleep(5000); 
-		                    emisor_server_heartbeat.enviar("HEARTBEAT", Utils.Server_to_Server2);
+		                        emisor_server_heartbeat.enviar("SincronizacionDni/"+listaDNI, Utils.Server_to_Server2);
 	                		}
+	                        String listaPuestoEmp = "";
+	                        if(!this.listaEmpleados.isEmpty()) {
+		                        for(int i=0; i<this.listaEmpleados.size();i++) {
+		                        	listaPuestoEmp+=listaEmpleados.get(i)+"/";
+		                		}
+		                        emisor_server_heartbeat.enviar("SincronizacionEmp/"+listaPuestoEmp, Utils.Server_to_Server2);
+	                        }
+	                        this.primerHeartBeat=false;
 	                	}
-	                	catch(Exception e) {
-	                	}
+                	else {
+	                    emisor_server_heartbeat.enviar("HEARTBEAT", Utils.Server_to_Server2);
+                		}
 	                }
-	            }catch(ArrayIndexOutOfBoundsException e) {
-	            	System.out.println(e.getMessage());
+	            }catch(ConnectException | IndexOutOfBoundsException e) {
+	            	
 	            }
 	            catch (Exception e) {
-	                e.printStackTrace();
+	            	
+	            	System.out.println("Excepcion hilo Heartbeat "+e.getMessage());
 	                
 	            }
 	        }
@@ -316,6 +314,8 @@ public class Servidor {
 	
 	public void servidorPpalVivo() {
 		System.out.println("Servidor principal vivo");
+		System.out.println(this.listaEmpleados);
+		System.out.println(this.clientes);
 	}
 	
 	public void servidorPpalMuerto() {
@@ -327,6 +327,8 @@ public class Servidor {
 			this.hiloHeartbeat();
 		} catch (BindException e) { 
 			System.out.println(e.getMessage());
+			System.out.println("Servidor Ppal activo");
+			System.exit(5);
 		}
 	}
 	

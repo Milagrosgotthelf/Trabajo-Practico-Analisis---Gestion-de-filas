@@ -14,7 +14,6 @@ public class Empleado {
 	private String puertoReceptor;
 	private Emisor emisor_server = new Emisor();
 	private Receptor receptor_server = null;
-	private boolean configServer = true;
 	
 	
 	public Empleado() {
@@ -45,14 +44,7 @@ public class Empleado {
 		this.receptor_server = new Receptor(this.puertoReceptor);
 	}
 	
-	public void cambiarConexion() {
-		System.out.println("Cambio de conexion empleado");
-		this.configServer = !this.configServer; 
-		if(this.configServer)
-			this.puertoEmisor = Utils.Empleado_to_Server;
-		else 
-			this.puertoEmisor = Utils.Empleado_to_Server2;
-	}
+
 	
 	public String getDniActual() {
 		return dniActual;

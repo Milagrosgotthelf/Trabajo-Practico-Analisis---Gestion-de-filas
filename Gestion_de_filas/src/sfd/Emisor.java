@@ -8,7 +8,7 @@ import java.net.ConnectException;
 import java.net.Socket;
 
 public class Emisor {
-	Socket socket = null;
+	private Socket socket = null;
 	
 	
 	/*
@@ -30,6 +30,15 @@ public class Emisor {
         	System.out.println("Excepcion en el emisor: " + puerto + " " + e.getMessage());
         	e.printStackTrace();
         }
+	}
+	
+	public void close() {
+		try {
+			this.socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.BindException;
 import java.net.ConnectException;
+
+import sfd.Utils;
 public class ControladorEmpleado implements ActionListener{
 	
 	private Empleado empleado = null;
@@ -34,6 +36,24 @@ public class ControladorEmpleado implements ActionListener{
 		manejarEmpleado(comando);
 	}
 	
+	public void enviarCliente_Server_Reintento(String msj) {
+		int intentos=Utils.Intentos;
+		while(intentos>0) {
+			try {
+				this.empleado.enviarCliente_Server(msj);
+				return;
+			} catch (ConnectException e) {
+				intentos--;
+				this.vistaEmpleado.mostrarMensaje("Reintentando conexion...");
+				try {
+				Thread.sleep(2000);}catch(InterruptedException e1) {}
+				}
+			}
+		this.vistaEmpleado.mostrarMensaje("Reconexion fallida. Cerrando terminal.");
+		System.exit(-1);
+	
+	}
+	
 	private void manejarEmpleado(String comando) {
 		
 		if (comando.equals("INICIAR")){
@@ -41,16 +61,14 @@ public class ControladorEmpleado implements ActionListener{
 			String nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 			nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 			
-			try {
-				this.empleado.enviarCliente_Server(nroPuesto);
-			} catch (ConnectException e) {
-				reconexionServer();
-			}
+			//
+			this.enviarCliente_Server_Reintento(nroPuesto);
+			//Fallo al enviar el mensaje por servidor caido
+			//Deberia esperar y re intentar antes de cambiar la conexión.
 			
 			try {
 				this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
 				ventanaLlamadaDefecto();
-				//pedirSigCliente();
 				pedirEstado();
 				
 			} catch (BindException e) {
@@ -87,12 +105,11 @@ public class ControladorEmpleado implements ActionListener{
 			String dni_llamar = this.dniActual_emp;
 			this.vistaEmpleado.notificarLlamada(4-intentos);
 			
-			try {
-				this.empleado.enviarCliente_Server(this.dniActual_emp);
-			} catch (ConnectException e) {
-				System.out.println("EXCEPCION EN CICLO LLAMADA");
-				reconexionServer();
-			}
+			//
+			this.enviarCliente_Server_Reintento(this.dniActual_emp);
+			//Fallo al enviar el mensaje por servidor caido
+			//Deberia esperar y re intentar antes de cambiar la conexión.
+			
 	        rellamarCliente(); 
 
 	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
@@ -168,20 +185,33 @@ public class ControladorEmpleado implements ActionListener{
 	        pidiendoCliente = true;
 	    }
 
-	    try {
-	        String aux = empleado.llamarCliente();
-	        if(!aux.equals("HAY_CLIENTES") && !aux.equals("LISTA_VACIA")) {
+	        String aux = this.llamarCliente_reintento();
+	        if(aux != null && !aux.equals("HAY_CLIENTES") && !aux.equals("LISTA_VACIA")) {
 		        dniActual_emp = aux;
 	            mostrarSigCliente();
 	        }
-	    } catch (ConnectException e) {
-	        reconexionServer(); 
-	    } finally {
+	        else if(aux == null) {
+	        	this.vistaEmpleado.mostrarMensaje("Fallo de conexion con el servidor. Abortando solicitud...");
+	        }
 	        synchronized (lockEstado) {
 	            pidiendoCliente = false;
 	            lockEstado.notifyAll(); 
-	        }
 	    }
+	    //Si falla desbloquea el hilo para que pueda solicitar estado 
+	}
+	
+	
+	private String llamarCliente_reintento() {
+		int intentos = Utils.Intentos;
+		while(intentos>0) {
+			try {
+				return empleado.llamarCliente();
+			} catch (ConnectException e) {
+				intentos--;
+			}
+		}
+		this.vistaEmpleado.mostrarMensaje("Reconexion fallida. Cerrando terminal.");
+		return null;
 	}
 	
 	private void pedirEstado() {
@@ -194,19 +224,20 @@ public class ControladorEmpleado implements ActionListener{
 	                        lockEstado.wait(); 
 	                    }
 	                }
-	                estadoCola = empleado.pedirEstado();
-	                System.out.println(estadoCola);
-	                if (!ventanaEstado || !estadoCola.equals(auxAnt)) {
+	                estadoCola = this.pedirEstado_reintento();
+	                
+	                if (estadoCola != null && (!ventanaEstado || !estadoCola.equals(auxAnt))) {
 	                    auxAnt = estadoCola;
 	                    ventanaEstado();
+	                }
+	                else if (estadoCola == null) {
+	                	System.exit(-1);
 	                }
 	                Thread.sleep(1000);
 	                //O: Este sleep existe porque a veces no daba el tiempo para detener este hilo para llamar
 	                //Entiendo que alcanza para evitar fallos
 
-	            } catch (ConnectException e) {
-	                reconexionServer();
-	            } catch (InterruptedException e) {
+	            }  catch (InterruptedException e) {
 	                Thread.currentThread().interrupt();
 	                break;
 	            }
@@ -214,6 +245,24 @@ public class ControladorEmpleado implements ActionListener{
 	    });
 	    hiloEstado.setDaemon(true);
 	    hiloEstado.start();
+	}
+	
+	private String pedirEstado_reintento() throws InterruptedException {
+		
+		int intentos = Utils.Intentos;
+			while(intentos>0) {
+				try {
+					return empleado.pedirEstado();
+				}catch (ConnectException e) {
+					intentos--;
+					this.vistaEmpleado.mostrarMensaje("Reintentando conexion...");
+					Thread.sleep(2000);
+					
+				}
+			}
+			this.vistaEmpleado.mostrarMensaje("Reconexion fallida. Cerrando terminal.");
+			return null;
+			
 	}
 	
 	private void detenerTodosLosTimers() {
@@ -225,9 +274,5 @@ public class ControladorEmpleado implements ActionListener{
 		timers.clear();
 	}
 
-	public void reconexionServer() {
-		this.vistaEmpleado.mostrarMensaje("Error de conexión con el servidor");
-		this.empleado.cambiarConexion();
-	}
 
 }

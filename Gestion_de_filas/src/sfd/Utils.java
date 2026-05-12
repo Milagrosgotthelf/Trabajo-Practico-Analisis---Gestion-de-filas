@@ -16,5 +16,5 @@ public class Utils {
 	public static final String Server_to_Server2 = "2000";
 	public static final String Server2_to_Server = "2001";
 	
-	public static final int Intentos=2;
+	public static final int Intentos=4;
 }
