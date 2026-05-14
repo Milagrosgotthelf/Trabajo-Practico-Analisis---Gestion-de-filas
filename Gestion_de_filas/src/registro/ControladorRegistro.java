@@ -79,9 +79,9 @@ public class ControladorRegistro implements ActionListener {
 				if (intentos>0) {
 					//Si salta ConnectException es porque no hay servidor que escuche
 					try {
-						JOptionPane.showMessageDialog(ventana_registro, "Reintentando");
+						if (intentos<Utils.Intentos)
+							JOptionPane.showMessageDialog(ventana_registro, "Reintentando");
 						Thread.sleep(5000);
-						
 						
 					}catch(InterruptedException e) {}
 					

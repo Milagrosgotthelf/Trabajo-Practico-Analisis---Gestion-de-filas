@@ -67,18 +67,25 @@ public class Servidor {
 		                            finally {
 		                            	String puerto = Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + puesto);
 			                            
-			                            emisor_registro.enviar("OK", puerto);
+			                            //emisor_registro.enviar("OK", puerto);
+			                            server.enviarReintento(emisor_registro, "OK", puerto);
 			                            synchronized (lock) {
 			                                lock.notifyAll(); 
 			                            }
 		                            }
 		                            
 		                        }
-		                        else
-		                            emisor_registro.enviar("REPETIDO", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)+ puesto));
+		                        else {
+		                        	server.enviarReintento(emisor_registro, "REPETIDO", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)+ puesto));
+		                            //emisor_registro.enviar("REPETIDO", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)+ puesto));
+		                        
+		                      //reintento
+		                        }
 	                        }
 	                        else {
-	                        	emisor_registro.enviar(Integer.toString(server.contadorReg), Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
+	                        	server.enviarReintento(emisor_empleado, Integer.toString(server.contadorReg), Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
+	                        	//emisor_registro.enviar(Integer.toString(server.contadorReg), Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
+	                        	//reintento
 	                        	server.contadorReg = server.contadorReg + 1;
 	                        }
 	                    }
@@ -355,5 +362,17 @@ public class Servidor {
 			 System.out.println("Excepcion al iniciar los receptores: " + e.getMessage());
 			 System.exit(1);
 		 }
+	}
+	
+	public void enviarReintento(Emisor em,String msj, String puerto) {
+		int intentos = Utils.Intentos;
+		while(intentos>0)
+		try {
+			em.enviar(msj, puerto);
+		} catch (ConnectException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }	
