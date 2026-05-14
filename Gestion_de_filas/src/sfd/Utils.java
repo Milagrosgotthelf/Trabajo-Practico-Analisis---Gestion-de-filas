@@ -25,9 +25,11 @@ public class Utils {
 	//asi se ejecuta automaticamente al ejecutar la clase
 	static {
 		Properties prop = new Properties();
-		try {
-			FileInputStream input = new FileInputStream("config.properties");
-			
+	    try {
+	        FileInputStream input = new FileInputStream("config.properties");
+	        
+	        // ¡ESTA LÍNEA ES LA QUE FALTA!
+	        prop.load(input);	
 			IP = prop.getProperty("IP");
 			Registro_to_Server = prop.getProperty("Registro_to_Server");
 			PUERTO_CONFIRMACION = prop.getProperty("PUERTO_CONFIRMACION");
@@ -44,10 +46,9 @@ public class Utils {
 			Server2_to_Server = prop.getProperty("Server2_to_Server");
 			
 			
-		} catch (FileNotFoundException e) {
-			
-			//e.printStackTrace();
-		}
+	    } catch (Exception e) {
+	        System.out.println("Error cargando configuración: " + e.getMessage());
+	    }
 	}
 	
 	}

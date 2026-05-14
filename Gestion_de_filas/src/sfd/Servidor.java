@@ -249,7 +249,7 @@ public class Servidor {
 		                    	String[] vector = msj.split("/");
 		                    	String orden = vector[0];
 		                    	String dni = vector[1];
-		                    	System.out.println(vector);
+		                    	System.out.println(vector[0] + vector.length);
 		                    	
 		                    	if(orden.equals("Agregar")) {
 		                    		this.clientes.addLast(dni);
@@ -270,11 +270,13 @@ public class Servidor {
 		                    	}
 		                    	else if(orden.equals("SincronizacionDni")) {
 		                    		for(int i=1;i<vector.length;i++) {
+		                    			System.out.println("SINCR "+vector[i]);
 		                    			this.clientes.addLast(vector[i]);
 		                    		}
 		                    	}
 		                    	else if(orden.equals("SincronizacionEmp")) {
 		                    		for(int i=1;i<vector.length;i++) {
+		                    			System.out.println("SINCR "+vector[i]);
 		                    			this.listaEmpleados.add(vector[i]);
 		                    		}
 		                    	}

@@ -63,7 +63,7 @@ public class Receptor implements Runnable {
     public synchronized String getHeartbeat(){     
     	
     	try {
-            this.wait(6000);
+            this.wait(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
