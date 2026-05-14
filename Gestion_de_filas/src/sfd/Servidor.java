@@ -83,7 +83,7 @@ public class Servidor {
 		                        }
 	                        }
 	                        else {
-	                        	server.enviarReintento(emisor_empleado, Integer.toString(server.contadorReg), Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
+	                        	server.enviarReintento(emisor_registro, Integer.toString(server.contadorReg), Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
 	                        	//emisor_registro.enviar(Integer.toString(server.contadorReg), Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
 	                        	//reintento
 	                        	server.contadorReg = server.contadorReg + 1;
@@ -124,7 +124,8 @@ public class Servidor {
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
 								if (!server.getClientes().isEmpty()) {
 								    String dni = server.getClientes().removeFirst();
-									emisor_empleado.enviar(dni, puerto);
+									//emisor_empleado.enviar(dni, puerto);
+									server.enviarReintento(emisor_empleado, dni, puerto);
 									try {
 										emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2);
 									}
@@ -148,7 +149,8 @@ public class Servidor {
 	                        	
 	                        }
 							else {
-								emisor_pantalla.enviar(msj+"/"+vector[1], Utils.Server_to_Pantalla); 
+								server.enviarReintento(emisor_pantalla, msj+"/"+vector[1], Utils.Server_to_Pantalla);
+								//emisor_pantalla.enviar(msj+"/"+vector[1], Utils.Server_to_Pantalla); 
 						}
 						else {
 							System.out.println("Servidor 82 msj null");
@@ -178,9 +180,11 @@ public class Servidor {
 							String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
 							synchronized (lock2) {
 							    if (server.clientes.isEmpty())
-							    	emisor_empleado.enviar("LISTA_VACIA", puerto);
+							    	//emisor_empleado.enviar("LISTA_VACIA", puerto);
+							    	server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
 							    else
-							    	emisor_empleado.enviar("HAY_CLIENTES", puerto);
+							    	//emisor_empleado.enviar("HAY_CLIENTES", puerto);
+							    	server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
 								lock2.wait(300);
 							}
 						}
@@ -366,12 +370,16 @@ public class Servidor {
 	
 	public void enviarReintento(Emisor em,String msj, String puerto) {
 		int intentos = Utils.Intentos;
-		while(intentos>0)
 		try {
 			em.enviar(msj, puerto);
 		} catch (ConnectException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
+			while(intentos>0) {
+				intentos--;
+				this.enviarReintento(em, msj, puerto);
+			}
+			if(intentos == 0) 
+				System.out.println("Falla al intentar enviar desde Servidor el mesaje: "+msj);	
 		}
 		
 	}
