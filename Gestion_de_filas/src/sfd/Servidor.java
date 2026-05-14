@@ -175,23 +175,31 @@ public class Servidor {
 			public void run() {
 				System.out.println("Iniciando hilo estado de la cola");
 				while (true) {
-					try {
-						for (int i=0; i<=listaEmpleados.size(); i++) {
+					//if(listaEmpleados)
+						for (int i=0; i<listaEmpleados.size(); i++) {
 							String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
+							boolean bool=false;
 							synchronized (lock2) {
-							    if (server.clientes.isEmpty())
-							    	//emisor_empleado.enviar("LISTA_VACIA", puerto);
-							    	server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
-							    else
-							    	//emisor_empleado.enviar("HAY_CLIENTES", puerto);
-							    	server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
-								lock2.wait(300);
+								try {
+									if (server.clientes.isEmpty()) {
+								    	//emisor_empleado.enviar("LISTA_VACIA", puerto);
+								    	bool = server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
+								    }
+								    else {
+								    	//emisor_empleado.enviar("HAY_CLIENTES", puerto);
+								    	bool =server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
+								    }
+									if(!bool) {
+										server.listaEmpleados.remove(i);
+										System.out.println("EMPLEADO ELIMINADO ");
+									}
+										
+									lock2.wait(300);
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
 							}
 						}
-					}
-					catch(Exception e) {
-						//System.out.println("Excepcion en hilo estado de la cola: " + e.getMessage());
-					}
 				}
 			}
 		});
@@ -297,6 +305,7 @@ public class Servidor {
 		                		for(int i=0; i<this.clientes.size();i++) {
 		                			listaDNI+=clientes.get(i)+"/";
 		                		}
+		                		 System.out.println("SincronizacionDni/"+listaDNI);
 		                        emisor_server_heartbeat.enviar("SincronizacionDni/"+listaDNI, Utils.Server_to_Server2);
 	                		}
 	                        String listaPuestoEmp = "";
@@ -304,6 +313,7 @@ public class Servidor {
 		                        for(int i=0; i<this.listaEmpleados.size();i++) {
 		                        	listaPuestoEmp+=listaEmpleados.get(i)+"/";
 		                		}
+		                        System.out.println("SincronizacionEmp/"+listaPuestoEmp);
 		                        emisor_server_heartbeat.enviar("SincronizacionEmp/"+listaPuestoEmp, Utils.Server_to_Server2);
 	                        }
 	                        this.primerHeartBeat=false;
@@ -334,10 +344,10 @@ public class Servidor {
 	public void servidorPpalMuerto() {
 		System.out.println("Servidor principal muerto, iniciando servidor secundario");
 		try {
+			estadoSec = false;
 			iniciaReceptores();
 			this.receptor_server_heartbeat.kill();
 			this.hilosPpales();
-			this.hiloHeartbeat();
 		} catch (BindException e) { 
 			System.out.println(e.getMessage());
 			System.out.println("Servidor Ppal activo");
@@ -370,19 +380,21 @@ public class Servidor {
 		 }
 	}
 	
-	public void enviarReintento(Emisor em,String msj, String puerto) {
+	public boolean enviarReintento(Emisor em,String msj, String puerto) {
 		int intentos = Utils.Intentos;
-		try {
-			em.enviar(msj, puerto);
-		} catch (ConnectException e) {
-			//e.printStackTrace();
+		
 			while(intentos>0) {
+			try {
 				intentos--;
-				this.enviarReintento(em, msj, puerto);
+				em.enviar(msj, puerto);
+				return true;
+			} catch (ConnectException e) {
+				//e.printStackTrace();
 			}
-			if(intentos == 0) 
-				System.out.println("Falla al intentar enviar desde Servidor el mesaje: "+msj);	
+			System.out.println("Falla al intentar enviar desde Servidor el mensaje: "+msj);	
+			
 		}
+			return false;
 		
 	}
 }	

@@ -55,9 +55,12 @@ public class ControladorRegistro implements ActionListener {
 				else if (agregado == 0){
 					this.ventana_registro.mostrarMensajeTemporal("   DNI REPETIDO: Por favor, aguarde a ser llamado.  ", 155, 100, 322, 50);	
 				}
-				else {
+				else if (agregado==2) {
 					this.ventana_registro.mostrarMensajeTemporal("   PROBLEMAS CON LA CONEXION  ", 155, 100, 322, 50);
 					//Deberiamos cerrarlo?
+				}
+				else {
+					this.ventana_registro.mostrarMensajeTemporal("   DNI INVALIDO, fuera de rango etario.  ", 155, 100, 240, 50);
 				}
 			}
 			this.ventana_registro.setDni("");
@@ -70,30 +73,34 @@ public class ControladorRegistro implements ActionListener {
 		
 		int intentos = Utils.Intentos;;
 		boolean agregado = false;
-		while(intentos > 0 && !agregado) {
-			try {
-				agregado = this.terminal.agregarCliente(dniActual);
-			} catch (ConnectException e1) {
-				System.out.println(agregado);
-				intentos--;
-				if (intentos>0) {
-					//Si salta ConnectException es porque no hay servidor que escuche
-					try {
-						if (intentos<Utils.Intentos)
-							JOptionPane.showMessageDialog(ventana_registro, "Reintentando");
-						Thread.sleep(5000);
+		if (dniActual.startsWith("00"))
+			return 3;
+		else {
+			while(intentos > 0 && !agregado) {
+				try {
+					agregado = this.terminal.agregarCliente(dniActual);
+				} catch (ConnectException e1) {
+					System.out.println(agregado);
+					intentos--;
+					if (intentos>0) {
+						//Si salta ConnectException es porque no hay servidor que escuche
+						try {
+							if (intentos<Utils.Intentos)
+								JOptionPane.showMessageDialog(ventana_registro, "Reintentando");
+							Thread.sleep(5000);
+							
+						}catch(InterruptedException e) {}
 						
-					}catch(InterruptedException e) {}
+					}
+					else {
+						JOptionPane.showMessageDialog(ventana_registro, "No se pudo conectar al servidor.");
+						return 2;
+					}
 					
 				}
-				else {
-					JOptionPane.showMessageDialog(ventana_registro, "No se pudo conectar al servidor.");
-					return 2;
-				}
-				
 			}
+			return (agregado) ? 1 : 0;
 		}
-		return (agregado) ? 1 : 0;
 	}
 	
 	public TerminalRegistro nuevaTerminal() {
