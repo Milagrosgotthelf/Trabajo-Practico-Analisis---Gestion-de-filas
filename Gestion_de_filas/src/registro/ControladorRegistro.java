@@ -60,7 +60,7 @@ public class ControladorRegistro implements ActionListener {
 					//Deberiamos cerrarlo?
 				}
 				else {
-					this.ventana_registro.mostrarMensajeTemporal("   DNI INVALIDO, fuera de rango etario.  ", 155, 100, 240, 50);
+					this.ventana_registro.mostrarMensajeTemporal("   DNI INVALIDO: Fuera de rango etario.  ", 155, 100, 260, 50);
 				}
 			}
 			this.ventana_registro.setDni("");
