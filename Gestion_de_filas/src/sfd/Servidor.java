@@ -120,7 +120,6 @@ public class Servidor {
 						msj = vector[0];
 						if(msj != null)
 							if(msj.equals("Cliente")) {
-								System.out.println("SERVIDOR ENVIAR CLIENTE");
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
 								if (!server.getClientes().isEmpty()) {
 								    String dni = server.getClientes().removeFirst();
@@ -139,18 +138,14 @@ public class Servidor {
 							}
 						
 							else if (msj.length() < 7 && !server.existeEmpleado(msj)) {
-								//Al llegar aca, msj es el puesto del empleado (vector[0])
 	                        	listaEmpleados.add(msj);
 	                        	try {
 	                        		emisor_server_heartbeat.enviar("Agregar empleado/"+msj,Utils.Server_to_Server2);
 	                        	}catch(Exception e) {
-	                        	}
-	                        	
-	                        	
+	                        }
 	                        }
 							else {
 								server.enviarReintento(emisor_pantalla, msj+"/"+vector[1], Utils.Server_to_Pantalla);
-								//emisor_pantalla.enviar(msj+"/"+vector[1], Utils.Server_to_Pantalla); 
 						}
 						else {
 							System.out.println("Servidor 82 msj null");
@@ -173,33 +168,32 @@ public class Servidor {
 		this.hiloEstadoCol = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				
 				System.out.println("Iniciando hilo estado de la cola");
-				while (true) {
-					//if(listaEmpleados)
+				try {
+				synchronized (lock2) {
+					while (true) {
 						for (int i=0; i<listaEmpleados.size(); i++) {
 							String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
 							boolean bool=false;
-							synchronized (lock2) {
-								try {
 									if (server.clientes.isEmpty()) {
-								    	//emisor_empleado.enviar("LISTA_VACIA", puerto);
 								    	bool = server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
 								    }
 								    else {
-								    	//emisor_empleado.enviar("HAY_CLIENTES", puerto);
 								    	bool =server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
 								    }
 									if(!bool) {
 										server.listaEmpleados.remove(i);
 										System.out.println("EMPLEADO ELIMINADO ");
 									}
-										
-									lock2.wait(300);
-								} catch (Exception e) {
-									e.printStackTrace();
 								}
-							}
+							lock2.wait(300);
 						}
+						
+					}
+				}
+				catch (InterruptedException e) {
+					System.out.println("EXCEPCION HILO ESTADO COLA "+e.getMessage());
 				}
 			}
 		});
@@ -301,7 +295,7 @@ public class Servidor {
                 		if(this.primerHeartBeat) {
 	                		String listaDNI = "";
 	                		if(!this.clientes.isEmpty()) {
-	                			System.out.println("SERVIDOR 289");
+	                			System.out.println("SERVIDOR 289 primer heartbeat");
 		                		for(int i=0; i<this.clientes.size();i++) {
 		                			listaDNI+=clientes.get(i)+"/";
 		                		}
@@ -357,9 +351,10 @@ public class Servidor {
 	
 	public void hilosPpales() {
 		this.emisor_server_heartbeat = new Emisor();
+
+		this.hiloEstadoCola(this);
 		this.hiloRecEmp(this);
 		this.hiloReg(this);
-		this.hiloEstadoCola(this);
 	}
 
 	public void iniciaReceptores() throws BindException {
@@ -389,7 +384,7 @@ public class Servidor {
 				em.enviar(msj, puerto);
 				return true;
 			} catch (ConnectException e) {
-				//e.printStackTrace();
+				e.printStackTrace();
 			}
 			System.out.println("Falla al intentar enviar desde Servidor el mensaje: "+msj);	
 			

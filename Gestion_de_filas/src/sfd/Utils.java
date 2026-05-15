@@ -28,7 +28,6 @@ public class Utils {
 	    try {
 	        FileInputStream input = new FileInputStream("config.properties");
 	        
-	        // ¡ESTA LÍNEA ES LA QUE FALTA!
 	        prop.load(input);	
 			IP = prop.getProperty("IP");
 			Registro_to_Server = prop.getProperty("Registro_to_Server");
