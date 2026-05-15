@@ -46,7 +46,7 @@ public class ControladorRegistro implements ActionListener {
 			if (opcion == JOptionPane.YES_OPTION) {
 				
 				
-				 int agregado = this.agregarCliente(dniActual);
+				 int agregado = this.agregarClienteReintento(dniActual);
 				
 				
 				if (agregado==1){
@@ -57,7 +57,7 @@ public class ControladorRegistro implements ActionListener {
 				}
 				else if (agregado==2) {
 					this.ventana_registro.mostrarMensajeTemporal("   PROBLEMAS CON LA CONEXION  ", 155, 100, 322, 50);
-					//Deberiamos cerrarlo?
+					System.exit(1);
 				}
 				else {
 					this.ventana_registro.mostrarMensajeTemporal("   DNI INVALIDO: Fuera de rango etario.  ", 155, 100, 260, 50);
@@ -68,7 +68,7 @@ public class ControladorRegistro implements ActionListener {
 		this.ventana_registro.validarLongitud();
 	}
 	
-	public int agregarCliente(String dniActual) {
+	public int agregarClienteReintento(String dniActual) {
 		//Zona de posible error
 		
 		int intentos = Utils.Intentos;;
@@ -80,26 +80,15 @@ public class ControladorRegistro implements ActionListener {
 				try {
 					agregado = this.terminal.agregarCliente(dniActual);
 				} catch (ConnectException e1) {
-					System.out.println(agregado);
 					intentos--;
-					if (intentos>0) {
-						//Si salta ConnectException es porque no hay servidor que escuche
-						try {
-							if (intentos<Utils.Intentos)
-								JOptionPane.showMessageDialog(ventana_registro, "Reintentando");
-							Thread.sleep(5000);
-							
-						}catch(InterruptedException e) {}
-						
-					}
-					else {
-						JOptionPane.showMessageDialog(ventana_registro, "No se pudo conectar al servidor.");
-						return 2;
-					}
-					
+					this.ventana_registro.mostrarMensaje("   No se pudo conectar al servidor. Reintentando...  ");
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {}
+					//JOptionPane.showMessageDialog(ventana_registro, "No se pudo conectar al servidor.");
 				}
 			}
-			return (agregado) ? 1 : 0;
+			return (agregado) ? 1 : 2;
 		}
 	}
 	

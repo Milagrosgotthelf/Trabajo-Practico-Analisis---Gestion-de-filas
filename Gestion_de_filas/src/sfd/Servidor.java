@@ -66,26 +66,18 @@ public class Servidor {
 	                            	}
 		                            finally {
 		                            	String puerto = Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + puesto);
-			                            
-			                            //emisor_registro.enviar("OK", puerto);
 			                            server.enviarReintento(emisor_registro, "OK", puerto);
 			                            synchronized (lock) {
 			                                lock.notifyAll(); 
 			                            }
 		                            }
-		                            
 		                        }
 		                        else {
 		                        	server.enviarReintento(emisor_registro, "REPETIDO", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)+ puesto));
-		                            //emisor_registro.enviar("REPETIDO", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)+ puesto));
-		                        
-		                      //reintento
 		                        }
 	                        }
 	                        else {
 	                        	server.enviarReintento(emisor_registro, Integer.toString(server.contadorReg), Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
-	                        	//emisor_registro.enviar(Integer.toString(server.contadorReg), Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
-	                        	//reintento
 	                        	server.contadorReg = server.contadorReg + 1;
 	                        }
 	                    }
