@@ -154,9 +154,7 @@ public class Servidor {
 						 catch (Exception e) {
 						System.out.println("Excepcion en hilo receptor del empleado" + e.getMessage());
 					}
-					
 				}
-				
 			}
 		});
 		//this.hiloRec.setDaemon(true); 
@@ -183,6 +181,7 @@ public class Servidor {
 								    	bool =server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
 								    }
 									if(!bool) {
+										server.enviarReintento(emisor_server_heartbeat, "Eliminar empleado/"+listaEmpleados.get(i), Utils.Server_to_Server2);
 										server.listaEmpleados.remove(i);
 										System.out.println("EMPLEADO ELIMINADO ");
 									}
@@ -251,7 +250,6 @@ public class Servidor {
 		                    	String[] vector = msj.split("/");
 		                    	String orden = vector[0];
 		                    	String dni = vector[1];
-		                    	System.out.println(vector[0] + vector.length);
 		                    	
 		                    	if(orden.equals("Agregar")) {
 		                    		this.clientes.addLast(dni);
@@ -266,8 +264,7 @@ public class Servidor {
 		                    		System.out.println("HILOHEARTBEAT AGREGAREMPLEADO "+listaEmpleados);
 		                    	}
 		                    	else if(orden.equals("Eliminar empleado")) {
-		                    		//Aca falta organizar como se elimina el empleado
-		                    		//O: Tomi dijo que se pueden vincular acciones a las salidas del sistema, podriamos hacer eso y con la X para cerrar ventanas tambien
+		                    		listaEmpleados.remove(listaEmpleados.indexOf(dni));
 		                    		System.out.println("Elimiar empleado servidor secundario");
 		                    	}
 		                    	else if(orden.equals("SincronizacionDni")) {
@@ -289,9 +286,8 @@ public class Servidor {
 	                        estadoSec = false;
 	                    }
 	                } else {
+	                	Thread.sleep(300);
                 		emisor_server_heartbeat.enviar(".", Utils.Server_to_Server2);
-                		
-                		//Este mensaje era para saber si alguien esta escuchando y que no salte una excepcion mas adelante
                 		if(this.primerHeartBeat) {
 	                		String listaDNI = "";
 	                		if(!this.clientes.isEmpty()) {
@@ -316,7 +312,11 @@ public class Servidor {
 	                    emisor_server_heartbeat.enviar("HEARTBEAT", Utils.Server_to_Server2);
                 		}
 	                }
-	            }catch(ConnectException | IndexOutOfBoundsException e) {
+	            }catch(ConnectException e) {
+	            	System.out.println("Cambio primer heartbeat");
+	            	this.primerHeartBeat = true;
+	            	
+	            }catch(IndexOutOfBoundsException e) {
 	            	
 	            }
 	            catch (Exception e) {
@@ -384,7 +384,7 @@ public class Servidor {
 				em.enviar(msj, puerto);
 				return true;
 			} catch (ConnectException e) {
-				e.printStackTrace();
+				System.out.println("Fallo de conexion con empleado "+e.getMessage());;
 			}
 			System.out.println("Falla al intentar enviar desde Servidor el mensaje: "+msj);	
 			
