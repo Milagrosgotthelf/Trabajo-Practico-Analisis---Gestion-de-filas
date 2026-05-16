@@ -121,6 +121,8 @@ public class ControladorEmpleado implements ActionListener{
 	        timers.add(timerReintento);
 	        timerReintento.start();
 	    } else if (intentos<=0) {
+	    	if (!this.proxdni.equals("-")) 
+	            vistaEmpleado.mostrarMensaje("El cliente no se ha presentado tras 3 llamados...");
 	    	vistaEmpleado.activarBtnLlamar(true);
 	    	ventanaLlamadaDefecto(); 
 	    	ventanaEstado();
