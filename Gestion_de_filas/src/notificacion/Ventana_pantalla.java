@@ -172,7 +172,6 @@ public class Ventana_pantalla extends JFrame {
 		this.lbl_turnos.setFont(new Font("SansSerif", Font.PLAIN, 18));
 		this.panel_turnos.add(this.lbl_turnos);
 		this.lbl_turnos.setForeground(new Color(49, 83, 102));
-
 	}
 	
 	public String getDniMsj(String msj) {
@@ -211,6 +210,9 @@ public class Ventana_pantalla extends JFrame {
 		this.lbl_PUESTO4.setText("Puesto: "+ getPuestoMsj(turnos.get(3)));
 		this.lbl_DNI5.setText("  DNI: " + getDniMsj(turnos.get(4)));
 		this.lbl_PUESTO5.setText("Puesto: "+ getPuestoMsj(turnos.get(4)));
+	}
+	public void CerrarVentana(java.awt.event.WindowAdapter accion) {
+	    this.addWindowListener(accion);
 	}
 
 }
