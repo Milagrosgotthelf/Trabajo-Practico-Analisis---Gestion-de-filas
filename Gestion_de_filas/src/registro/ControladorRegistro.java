@@ -56,7 +56,7 @@ public class ControladorRegistro implements ActionListener {
 					this.ventana_registro.mostrarMensajeTemporal("   DNI REPETIDO: Por favor, aguarde a ser llamado.  ", 155, 100, 322, 50);	
 				}
 				else if (agregado==2) {
-					this.ventana_registro.mostrarMensajeTemporal("   PROBLEMAS CON LA CONEXION  ", 155, 100, 322, 50);
+					this.ventana_registro.mostrarMensaje("   No se pudo reconectar al servidor. Cerrando terminal.  ");
 					System.exit(1);
 				}
 				else {
@@ -81,13 +81,15 @@ public class ControladorRegistro implements ActionListener {
 					agregado = this.terminal.agregarCliente(dniActual);
 				} catch (ConnectException e1) {
 					intentos--;
-					this.ventana_registro.mostrarMensaje("   No se pudo conectar al servidor. Reintentando...  ");
+					this.ventana_registro.mostrarMensaje("   No se puede conectar al servidor. Reintentando...  ");
+				
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {}
 					//JOptionPane.showMessageDialog(ventana_registro, "No se pudo conectar al servidor.");
 				}
 			}
+			
 			return (agregado) ? 1 : 2;
 		}
 	}

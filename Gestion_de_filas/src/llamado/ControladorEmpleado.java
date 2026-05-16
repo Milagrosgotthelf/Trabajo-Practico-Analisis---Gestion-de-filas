@@ -44,12 +44,12 @@ public class ControladorEmpleado implements ActionListener{
 				return;
 			} catch (ConnectException e) {
 				intentos--;
-				this.vistaEmpleado.mostrarMensaje("Reintentando conexion...");
+				this.vistaEmpleado.mostrarMensaje("Reintentando conexión...");
 				try {
 				Thread.sleep(2000);}catch(InterruptedException e1) {}
 				}
 			}
-		this.vistaEmpleado.mostrarMensaje("Reconexion fallida. Cerrando terminal.");
+		this.vistaEmpleado.mostrarMensaje("Reconexión fallida. Cerrando terminal.");
 		System.exit(-1);
 	
 	}
@@ -192,7 +192,7 @@ public class ControladorEmpleado implements ActionListener{
 	            mostrarSigCliente();
 	        }
 	        else if(aux == null) {
-	        	this.vistaEmpleado.mostrarMensaje("Fallo de conexion con el servidor. Abortando solicitud...");
+	        	this.vistaEmpleado.mostrarMensaje("Fallo de conexión con el servidor. Abortando solicitud...");
 	        }
 	        synchronized (lockEstado) {
 	            pidiendoCliente = false;
@@ -211,7 +211,7 @@ public class ControladorEmpleado implements ActionListener{
 				intentos--;
 			}
 		}
-		this.vistaEmpleado.mostrarMensaje("Reconexion fallida. Cerrando terminal.");
+		this.vistaEmpleado.mostrarMensaje("Reconexión fallida. Cerrando terminal.");
 		return null;
 	}
 	
@@ -256,12 +256,12 @@ public class ControladorEmpleado implements ActionListener{
 					return empleado.pedirEstado();
 				}catch (ConnectException e) {
 					intentos--;
-					this.vistaEmpleado.mostrarMensaje("Reintentando conexion...");
+					this.vistaEmpleado.mostrarMensaje("Reintentando conexión...");
 					Thread.sleep(2000);
 					
 				}
 			}
-			this.vistaEmpleado.mostrarMensaje("Reconexion fallida. Cerrando terminal.");
+			this.vistaEmpleado.mostrarMensaje("Reconexión fallida. Cerrando terminal.");
 			return null;
 			
 	}
