@@ -25,6 +25,8 @@ public class Servidor {
 	private volatile boolean estadoSec = false ;
 	private boolean primerHeartBeat = true; 
 	
+	private ArrayList<Boolean> semaforoEmpleados = new ArrayList<Boolean>();;
+	
 	 
 	public Servidor() {
 		System.out.println("Servidor iniciado");
@@ -110,9 +112,10 @@ public class Servidor {
 						String msj = receptor_empleado.getMensaje(); 
 						String[] vector = msj.split("/");
 						msj = vector[0];
-						if(msj != null)
+						if(msj != null) {
 							if(msj.equals("Cliente")) {
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
+								semaforoEmpleados.set(listaEmpleados.indexOf(vector[1]), true);
 								if (!server.getClientes().isEmpty()) {
 								    String dni = server.getClientes().removeFirst();
 									//emisor_empleado.enviar(dni, puerto);
@@ -122,21 +125,24 @@ public class Servidor {
 									}
 									catch(Exception e) {
 									}
+									semaforoEmpleados.set(listaEmpleados.indexOf(vector[1]), false);
 								}
+								
 
 							}
 							else if (msj.equals("Estado")) {
 								Thread.sleep(30);
 							}
-						
-							else if (msj.length() < 7 && !server.existeEmpleado(msj)) {
-	                        	listaEmpleados.add(msj);
-	                        	try {
-	                        		emisor_server_heartbeat.enviar("Agregar empleado/"+msj,Utils.Server_to_Server2);
-	                        	}catch(Exception e) {
+							else if ((msj.length() < 7) && !server.existeEmpleado(msj)) {
+								//Aca entran los numeros de puesto
+		                        	listaEmpleados.add(msj);
+		                        	semaforoEmpleados.add(false);
+		                        	try {
+		                        		emisor_server_heartbeat.enviar("Agregar empleado/"+msj,Utils.Server_to_Server2);
+		                        	}catch(Exception e) {}
 	                        }
-	                        }
-							else {
+							else if (msj.length() >= 7)
+								//Aca entran los dni
 								server.enviarReintento(emisor_pantalla, msj+"/"+vector[1], Utils.Server_to_Pantalla);
 						}
 						else {
@@ -166,6 +172,8 @@ public class Servidor {
 						for (int i=0; i<listaEmpleados.size(); i++) {
 							String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
 							boolean bool=false;
+							
+							if(semaforoEmpleados.size() > i && !semaforoEmpleados.get(i)) {
 									if (server.clientes.isEmpty()) {
 								    	bool = server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
 								    }
@@ -175,9 +183,10 @@ public class Servidor {
 									if(!bool) {
 										server.enviarReintento(emisor_server_heartbeat, "Eliminar empleado/"+listaEmpleados.get(i), Utils.Server_to_Server2);
 										server.listaEmpleados.remove(i);
-										System.out.println("EMPLEADO ELIMINADO ");
+										server.semaforoEmpleados.remove(i);
 									}
 								}
+							}
 							lock2.wait(300);
 						}
 						
@@ -245,30 +254,28 @@ public class Servidor {
 		                    	
 		                    	if(orden.equals("Agregar")) {
 		                    		this.clientes.addLast(dni);
-		                    		System.out.println("HILOHEARTBEAT AGREGAR");
 		                    	}
 		                    	else if (orden.equals("Eliminar")) {
 		                    		this.clientes.remove(dni);
-		                    		System.out.println("HILOHEARTBEAT ELIMINAR");
 		                    	}
 		                    	else if(orden.equals("Agregar empleado")){
 		                    		listaEmpleados.add(dni);
-		                    		System.out.println("HILOHEARTBEAT AGREGAREMPLEADO "+listaEmpleados);
+		                    		semaforoEmpleados.add(false);
 		                    	}
 		                    	else if(orden.equals("Eliminar empleado")) {
-		                    		listaEmpleados.remove(listaEmpleados.indexOf(dni));
-		                    		System.out.println("Elimiar empleado servidor secundario");
+		                    		int index = listaEmpleados.indexOf(dni);
+		                    		listaEmpleados.remove(index);
+		                    		semaforoEmpleados.remove(index);
 		                    	}
 		                    	else if(orden.equals("SincronizacionDni")) {
 		                    		for(int i=1;i<vector.length;i++) {
-		                    			System.out.println("SINCR "+vector[i]);
 		                    			this.clientes.addLast(vector[i]);
 		                    		}
 		                    	}
 		                    	else if(orden.equals("SincronizacionEmp")) {
 		                    		for(int i=1;i<vector.length;i++) {
-		                    			System.out.println("SINCR "+vector[i]);
 		                    			this.listaEmpleados.add(vector[i]);
+		                    			this.semaforoEmpleados.add(false);
 		                    		}
 		                    	}
 		                    }
@@ -278,16 +285,13 @@ public class Servidor {
 	                        estadoSec = false;
 	                    }
 	                } else {
-	                	Thread.sleep(300);
                 		emisor_server_heartbeat.enviar(".", Utils.Server_to_Server2);
                 		if(this.primerHeartBeat) {
 	                		String listaDNI = "";
 	                		if(!this.clientes.isEmpty()) {
-	                			System.out.println("SERVIDOR 289 primer heartbeat");
 		                		for(int i=0; i<this.clientes.size();i++) {
 		                			listaDNI+=clientes.get(i)+"/";
 		                		}
-		                		 System.out.println("SincronizacionDni/"+listaDNI);
 		                        emisor_server_heartbeat.enviar("SincronizacionDni/"+listaDNI, Utils.Server_to_Server2);
 	                		}
 	                        String listaPuestoEmp = "";
@@ -295,7 +299,6 @@ public class Servidor {
 		                        for(int i=0; i<this.listaEmpleados.size();i++) {
 		                        	listaPuestoEmp+=listaEmpleados.get(i)+"/";
 		                		}
-		                        System.out.println("SincronizacionEmp/"+listaPuestoEmp);
 		                        emisor_server_heartbeat.enviar("SincronizacionEmp/"+listaPuestoEmp, Utils.Server_to_Server2);
 	                        }
 	                        this.primerHeartBeat=false;
@@ -305,7 +308,6 @@ public class Servidor {
                 		}
 	                }
 	            }catch(ConnectException e) {
-	            	System.out.println("Cambio primer heartbeat");
 	            	this.primerHeartBeat = true;
 	            	
 	            }catch(IndexOutOfBoundsException e) {

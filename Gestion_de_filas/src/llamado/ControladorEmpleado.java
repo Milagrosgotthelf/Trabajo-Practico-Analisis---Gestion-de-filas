@@ -105,11 +105,7 @@ public class ControladorEmpleado implements ActionListener{
 			String dni_llamar = this.dniActual_emp;
 			this.vistaEmpleado.notificarLlamada(4-intentos);
 			
-			//
 			this.enviarCliente_Server_Reintento(this.dniActual_emp);
-			//Fallo al enviar el mensaje por servidor caido
-			//Deberia esperar y re intentar antes de cambiar la conexión.
-			
 	        rellamarCliente(); 
 
 	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
@@ -125,6 +121,9 @@ public class ControladorEmpleado implements ActionListener{
 	            vistaEmpleado.mostrarMensaje("El cliente no se ha presentado tras 3 llamados...");
 	    	vistaEmpleado.activarBtnLlamar(true);
 	    	ventanaLlamadaDefecto(); 
+	    	synchronized(lockEstado) {
+				lockEstado.notifyAll();
+			}
 	    	ventanaEstado();
 	    }
 	}
