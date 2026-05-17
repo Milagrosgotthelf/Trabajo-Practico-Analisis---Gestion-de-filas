@@ -25,7 +25,7 @@ public class Servidor {
 	private volatile boolean estadoSec = false ;
 	private boolean primerHeartBeat = true; 
 	
-	private ArrayList<Boolean> semaforoEmpleados = new ArrayList<Boolean>();;
+	private ArrayList<Object> semaforoEmpleados = new ArrayList<Object>();
 	
 	 
 	public Servidor() {
@@ -115,19 +115,19 @@ public class Servidor {
 						if(msj != null) {
 							if(msj.equals("Cliente")) {
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
-								semaforoEmpleados.set(listaEmpleados.indexOf(vector[1]), true);
 								
 								//Si se atrasa esto se come al dni
+								Object lockDelEmpleado = semaforoEmpleados.get(listaEmpleados.indexOf(vector[1]));
 								
-								if (!server.getClientes().isEmpty()) {
-								    String dni = server.getClientes().removeFirst();
-								    server.enviarReintento(emisor_empleado, dni, puerto);
-								    try {
-								    	emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2);
-								    }catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
-								    }
-									
-								    semaforoEmpleados.set(listaEmpleados.indexOf(vector[1]), false);
+								synchronized (lockDelEmpleado) {
+									if (!server.getClientes().isEmpty()) {
+									    String dni = server.getClientes().removeFirst();
+									    server.enviarReintento(emisor_empleado, dni, puerto);
+									    try {
+									    	emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2);
+									    }catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
+									    }
+									}
 								}
 								
 
@@ -138,7 +138,7 @@ public class Servidor {
 							else if ((msj.length() < 7) && !server.existeEmpleado(msj)) {
 								//Aca entran los numeros de puesto
 		                        	listaEmpleados.add(msj);
-		                        	semaforoEmpleados.add(false);
+		                        	semaforoEmpleados.add(new Object());
 		                        	try {
 		                        		emisor_server_heartbeat.enviar("Agregar empleado/"+msj,Utils.Server_to_Server2);
 		                        	}catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
@@ -164,47 +164,42 @@ public class Servidor {
 	}
 	
 	private void hiloEstadoCola(Servidor server) {
-		
 		this.hiloEstadoCol = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				
 				System.out.println("Iniciando hilo estado de la cola");
-				try {
-				synchronized (lock2) {
 					while (true) {
-						for (int i=0; i<listaEmpleados.size(); i++) {
-							String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
-							boolean bool=false;
-							
-							if(semaforoEmpleados.size() > i && !semaforoEmpleados.get(i)) {
-									if (server.clientes.isEmpty()) {
-								    	bool = server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
-								    }
-								    else {
-								    	bool =server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
-								    }
-									if(!bool) {
-										server.enviarReintento(emisor_server_heartbeat, "Eliminar empleado/"+listaEmpleados.get(i), Utils.Server_to_Server2);
-										server.listaEmpleados.remove(i);
-										server.semaforoEmpleados.remove(i);
+						try {
+							for (int i=0; i<listaEmpleados.size(); i++) {
+								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
+								boolean bool=false;
+								
+									Object lockDelEmpleado = semaforoEmpleados.get(i);
+									synchronized(lockDelEmpleado) {
+										if (server.clientes.isEmpty()) {
+									    	bool = server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
+									    }
+									    else {
+									    	bool =server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
+									    }
+										if(!bool) {
+											server.enviarReintento(emisor_server_heartbeat, "Eliminar empleado/"+listaEmpleados.get(i), Utils.Server_to_Server2);
+											server.listaEmpleados.remove(i);
+											server.semaforoEmpleados.remove(i);
+										}
 									}
-								}
-							
+								
 							}
-						lock2.wait(1000);
-							
+							//Thread.sleep no puede estar dentro del for, ni fuera del while
+							Thread.sleep(300);
+						} catch (Exception e) {
+							System.out.println("Excepcion en hilo estado de la cola " + e.getMessage());
 						}
-						
 					}
 				}
-				catch (InterruptedException e) {
-					System.out.println("EXCEPCION HILO ESTADO COLA "+e.getMessage());
-				}
-			}
-		});
-		
-		this.hiloEstadoCol.setDaemon(true); 
+			});
+		//this.hiloEstadoCol.setDaemon(true); 
 		this.hiloEstadoCol.start();
 	}
 		
@@ -266,7 +261,7 @@ public class Servidor {
 		                    	}
 		                    	else if(orden.equals("Agregar empleado")){
 		                    		listaEmpleados.add(dni);
-		                    		semaforoEmpleados.add(false);
+		                    		semaforoEmpleados.add(new Object());
 		                    	}
 		                    	else if(orden.equals("Eliminar empleado")) {
 		                    		int index = listaEmpleados.indexOf(dni);
@@ -274,14 +269,18 @@ public class Servidor {
 		                    		semaforoEmpleados.remove(index);
 		                    	}
 		                    	else if(orden.equals("SincronizacionDni")) {
+		                    		//Testear inicializando el vector aca, para que en un caso hipotetico
+		                    		//de problema temporal de conexion no se dupliquen datos
 		                    		for(int i=1;i<vector.length;i++) {
 		                    			this.clientes.addLast(vector[i]);
 		                    		}
 		                    	}
 		                    	else if(orden.equals("SincronizacionEmp")) {
+		                    		//Testear inicializando el vector aca, para que en un caso hipotetico
+		                    		//de problema temporal de conexion no se dupliquen datos
 		                    		for(int i=1;i<vector.length;i++) {
 		                    			this.listaEmpleados.add(vector[i]);
-		                    			this.semaforoEmpleados.add(false);
+		                    			this.semaforoEmpleados.add(new Object());
 		                    		}
 		                    	}
 		                    }
