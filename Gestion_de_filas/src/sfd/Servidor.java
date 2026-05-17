@@ -116,16 +116,18 @@ public class Servidor {
 							if(msj.equals("Cliente")) {
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
 								semaforoEmpleados.set(listaEmpleados.indexOf(vector[1]), true);
+								
+								//Si se atrasa esto se come al dni
+								
 								if (!server.getClientes().isEmpty()) {
 								    String dni = server.getClientes().removeFirst();
-									//emisor_empleado.enviar(dni, puerto);
-									server.enviarReintento(emisor_empleado, dni, puerto);
-									try {
-										emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2);
-									}
-									catch(Exception e) {
-									}
-									semaforoEmpleados.set(listaEmpleados.indexOf(vector[1]), false);
+								    server.enviarReintento(emisor_empleado, dni, puerto);
+								    try {
+								    	emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2);
+								    }catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
+								    }
+									
+								    semaforoEmpleados.set(listaEmpleados.indexOf(vector[1]), false);
 								}
 								
 
@@ -139,7 +141,8 @@ public class Servidor {
 		                        	semaforoEmpleados.add(false);
 		                        	try {
 		                        		emisor_server_heartbeat.enviar("Agregar empleado/"+msj,Utils.Server_to_Server2);
-		                        	}catch(Exception e) {}
+		                        	}catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
+		                        	}
 	                        }
 							else if (msj.length() >= 7)
 								//Aca entran los dni
@@ -149,8 +152,9 @@ public class Servidor {
 							System.out.println("Servidor 82 msj null");
 						}
 					}
-						 catch (Exception e) {
+						catch (Exception e) {
 						System.out.println("Excepcion en hilo receptor del empleado" + e.getMessage());
+						e.printStackTrace();
 					}
 				}
 			}
@@ -186,8 +190,10 @@ public class Servidor {
 										server.semaforoEmpleados.remove(i);
 									}
 								}
+							
 							}
-							lock2.wait(300);
+						lock2.wait(1000);
+							
 						}
 						
 					}
@@ -198,7 +204,7 @@ public class Servidor {
 			}
 		});
 		
-		//this.hiloEstadoCol.setDaemon(true); 
+		this.hiloEstadoCol.setDaemon(true); 
 		this.hiloEstadoCol.start();
 	}
 		
@@ -379,6 +385,12 @@ public class Servidor {
 				return true;
 			} catch (ConnectException e) {
 				System.out.println("Fallo de conexion con empleado "+e.getMessage());;
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 			System.out.println("Falla al intentar enviar desde Servidor el mensaje: "+msj);	
 			
