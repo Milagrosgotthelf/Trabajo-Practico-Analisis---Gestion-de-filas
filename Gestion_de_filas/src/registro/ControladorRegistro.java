@@ -79,6 +79,7 @@ public class ControladorRegistro implements ActionListener {
 			while(intentos > 0 && !agregado) {
 				try {
 					agregado = this.terminal.agregarCliente(dniActual);
+					return (agregado) ? 1 : 0;
 				} catch (ConnectException e1) {
 					intentos--;
 					this.ventana_registro.mostrarMensaje("   No se puede conectar al servidor. Reintentando...  ");

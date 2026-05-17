@@ -59,7 +59,6 @@ public class ControladorEmpleado implements ActionListener{
 		if (comando.equals("INICIAR")){
 			
 			String nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
-			nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 			
 			//
 			this.enviarCliente_Server_Reintento(nroPuesto);

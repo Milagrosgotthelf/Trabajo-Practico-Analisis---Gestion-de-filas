@@ -481,7 +481,7 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 		boolean valido = false;
 		
 		try {
-				if(!this.textField_numeroPuesto.getText().isEmpty() && this.textField_numeroPuesto.getText().length() <7 ) {
+				if(!this.textField_numeroPuesto.getText().isEmpty() && this.textField_numeroPuesto.getText().length() <6 ) {
 					this.numPuesto = Integer.parseInt(this.textField_numeroPuesto.getText());
 					valido = true;
 				}
