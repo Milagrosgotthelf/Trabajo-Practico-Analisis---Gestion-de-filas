@@ -54,7 +54,12 @@ public class Pantalla  {
 	public LinkedList<String> getClientes() {
 		return clientes;
 	}
-	
+	public void cerrarPantalla() {
+	    if (this.receptor != null) {
+	        this.receptor.kill(); // Cierra el ServerSocket del receptor
+	    }
+	    instancia = null; // Seteamos a null para que la próxima vez cree una nueva
+	}
 	
 	
 	

@@ -2,6 +2,7 @@ package registro;
 
 
 import java.net.BindException;
+import java.net.ConnectException;
 
 import sfd.Emisor;
 import sfd.Receptor;
@@ -13,35 +14,22 @@ public class TerminalRegistro {
 	private int numTerminal;
 	
 	
-	public TerminalRegistro(int id) {
+	public TerminalRegistro(int id) throws ConnectException, BindException {
 		solicitarNumero();
 	}
 	
-	public void solicitarNumero() {
+	public void solicitarNumero() throws ConnectException, BindException {
 		
-		try {
 			this.receptor =  new Receptor(Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
-		} catch (BindException e) {
-			e.printStackTrace();
-		}
-		
-		emisor.enviar("TerminalActiva", Integer.toString(Integer.parseInt(Utils.Registro_to_Server)));
-		
-		
-		String respuesta = receptor.getMensaje();
-		this.numTerminal = Integer.parseInt(respuesta);
-		this.receptor.kill();
-		
-		
-		try {
+			emisor.enviar("TerminalActiva", Integer.toString(Integer.parseInt(Utils.Registro_to_Server)));
+			String respuesta = receptor.getMensaje();
+			this.numTerminal = Integer.parseInt(respuesta);
+			this.receptor.kill();
 			this.receptor =  new Receptor(Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + this.numTerminal));
-		} catch (BindException e) {
-			e.printStackTrace();
-		}
 	
 
 	}
-	public boolean agregarCliente(String cliente){
+	public boolean agregarCliente(String cliente) throws ConnectException{
 		emisor.enviar(cliente+"/"+Integer.toString(this.numTerminal), Integer.toString(Integer.parseInt(Utils.Registro_to_Server)));
 		
 		String respuesta = receptor.getMensaje();

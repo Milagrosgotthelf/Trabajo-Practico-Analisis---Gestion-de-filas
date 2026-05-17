@@ -325,4 +325,13 @@ public class Ventana_terminal_registro extends JFrame  {
 		textFieldDNI.setEditable(true);
 		
 	}
+	
+	public void mostrarMensaje(String mensaje) {
+	    javax.swing.JOptionPane.showMessageDialog(
+	            this,
+	            mensaje,
+	            "Información",
+	            javax.swing.JOptionPane.INFORMATION_MESSAGE
+	        );
+	}
 }
