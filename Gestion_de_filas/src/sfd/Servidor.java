@@ -57,14 +57,17 @@ public class Servidor {
 	                        if(!msj.equals("TerminalActiva")) {
 	                        	int puesto = Integer.parseInt(getPuestoMsj(msj));
 	                        	msj = getDniMsj(msj);
+	                        	System.out.println("TERMINAL REGISTRO --- Solicitud de ingreso para DNI: " + msj + " desde puesto: " + puesto);
 		                        if (!server.existeCliente(msj)) {
 		                        	
 		                            server.clientes.addLast(msj);
-		                            
+		                            System.out.println("TERMINAL REGISTRO --- Cliente agregado exitosamente. ");
 		                            try {
 			                            server.emisor_server_heartbeat.enviar("Agregar/" + msj, Utils.Server_to_Server2);
+			                            System.out.println("HEARTBEAT --- Enviada orden 'Agregar Cliente' al servidor secundario.");
 		                            }
 	                            	catch(Exception e) {
+	                            		
 	                            	}
 		                            finally {
 		                            	String puerto = Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION) + puesto);
@@ -75,17 +78,19 @@ public class Servidor {
 		                            }
 		                        }
 		                        else {
+		                        	System.out.println("TERMINAL REGISTRO --- Alerta: Intento de agregar DNI repetido (" + msj + "). Enviando rechazo.");
 		                        	server.enviarReintento(emisor_registro, "REPETIDO", Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)+ puesto));
 		                        }
 	                        }
 	                        else {
+	                        	System.out.println("TERMINAL REGISTRO --- Terminal activa detectada. Asignando ID de Registro: " + server.contadorReg);
 	                        	server.enviarReintento(emisor_registro, Integer.toString(server.contadorReg), Integer.toString(Integer.parseInt(Utils.PUERTO_CONFIRMACION)));
 	                        	server.contadorReg = server.contadorReg + 1;
 	                        }
 	                    }
 	                    
 	                } catch (Exception e) {
-	                    System.out.println("Excepcion en hilo receptor del registro " + e.getMessage());
+	                   
 	                }
 	            }
 	        }
@@ -115,17 +120,20 @@ public class Servidor {
 						if(msj != null) {
 							if(msj.equals("Cliente")) {
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
-								
+								System.out.println("EMPLEADO --- Puesto " + vector[1] + " está solicitando el siguiente cliente.");
 								//Si se atrasa esto se come al dni
 								Object lockDelEmpleado = semaforoEmpleados.get(listaEmpleados.indexOf(vector[1]));
 								
 								synchronized (lockDelEmpleado) {
 									if (!server.getClientes().isEmpty()) {
 									    String dni = server.getClientes().removeFirst();
+									    System.out.println("EMPLEADO --- Asignando DNI " + dni + " al Puesto " + vector[1] + ". Quedan " + server.getClientes().size() + " en cola.");
 									    server.enviarReintento(emisor_empleado, dni, puerto);
 									    try {
 									    	emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2);
+									    	System.out.println("HEARTBEAT --- Enviada orden 'Eliminar DNI' al servidor secundario.");
 									    }catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
+									    	
 									    }
 									}
 								}
@@ -152,6 +160,7 @@ public class Servidor {
 							            if(!bool) {
 							                try {
 							                    emisor_server_heartbeat.enviar("Eliminar empleado/" + puesto, Utils.Server_to_Server2);
+							                    System.out.println("HEARTBEAT --- Enviada orden 'Eliminar empleado' al servidor secundario.");
 							                } catch(Exception e) {}
 							                server.listaEmpleados.remove(index);
 							                server.semaforoEmpleados.remove(index);
@@ -162,16 +171,20 @@ public class Servidor {
 							}
 							else if ((msj.length() < 7) && !server.existeEmpleado(msj)) {
 								//Aca entran los numeros de puesto
-		                        	listaEmpleados.add(msj);
-		                        	semaforoEmpleados.add(new Object());
-		                        	try {
-		                        		emisor_server_heartbeat.enviar("Agregar empleado/"+msj,Utils.Server_to_Server2);
-		                        	}catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
-		                        	}
+								System.out.println("EMPLEADO --- Registrando nueva terminal de atención física. Puesto: " + msj);
+		                        listaEmpleados.add(msj);
+		                        semaforoEmpleados.add(new Object());
+	                        	try {
+	                        		emisor_server_heartbeat.enviar("Agregar empleado/"+msj,Utils.Server_to_Server2);
+	                        		System.out.println("HEARTBEAT --- Enviada orden 'Agregar Empleado' al servidor secundario.");
+	                        	}catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
+	                        	}
 	                        }
-							else if (msj.length() >= 7)
+							else if (msj.length() >= 7) {
 								//Aca entran los dni
+								System.out.println("PANTALLA --- Enviando DNI " + msj + " (Puesto " + vector[1] + ") hacia la pantalla central.");
 								server.enviarReintento(emisor_pantalla, msj+"/"+vector[1], Utils.Server_to_Pantalla);
+							}
 						}
 						else {
 							System.out.println("Servidor 82 msj null");
@@ -277,7 +290,7 @@ public class Servidor {
 		                    	String[] vector = msj.split("/");
 		                    	String orden = vector[0];
 		                    	String dni = vector[1];
-		                    	
+		                    	System.out.println("SERVIDOR SECUNDARIO --- Recibida orden de sincronización: " + orden);
 		                    	if(orden.equals("Agregar")) {
 		                    		this.clientes.addLast(dni);
 		                    	}
@@ -311,6 +324,7 @@ public class Servidor {
 		                    }
 	                    }
 	                    else {
+	                    	
 	                        servidorPpalMuerto();
 	                        estadoSec = false;
 	                    }
@@ -318,11 +332,13 @@ public class Servidor {
                 		emisor_server_heartbeat.enviar(".", Utils.Server_to_Server2);
                 		if(this.primerHeartBeat) {
 	                		String listaDNI = "";
+	                		System.out.println("SERVIDOR PRIMARIO --- Sincronizando estado al Servidor Secundario");
 	                		if(!this.clientes.isEmpty()) {
 		                		for(int i=0; i<this.clientes.size();i++) {
 		                			listaDNI+=clientes.get(i)+"/";
 		                		}
 		                        emisor_server_heartbeat.enviar("SincronizacionDni/"+listaDNI, Utils.Server_to_Server2);
+		                        System.out.println("SERVIDOR PRIMARIO --- Sincronizando DNI'S del Servidor Primario al Servidor Secundario");
 	                		}
 	                        String listaPuestoEmp = "";
 	                        if(!this.listaEmpleados.isEmpty()) {
@@ -330,6 +346,7 @@ public class Servidor {
 		                        	listaPuestoEmp+=listaEmpleados.get(i)+"/";
 		                		}
 		                        emisor_server_heartbeat.enviar("SincronizacionEmp/"+listaPuestoEmp, Utils.Server_to_Server2);
+		                        System.out.println("SERVIDOR PRIMARIO --- Sincronizando empleados del Servidor Primario al Servidor Secundario");
 	                        }
 	                        this.primerHeartBeat=false;
 	                	}
@@ -360,7 +377,7 @@ public class Servidor {
 	}
 	
 	public void servidorPpalMuerto() {
-		System.out.println("Servidor principal muerto, iniciando servidor secundario");
+		System.out.println("¡¡¡Servidor principal muerto, iniciando servidor secundario!!!");
 		try {
 			estadoSec = false;
 			iniciaReceptores();
