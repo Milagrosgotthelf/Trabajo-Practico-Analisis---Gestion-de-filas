@@ -98,7 +98,7 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 	public Ventana_empleado() {
 		Color color;
 		setTitle("TERMINAL DE ATENCIÓN");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.setMinimumSize(new Dimension(550,300));
 		setBounds(100, 100, 450, 300);
 		this.contentPane = new JPanel();
@@ -492,5 +492,9 @@ public class Ventana_empleado extends JFrame implements KeyListener {
 		}
 		this.btn_iniciar.setEnabled(valido);
 		}	
+	
+	public void setWindowListener(java.awt.event.WindowAdapter adapter) {
+	    this.addWindowListener(adapter);
+	}
 }
 

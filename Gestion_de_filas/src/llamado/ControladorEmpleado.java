@@ -27,6 +27,23 @@ public class ControladorEmpleado implements ActionListener{
 	public void setVistas(Ventana_empleado emp) {
 	    this.vistaEmpleado = emp;
 	    this.vistaEmpleado.setActionListener(this);
+	    
+	    // Capturamos el evento de la "X"
+	    this.vistaEmpleado.setWindowListener(new java.awt.event.WindowAdapter() {
+	        @Override
+	        public void windowClosing(java.awt.event.WindowEvent e) {
+	            cerrarTerminal();
+	        }
+	    });
+	}
+
+	private void cerrarTerminal() {
+	    if (this.empleado.getNumeroDePuesto() != 0) {
+	        try {
+	            this.empleado.enviarCliente_Server("Desconectar");
+	        } catch (ConnectException ex) {}
+	    }
+	    System.exit(0);
 	}
 	
 	

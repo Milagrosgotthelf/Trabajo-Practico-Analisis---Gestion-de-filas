@@ -156,7 +156,6 @@ public class Servidor {
 							                bool = server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
 							            }
 							            
-							            // Si el envío falla, el empleado se desconectó. Lo eliminamos aquí mismo.
 							            if(!bool) {
 							                try {
 							                    emisor_server_heartbeat.enviar("Eliminar empleado/" + puesto, Utils.Server_to_Server2);
@@ -166,6 +165,23 @@ public class Servidor {
 							                server.semaforoEmpleados.remove(index);
 							                System.out.println("Empleado " + puesto + " desconectado y eliminado.");
 							            }
+							        }
+							    }
+							}
+							else if (msj.equals("Desconectar")) {
+							    String puesto = vector[1];
+							    int index = listaEmpleados.indexOf(puesto);
+							    
+							    if (index != -1) {
+							        Object lockDelEmpleado = semaforoEmpleados.get(index);
+							        synchronized (lockDelEmpleado) {
+							            try {
+							                emisor_server_heartbeat.enviar("Eliminar empleado/" + puesto, Utils.Server_to_Server2);
+							            } catch (Exception e) {}
+							            
+							            server.listaEmpleados.remove(index);
+							            server.semaforoEmpleados.remove(index);
+							            System.out.println("EMPLEADO --- Puesto " + puesto + " se ha desconectado voluntariamente.");
 							        }
 							    }
 							}
