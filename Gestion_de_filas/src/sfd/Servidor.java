@@ -133,7 +133,32 @@ public class Servidor {
 
 							}
 							else if (msj.equals("Estado")) {
-								Thread.sleep(30);
+								String puesto = vector[1];
+							    int index = listaEmpleados.indexOf(puesto);
+							    
+							    if (index != -1) {
+							        String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(puesto));
+							        Object lockDelEmpleado = semaforoEmpleados.get(index);
+							        
+							        synchronized (lockDelEmpleado) {
+							            boolean bool;
+							            if (server.getClientes().isEmpty()) {
+							                bool = server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
+							            } else {
+							                bool = server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
+							            }
+							            
+							            // Si el envío falla, el empleado se desconectó. Lo eliminamos aquí mismo.
+							            if(!bool) {
+							                try {
+							                    emisor_server_heartbeat.enviar("Eliminar empleado/" + puesto, Utils.Server_to_Server2);
+							                } catch(Exception e) {}
+							                server.listaEmpleados.remove(index);
+							                server.semaforoEmpleados.remove(index);
+							                System.out.println("Empleado " + puesto + " desconectado y eliminado.");
+							            }
+							        }
+							    }
 							}
 							else if ((msj.length() < 7) && !server.existeEmpleado(msj)) {
 								//Aca entran los numeros de puesto
@@ -351,7 +376,7 @@ public class Servidor {
 	public void hilosPpales() {
 		this.emisor_server_heartbeat = new Emisor();
 
-		this.hiloEstadoCola(this);
+		//this.hiloEstadoCola(this);
 		this.hiloRecEmp(this);
 		this.hiloReg(this);
 	}
