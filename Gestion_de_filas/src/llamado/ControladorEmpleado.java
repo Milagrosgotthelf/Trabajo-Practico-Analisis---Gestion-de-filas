@@ -57,6 +57,8 @@ public class ControladorEmpleado implements ActionListener{
 		int intentos=Utils.Intentos;
 		while(intentos>0) {
 			try {
+				//ACA EL MSJ ES EL DNI DEL CLIENTE QUE ESTA DESENCRIPTADO
+				//EL SERVIDOR TIENE LA FILA CON LOS DNI ENCRIPTADOS POR LO QUE DEBEMOS ENCRIPTARLO ANTES DE ENVIARSELO EN EL METODO DE EMPLEADO
 				this.empleado.enviarCliente_Server(msj);
 				return;
 			} catch (ConnectException e) {

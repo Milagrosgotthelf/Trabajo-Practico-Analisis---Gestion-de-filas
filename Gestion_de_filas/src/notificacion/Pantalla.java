@@ -3,6 +3,7 @@ package notificacion;
 import java.net.BindException;
 import java.util.LinkedList;
 
+import sfd.GestorSeguridad;
 import sfd.Receptor;
 import sfd.Utils;
 
@@ -11,6 +12,8 @@ public class Pantalla  {
 	private static Pantalla instancia = null;
 	private Receptor receptor = null;
 	private LinkedList<String> clientes = null;
+	private GestorSeguridad gestorSeguridad = new GestorSeguridad();
+
 	
 	private Pantalla() throws BindException {
 		this.clientes = new LinkedList<String>();
@@ -39,11 +42,17 @@ public class Pantalla  {
 		
 	    String mensajeRecibido = this.receptor.getMensaje();
 	    if (mensajeRecibido != null) {
-	        if (!this.clientes.isEmpty() && mensajeRecibido.equals(this.clientes.getFirst())) {
+	    	String[] partes = mensajeRecibido.split("/");
+            String dniEncriptado = partes[0]; 
+            //asi le enviamos el dni desencriptado a la ventana_pantalla pero todavia teniendo el nropuesto en el msj
+            // no poner esta logica en ventana_pantalla porque no me parece correcto que la ventana tenga al gestor de seguridad
+            String mensajeRecibidoDesencriptado = gestorSeguridad.recuperarDNI(dniEncriptado)+"/"+partes[1];
+            
+	        if (!this.clientes.isEmpty() && mensajeRecibidoDesencriptado.equals(this.clientes.getFirst())) {
 	            return;
 	        }
-	        this.clientes.remove(mensajeRecibido);
-	        this.clientes.addFirst(mensajeRecibido);
+	        this.clientes.remove(mensajeRecibidoDesencriptado);
+	        this.clientes.addFirst(mensajeRecibidoDesencriptado);
 	        
 	        if (this.clientes.size() > 5) {
 	            this.clientes.removeLast();

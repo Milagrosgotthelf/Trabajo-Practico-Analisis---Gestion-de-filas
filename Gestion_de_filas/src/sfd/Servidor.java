@@ -26,7 +26,8 @@ public class Servidor {
 	private boolean primerHeartBeat = true; 
 	
 	private ArrayList<Object> semaforoEmpleados = new ArrayList<Object>();
-	
+	private GestorSeguridad gestorSeguridad = new GestorSeguridad();
+
 	 
 	public Servidor() {
 		System.out.println("Servidor iniciado");
@@ -56,11 +57,12 @@ public class Servidor {
 	                    if (msj != null) {
 	                        if(!msj.equals("TerminalActiva")) {
 	                        	int puesto = Integer.parseInt(getPuestoMsj(msj));
-	                        	msj = getDniMsj(msj);
+	                        	msj = getDniMsj(msj); //ENCRIPTADO
+	                        	String msjDesencriptado = gestorSeguridad.recuperarDNI(msj);
 	                        	System.out.println("TERMINAL REGISTRO --- Solicitud de ingreso para DNI: " + msj + " desde puesto: " + puesto);
-		                        if (!server.existeCliente(msj)) {
+		                        if (!server.existeCliente(msjDesencriptado)) {
 		                        	
-		                            server.clientes.addLast(msj);
+		                            server.clientes.addLast(msj); //GUARDAMOS EL ENCRIPTADO
 		                            System.out.println("TERMINAL REGISTRO --- Cliente agregado exitosamente. ");
 		                            try {
 			                            server.emisor_server_heartbeat.enviar("Agregar/" + msj, Utils.Server_to_Server2);
@@ -128,9 +130,9 @@ public class Servidor {
 									if (!server.getClientes().isEmpty()) {
 									    String dni = server.getClientes().removeFirst();
 									    System.out.println("EMPLEADO --- Asignando DNI " + dni + " al Puesto " + vector[1] + ". Quedan " + server.getClientes().size() + " en cola.");
-									    server.enviarReintento(emisor_empleado, dni, puerto);
+									    server.enviarReintento(emisor_empleado, dni, puerto); //LO ENVIAMOS ENCRIPTADO
 									    try {
-									    	emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2);
+									    	emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2); //LO ENVIAMOS ENCRIPTADO Y COMO LO GUARDO ENCRIPTADO NO DEBERIA DE HABER PROBLEMA
 									    	System.out.println("HEARTBEAT --- Enviada orden 'Eliminar DNI' al servidor secundario.");
 									    }catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
 									    	
@@ -199,7 +201,7 @@ public class Servidor {
 							else if (msj.length() >= 7) {
 								//Aca entran los dni
 								System.out.println("PANTALLA --- Enviando DNI " + msj + " (Puesto " + vector[1] + ") hacia la pantalla central.");
-								server.enviarReintento(emisor_pantalla, msj+"/"+vector[1], Utils.Server_to_Pantalla);
+								server.enviarReintento(emisor_pantalla, msj+"/"+vector[1], Utils.Server_to_Pantalla); //VIAJA ENCRIPTADO A LA PANTALLA
 							}
 						}
 						else {

@@ -50,4 +50,31 @@ public class Utils {
 	    }
 	}
 	
+	// parte 4: seguridad
+		private String algoritmo;
+		private String claveSecreta;
+		
+		public void cargarConfiguracionSeguridad() {
+			Properties prop = new Properties();
+		    try {
+		        FileInputStream input = new FileInputStream("configSeguridad.properties");
+		        
+		        prop.load(input);	
+		        this.algoritmo = prop.getProperty("algoritmo_seguridad");
+		        this.claveSecreta = prop.getProperty("claveSecreta");
+				
+				
+		    } catch (Exception e) {
+		        System.out.println("Error cargando configuración de seguridad: " + e.getMessage());
+		    }
+		}
+		
+		public String getAlgoritmo() {
+			return this.algoritmo;
+		}
+		
+		public String getClaveSecreta() {
+			return this.claveSecreta;
+		}
+	
 	}
