@@ -5,6 +5,7 @@ import java.net.BindException;
 import java.net.ConnectException;
 
 import sfd.Emisor;
+import sfd.GestorSeguridad;
 import sfd.Receptor;
 import sfd.Utils;
 
@@ -12,6 +13,7 @@ public class TerminalRegistro {
 	Emisor emisor = new Emisor();
 	Receptor receptor = null;
 	private int numTerminal;
+	private GestorSeguridad gestorSeguridad = new GestorSeguridad();
 	
 	
 	public TerminalRegistro(int id) throws ConnectException, BindException {

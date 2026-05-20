@@ -24,6 +24,7 @@ public class Servidor {
 	private Thread hiloRec, hiloEstadoCol;
 	private volatile boolean estadoSec = false ;
 	private boolean primerHeartBeat = true; 
+	GestorSeguridad gestorSeguridad = new GestorSeguridad();
 	
 	 
 	public Servidor() {
@@ -114,9 +115,9 @@ public class Servidor {
 							if(msj.equals("Cliente")) {
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
 								if (!server.getClientes().isEmpty()) {
-								    String dni = server.getClientes().removeFirst();
+								    String dni = server.getClientes().removeFirst(); //ACA LO RECUPERA ENCRIPTADO
 									//emisor_empleado.enviar(dni, puerto);
-									server.enviarReintento(emisor_empleado, dni, puerto);
+									server.enviarReintento(emisor_empleado, dni, puerto); //ENTONCES NO VUELVO A ENCRIPTAR
 									try {
 										emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2);
 									}
@@ -137,7 +138,7 @@ public class Servidor {
 	                        }
 	                        }
 							else {
-								server.enviarReintento(emisor_pantalla, msj+"/"+vector[1], Utils.Server_to_Pantalla);
+								server.enviarReintento(emisor_pantalla, msj+"/"+vector[1], Utils.Server_to_Pantalla); //ENCRIPTAR?
 						}
 						else {
 							System.out.println("Servidor 82 msj null");
@@ -288,7 +289,7 @@ public class Servidor {
 		                			listaDNI+=clientes.get(i)+"/";
 		                		}
 		                		 System.out.println("SincronizacionDni/"+listaDNI);
-		                        emisor_server_heartbeat.enviar("SincronizacionDni/"+listaDNI, Utils.Server_to_Server2);
+		                        emisor_server_heartbeat.enviar("SincronizacionDni/"+listaDNI, Utils.Server_to_Server2); //VIAJAN LOS DNIS ENCRIPTADOS
 	                		}
 	                        String listaPuestoEmp = "";
 	                        if(!this.listaEmpleados.isEmpty()) {

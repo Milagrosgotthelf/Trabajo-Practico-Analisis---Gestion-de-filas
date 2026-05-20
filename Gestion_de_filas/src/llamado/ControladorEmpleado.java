@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.net.BindException;
 import java.net.ConnectException;
 
+import sfd.GestorSeguridad;
 import sfd.Utils;
 public class ControladorEmpleado implements ActionListener{
 	
@@ -17,6 +18,7 @@ public class ControladorEmpleado implements ActionListener{
 	private java.util.List<javax.swing.Timer> timers = new java.util.ArrayList<>();
 	private final Object lockEstado = new Object();
 	private final Object lockButton = new Object();
+	private GestorSeguridad gestorSeguridad = new GestorSeguridad();
 	
 	private volatile boolean pidiendoCliente = false;
 	

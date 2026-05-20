@@ -3,6 +3,7 @@ package notificacion;
 import java.net.BindException;
 import java.util.LinkedList;
 
+import sfd.GestorSeguridad;
 import sfd.Receptor;
 import sfd.Utils;
 
@@ -11,6 +12,7 @@ public class Pantalla  {
 	private static Pantalla instancia = null;
 	private Receptor receptor = null;
 	private LinkedList<String> clientes = null;
+	private GestorSeguridad gestorSeguridad = new GestorSeguridad();
 	
 	private Pantalla() throws BindException {
 		this.clientes = new LinkedList<String>();

@@ -5,6 +5,7 @@ import java.net.BindException;
 import java.net.ConnectException;
 
 import sfd.Emisor;
+import sfd.GestorSeguridad;
 import sfd.Receptor;
 import sfd.Utils;
 public class Empleado {
@@ -14,6 +15,7 @@ public class Empleado {
 	private String puertoReceptor;
 	private Emisor emisor_server = new Emisor();
 	private Receptor receptor_server = null;
+	private GestorSeguridad gestorSeguridad = new GestorSeguridad();
 	
 	
 	public Empleado() {
