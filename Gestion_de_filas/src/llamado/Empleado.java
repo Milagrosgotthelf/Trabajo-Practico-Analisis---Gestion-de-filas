@@ -22,12 +22,14 @@ public class Empleado {
 	}
 	
 	public String llamarCliente() throws ConnectException {
+		System.out.println("Solicitando cliente para el puesto " + this.numeroDePuesto);
 		this.emisor_server.enviar("Cliente/"+this.numeroDePuesto, this.puertoEmisor);
 		String msjEncriptado  = this.receptor_server.getMensaje(); //msj es el DNI encriptado enviado por el servidor
 		return this.gestorSeguridad.recuperarDNI(msjEncriptado); // de esta manera siempre que lo usemos dentro del controladorEmpleado ya sera el DNI real
 	} 
 	
 	public String pedirEstado() throws ConnectException {
+		System.out.println("Solicitando estado del puesto " + this.numeroDePuesto);
 		this.emisor_server.enviar("Estado/"+this.numeroDePuesto, this.puertoEmisor);
 		return this.receptor_server.getMensaje();
 	} 

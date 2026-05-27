@@ -59,10 +59,9 @@ public class Servidor {
 	                        	int puesto = Integer.parseInt(getPuestoMsj(msj));
 	                        	msj = getDniMsj(msj); //ENCRIPTADO
 	                        	String msjDesencriptado = gestorSeguridad.recuperarDNI(msj);
-	                        	System.out.println("TERMINAL REGISTRO --- Solicitud de ingreso para DNI: " + msj + " desde puesto: " + puesto);
-		                        if (!server.existeCliente(msjDesencriptado)) {
-		                        	
-		                            server.clientes.addLast(msj); //GUARDAMOS EL ENCRIPTADO
+	                        	System.out.println("TERMINAL REGISTRO --- Solicitud de ingreso para DNI: " + msjDesencriptado + " desde puesto: " + puesto);
+		                        if (!server.existeCliente(msj)) {
+		                            server.clientes.addLast(msj); //GUARDAMOS EL ENCRIPTADO. //O: Por qué?
 		                            System.out.println("TERMINAL REGISTRO --- Cliente agregado exitosamente. ");
 		                            try {
 			                            server.emisor_server_heartbeat.enviar("Agregar/" + msj, Utils.Server_to_Server2);
@@ -187,7 +186,8 @@ public class Servidor {
 							        }
 							    }
 							}
-							else if ((msj.length() < 7) && !server.existeEmpleado(msj)) {
+							else if (vector[1].equals("0")) {
+								msj = gestorSeguridad.recuperarDNI(msj);
 								//Aca entran los numeros de puesto
 								System.out.println("EMPLEADO --- Registrando nueva terminal de atención física. Puesto: " + msj);
 		                        listaEmpleados.add(msj);
@@ -198,7 +198,7 @@ public class Servidor {
 	                        	}catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
 	                        	}
 	                        }
-							else if (msj.length() >= 7) {
+							else{
 								//Aca entran los dni
 								System.out.println("PANTALLA --- Enviando DNI " + msj + " (Puesto " + vector[1] + ") hacia la pantalla central.");
 								server.enviarReintento(emisor_pantalla, msj+"/"+vector[1], Utils.Server_to_Pantalla); //VIAJA ENCRIPTADO A LA PANTALLA
