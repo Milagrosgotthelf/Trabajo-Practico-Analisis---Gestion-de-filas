@@ -20,6 +20,7 @@ public class Utils {
 	public static String Server_to_Server2;
 	public static String Server2_to_Server;
 	
+	public static String Formato;
 	public static final int Intentos=4;
 	
 	//asi se ejecuta automaticamente al ejecutar la clase
@@ -44,7 +45,7 @@ public class Utils {
 			Server_to_Server2 = prop.getProperty("Server_to_Server2");
 			Server2_to_Server = prop.getProperty("Server2_to_Server");
 			
-			
+			Formato = prop.getProperty("Formato");
 	    } catch (Exception e) {
 	        System.out.println("Error cargando configuración: " + e.getMessage());
 	    }

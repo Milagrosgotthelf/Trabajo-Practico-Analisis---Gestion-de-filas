@@ -10,7 +10,6 @@ import java.util.List;
 public class JsonMonitorPersistencia extends TPersistencia<List<String>> implements MonitorPersistencia {
 
     public JsonMonitorPersistencia() {
-        // Se guarda en un archivo distinto al de la cola
         super("datos/historial_monitor.json");
     }
 

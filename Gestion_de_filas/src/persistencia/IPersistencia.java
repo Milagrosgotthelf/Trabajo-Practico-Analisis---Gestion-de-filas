@@ -1,13 +1,14 @@
 package persistencia;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public interface IPersistencia {
 	
 	public interface ColaPersistencia {
-	    void guardarCola(List<String> dniClientes);
-	    List<String> recuperarCola();
+	    void guardarCola(LinkedList<String> dniClientes);
+	    LinkedList<String> recuperarCola();
 	}
 
 	public interface MonitorPersistencia {

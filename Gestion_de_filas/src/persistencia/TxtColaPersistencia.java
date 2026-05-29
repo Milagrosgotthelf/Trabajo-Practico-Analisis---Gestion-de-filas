@@ -1,35 +1,34 @@
 package persistencia;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 
 import persistencia.IPersistencia.ColaPersistencia;
 
-public class TxtColaPersistencia extends TPersistencia<List<String>> implements ColaPersistencia {
+public class TxtColaPersistencia extends TPersistencia<LinkedList<String>> implements ColaPersistencia {
 
     public TxtColaPersistencia() {
         super("datos/cola_espera.txt");
     }
 
     @Override
-    public void guardarCola(List<String> dniClientes) {
+    public void guardarCola(LinkedList<String> dniClientes) {
         guardar(dniClientes); // Llama al template method
     }
 
     @Override
-    public List<String> recuperarCola() {
+    public LinkedList<String> recuperarCola() {
         return recuperar(); // Llama al template method
     }
 
     @Override
-    protected String formatearDatos(List<String> datos) {
+    protected String formatearDatos(LinkedList<String> datos) {
         // Une todos los elementos de la lista separados por un salto de línea
         return String.join("\n", datos);
     }
 
     @Override
-    protected List<String> parsearDatos(String contenido) {
-        List<String> lista = new ArrayList<>();
+    protected LinkedList<String> parsearDatos(String contenido) {
+    	LinkedList<String> lista = new LinkedList<>();
         
         // Verifica que el archivo no esté vacío
         if (contenido != null && !contenido.trim().isEmpty()) {
@@ -43,7 +42,7 @@ public class TxtColaPersistencia extends TPersistencia<List<String>> implements 
     }
 
     @Override
-    protected List<String> obtenerObjetoVacio() {
-        return new ArrayList<>();
+    protected LinkedList<String> obtenerObjetoVacio() {
+        return new LinkedList<>();
     }
 }

@@ -4,6 +4,12 @@ import java.net.BindException;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+
+import factory.IAbstractFactory;
+import factory.JsonFactory;
+import factory.TxtFactory;
+import factory.XmlFactory;
+import persistencia.IPersistencia.ColaPersistencia;
 public class Servidor {
 	
 	private Receptor receptor_registro; //
@@ -16,25 +22,39 @@ public class Servidor {
 	
 	private Emisor emisor_server_heartbeat = null;
 	private Object lock = new Object();
-	private Object lock2 = new Object();
 	private LinkedList<String> clientes= new LinkedList<String>();
 	
 	private ArrayList<String> listaEmpleados = new ArrayList<String>();
 	private int contadorReg = 1;
-	private Thread hiloRec, hiloEstadoCol;
+	private Thread hiloRec;
 	private volatile boolean estadoSec = false ;
 	private boolean primerHeartBeat = true; 
 	
 	private ArrayList<Object> semaforoEmpleados = new ArrayList<Object>();
 	private GestorSeguridad gestorSeguridad = new GestorSeguridad();
-
+	
+	private IAbstractFactory factory; 
+	private ColaPersistencia colaAux;
 	 
 	public Servidor() {
 		System.out.println("Servidor iniciado");
+		        if (Utils.Formato.toUpperCase().trim().equals("JSON"))
+		            factory = new JsonFactory();
+		        else if (Utils.Formato.toUpperCase().trim().equals("XML"))
+		            factory = new XmlFactory();
+		        else if (Utils.Formato.toUpperCase().trim().equals("TXT"))
+		            factory = new TxtFactory();
+		        else
+		        	throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
+			
 		try {
+			
 			iniciaReceptores();
 			this.hilosPpales();
 			this.hiloHeartbeat();
+			this.colaAux = factory.crearColaPersistencia();
+			this.clientes = this.colaAux.recuperarCola();
+			
 		} catch (BindException e) {
 			System.out.println("Iniciando servidor secundario");
 			inicioSecundario();
@@ -44,7 +64,12 @@ public class Servidor {
 	
 	
 	public void agregarCliente(String cliente) {
+		System.out.println("Guardando cola");
 		clientes.addLast(cliente);
+		this.colaAux.guardarCola(clientes);
+		System.out.println("Cola guardada");
+		
+		
 	}
 	
 	private void hiloReg(Servidor server) {
@@ -61,7 +86,7 @@ public class Servidor {
 	                        	String msjDesencriptado = gestorSeguridad.recuperarDNI(msj);
 	                        	System.out.println("TERMINAL REGISTRO --- Solicitud de ingreso para DNI: " + msjDesencriptado + " desde puesto: " + puesto);
 		                        if (!server.existeCliente(msj)) {
-		                            server.clientes.addLast(msj); //GUARDAMOS EL ENCRIPTADO. //O: Por qué?
+		                            server.agregarCliente(msj);
 		                            System.out.println("TERMINAL REGISTRO --- Cliente agregado exitosamente. ");
 		                            try {
 			                            server.emisor_server_heartbeat.enviar("Agregar/" + msj, Utils.Server_to_Server2);
@@ -219,46 +244,6 @@ public class Servidor {
 		this.hiloRec.start();
 	}
 	
-	private void hiloEstadoCola(Servidor server) {
-		this.hiloEstadoCol = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				
-				System.out.println("Iniciando hilo estado de la cola");
-					while (true) {
-						try {
-							for (int i=0; i<listaEmpleados.size(); i++) {
-								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(listaEmpleados.get(i)));
-								boolean bool=false;
-								
-									Object lockDelEmpleado = semaforoEmpleados.get(i);
-									synchronized(lockDelEmpleado) {
-										if (server.clientes.isEmpty()) {
-									    	bool = server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
-									    }
-									    else {
-									    	bool =server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
-									    }
-										if(!bool) {
-											server.enviarReintento(emisor_server_heartbeat, "Eliminar empleado/"+listaEmpleados.get(i), Utils.Server_to_Server2);
-											server.listaEmpleados.remove(i);
-											server.semaforoEmpleados.remove(i);
-										}
-									}
-								
-							}
-							//Thread.sleep no puede estar dentro del for, ni fuera del while
-							Thread.sleep(300);
-						} catch (Exception e) {
-							System.out.println("Excepcion en hilo estado de la cola " + e.getMessage());
-						}
-					}
-				}
-			});
-		//this.hiloEstadoCol.setDaemon(true); 
-		this.hiloEstadoCol.start();
-	}
-		
 	public LinkedList<String> getClientes() {
 		return clientes;
 	}
@@ -388,19 +373,16 @@ public class Servidor {
 	    hiloHeartbeat.start();
 	}
 	
-	public void servidorPpalVivo() {
-		System.out.println("Servidor principal vivo");
-		System.out.println(this.listaEmpleados);
-		System.out.println(this.clientes);
-	}
-	
 	public void servidorPpalMuerto() {
 		System.out.println("¡¡¡Servidor principal muerto, iniciando servidor secundario!!!");
 		try {
 			estadoSec = false;
+			
 			iniciaReceptores();
 			this.receptor_server_heartbeat.kill();
 			this.hilosPpales();
+			this.colaAux = factory.crearColaPersistencia();
+			this.clientes = this.colaAux.recuperarCola();
 		} catch (BindException e) { 
 			System.out.println(e.getMessage());
 			System.out.println("Servidor Ppal activo");
@@ -414,6 +396,7 @@ public class Servidor {
 		//this.hiloEstadoCola(this);
 		this.hiloRecEmp(this);
 		this.hiloReg(this);
+		
 	}
 
 	public void iniciaReceptores() throws BindException {

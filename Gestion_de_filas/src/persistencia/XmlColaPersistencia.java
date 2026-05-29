@@ -1,28 +1,27 @@
 package persistencia;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 
 import persistencia.IPersistencia.ColaPersistencia;
 
-public class XmlColaPersistencia extends TPersistencia <List<String> >implements ColaPersistencia {
+public class XmlColaPersistencia extends TPersistencia <LinkedList<String>>implements ColaPersistencia {
 
 	public XmlColaPersistencia() {
         super("datos/cola_espera.xml");
     }
 
     @Override
-    public void guardarCola(List<String> dniClientes) {
+    public void guardarCola(LinkedList<String> dniClientes) {
         guardar(dniClientes); // Llama al template method
     }
 
     @Override
-    public List<String> recuperarCola() {
+    public LinkedList<String> recuperarCola() {
         return recuperar(); // Llama al template method
     }
 
     @Override
-    protected String formatearDatos(List<String> datos) {
+    protected String formatearDatos(LinkedList<String> datos) {
         StringBuilder xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         xml.append("<cola>\n");
         for (String dni : datos) {
@@ -33,8 +32,8 @@ public class XmlColaPersistencia extends TPersistencia <List<String> >implements
     }
 
     @Override
-    protected List<String> parsearDatos(String contenido) {
-        List<String> lista = new ArrayList<>();
+    protected LinkedList<String> parsearDatos(String contenido) {
+    	LinkedList<String> lista = new LinkedList<>();
         
         // Parseo manual básico para evitar dependencias externas (como DOM o SAX)
         // Separa el string cada vez que encuentra la etiqueta de apertura
@@ -52,8 +51,8 @@ public class XmlColaPersistencia extends TPersistencia <List<String> >implements
     }
 
     @Override
-    protected List<String> obtenerObjetoVacio() {
-        return new ArrayList<>();
+    protected LinkedList<String> obtenerObjetoVacio() {
+        return new LinkedList<>();
     }
 
 }
