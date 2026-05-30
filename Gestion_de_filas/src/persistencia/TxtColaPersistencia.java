@@ -32,11 +32,11 @@ public class TxtColaPersistencia extends TPersistencia<LinkedList<String>> imple
         
         // Verifica que el archivo no esté vacío
         if (contenido != null && !contenido.trim().isEmpty()) {
-            // Separa el contenido por saltos de línea
             String[] dnis = contenido.split("\n");
             for (String dni : dnis) {
                 lista.add(dni.trim());
             }
+            
         }
         return lista;
     }

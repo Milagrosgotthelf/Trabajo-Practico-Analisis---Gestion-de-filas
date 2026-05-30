@@ -64,12 +64,8 @@ public class Servidor {
 	
 	
 	public void agregarCliente(String cliente) {
-		System.out.println("Guardando cola");
 		clientes.addLast(cliente);
 		this.colaAux.guardarCola(clientes);
-		System.out.println("Cola guardada");
-		
-		
 	}
 	
 	private void hiloReg(Servidor server) {
@@ -134,6 +130,21 @@ public class Servidor {
 	    return false;
 	}
 
+	private String retiraCliente() {
+		String dni = this.getClientes().removeFirst();
+		this.colaAux.guardarCola(clientes);
+		return dni;
+	}
+	
+	private String[] split(String string) {
+		int i = string.length()-1;
+		while(string.charAt(i) != '/') {
+			i--;
+		}
+		String[] array = {string.substring(0, i),string.substring(i+1,string.length())};
+		System.out.println(array[0] + "\n" +array[1]);
+		return array;
+	}
 	private void hiloRecEmp(Servidor server) {
 		this.hiloRec = new Thread(new Runnable() {
 			@Override
@@ -141,7 +152,7 @@ public class Servidor {
 				while (true) {
 					try {
 						String msj = receptor_empleado.getMensaje(); 
-						String[] vector = msj.split("/");
+						String[] vector = server.split(msj);
 						msj = vector[0];
 						if(msj != null) {
 							if(msj.equals("Cliente")) {
@@ -152,7 +163,7 @@ public class Servidor {
 								
 								synchronized (lockDelEmpleado) {
 									if (!server.getClientes().isEmpty()) {
-									    String dni = server.getClientes().removeFirst();
+										String dni = server.retiraCliente();
 									    System.out.println("EMPLEADO --- Asignando DNI " + dni + " al Puesto " + vector[1] + ". Quedan " + server.getClientes().size() + " en cola.");
 									    server.enviarReintento(emisor_empleado, dni, puerto); //LO ENVIAMOS ENCRIPTADO
 									    try {
@@ -163,8 +174,6 @@ public class Servidor {
 									    }
 									}
 								}
-								
-
 							}
 							else if (msj.equals("Estado")) {
 								String puesto = vector[1];
@@ -254,27 +263,11 @@ public class Servidor {
 	}
 	
 	public String getPuestoMsj(String msj) {
-		String puesto = "";
-		int i=0;
-		while(i<msj.length() && msj.charAt(i)!= '/') {
-			i++;
-		}
-		i++;
-		while(i<msj.length()) {
-			puesto += msj.charAt(i);
-			i++;
-		}
-		return puesto;
+		return this.split(msj)[1];
 	}
 	
 	public String getDniMsj(String msj) {
-		String dni = "";
-		int i=0;
-		while(i<msj.length() && msj.charAt(i)!= '/') {
-			dni += msj.charAt(i);
-			i++;
-		}
-		return dni;
+		return this.split(msj)[0];
 	}
 	
 	//ITERACION 3

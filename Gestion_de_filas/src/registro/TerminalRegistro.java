@@ -34,6 +34,7 @@ public class TerminalRegistro {
 	public boolean agregarCliente(String cliente) throws ConnectException{
 		String clienteEncriptado = gestorSeguridad.protegerDNI(cliente); //ENVIAMOS EL DNI ENCRIPTADO AL SERVIDOR
 		emisor.enviar(clienteEncriptado+"/"+Integer.toString(this.numTerminal), Integer.toString(Integer.parseInt(Utils.Registro_to_Server)));
+		//emisor.enviar(cliente+"/"+Integer.toString(this.numTerminal), Integer.toString(Integer.parseInt(Utils.Registro_to_Server)));
 		
 		String respuesta = receptor.getMensaje();
 		

@@ -34,7 +34,7 @@ public abstract class TPersistencia<T> {
             StringBuilder sb = new StringBuilder();
             String linea;
             while ((linea = reader.readLine()) != null) {
-                sb.append(linea);
+                sb.append(linea).append("\n");
             }
             return parsearDatos(sb.toString());
         } catch (IOException e) {

@@ -69,7 +69,6 @@ public class ControladorRegistro implements ActionListener {
 	}
 	
 	public int agregarClienteReintento(String dniActual) {
-		//Zona de posible error
 		
 		int intentos = Utils.Intentos;;
 		boolean agregado = false;
