@@ -4,7 +4,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.BindException;
 import java.net.ConnectException;
+import java.util.Map;
 
+import factory.IAbstractFactory;
+import factory.JsonFactory;
+import factory.TxtFactory;
+import factory.XmlFactory;
+import persistencia.IPersistencia.NotificacionPersistencia;
 import sfd.Utils;
 public class ControladorEmpleado implements ActionListener{
 	
@@ -20,8 +26,22 @@ public class ControladorEmpleado implements ActionListener{
 	
 	private volatile boolean pidiendoCliente = false;
 	
+	private IAbstractFactory factory;
+	private NotificacionPersistencia clienteAux;
+	
 	public ControladorEmpleado()  {	
 		this.empleado = new Empleado();
+		
+		if (Utils.Formato.toUpperCase().trim().equals("JSON"))
+            factory = new JsonFactory();
+        else if (Utils.Formato.toUpperCase().trim().equals("XML"))
+            factory = new XmlFactory();
+        else if (Utils.Formato.toUpperCase().trim().equals("TXT"))
+            factory = new TxtFactory();
+        else
+        	throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
+		
+		this.clienteAux = factory.crearNotificacionPersistencia();
 	}
 	
 	public void setVistas(Ventana_empleado emp) {
@@ -86,6 +106,7 @@ public class ControladorEmpleado implements ActionListener{
 			
 			try {
 				this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
+				Map <String, Integer> clientePersistido = this.clienteAux.recuperarIntentos();
 				ventanaLlamadaDefecto();
 				pedirEstado();
 				
