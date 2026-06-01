@@ -16,7 +16,7 @@ public abstract class CifradoSimetricoBase implements IEstrategiaCifrado {
 	 * El base64 es un sist de codificacion que toma el encriptado binario y lo traduce a un formato de caracteres
 	 */
 	@Override
-	public String encriptar(String dato, String claveSecreta) {
+	public final String encriptar(String dato, String claveSecreta) {
 		try {
             /*  ajusta la longitud de las claves secretas para que sean compatibles los metodos de las distintas
 				estrategias de cifrado simetrico y se pueda aplicar el patron Strategy sin problemas	*/ 
@@ -37,7 +37,7 @@ public abstract class CifradoSimetricoBase implements IEstrategiaCifrado {
 	}
 
 	@Override
-	public String desencriptar(String datoEncriptado, String claveSecreta) {
+	public final String desencriptar(String datoEncriptado, String claveSecreta) {
 		try {
             byte[] claveAjustada = ajustarClaveSecreta(claveSecreta);
             SecretKeySpec key = new SecretKeySpec(claveAjustada, getNombreAlgoritmo());
