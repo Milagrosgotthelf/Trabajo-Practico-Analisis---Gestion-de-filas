@@ -4,8 +4,8 @@ package llamado;
 import java.net.BindException;
 import java.net.ConnectException;
 
+import seguridad.GestorSeguridad;
 import sfd.Emisor;
-import sfd.GestorSeguridad;
 import sfd.Receptor;
 import sfd.Utils;
 public class Empleado {

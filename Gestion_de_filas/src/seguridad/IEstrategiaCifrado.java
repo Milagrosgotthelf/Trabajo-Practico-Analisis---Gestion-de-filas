@@ -1,4 +1,4 @@
-package sfd;
+package seguridad;
 /** 
  * en patron Strategy: <<interface>> Strategy
  */

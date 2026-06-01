@@ -10,6 +10,7 @@ import factory.JsonFactory;
 import factory.TxtFactory;
 import factory.XmlFactory;
 import persistencia.IPersistencia.ColaPersistencia;
+import seguridad.GestorSeguridad;
 public class Servidor {
 	
 	private Receptor receptor_registro; //

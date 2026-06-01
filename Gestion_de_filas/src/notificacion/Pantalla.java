@@ -3,7 +3,7 @@ package notificacion;
 import java.net.BindException;
 import java.util.LinkedList;
 
-import sfd.GestorSeguridad;
+import seguridad.GestorSeguridad;
 import sfd.Receptor;
 import sfd.Utils;
 

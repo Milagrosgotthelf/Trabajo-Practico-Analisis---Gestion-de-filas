@@ -1,4 +1,6 @@
-package sfd;
+package seguridad;
+
+import sfd.Utils;
 
 /**
  *en patron Strategy: Context 
