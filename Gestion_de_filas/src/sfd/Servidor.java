@@ -36,6 +36,7 @@ public class Servidor {
 	
 	private IAbstractFactory factory; 
 	private ColaPersistencia colaAux;
+	
 	 
 	public Servidor() {
 		System.out.println("Servidor iniciado");
@@ -236,7 +237,10 @@ public class Servidor {
 							else{
 								//Aca entran los dni
 								System.out.println("PANTALLA --- Enviando DNI " + msj + " (Puesto " + vector[1] + ") hacia la pantalla central.");
-								server.enviarReintento(emisor_pantalla, msj+"/"+vector[1], Utils.Server_to_Pantalla); //VIAJA ENCRIPTADO A LA PANTALLA
+								String dni = gestorSeguridad.recuperarDNI(msj);
+								String dniPuestoEncriptado = gestorSeguridad.protegerDNI(dni+"/"+vector[1]);
+								//server.enviarReintento(emisor_pantalla, msj+"/"+vector[1], Utils.Server_to_Pantalla); //VIAJA ENCRIPTADO A LA PANTALLA
+								server.enviarReintento(emisor_pantalla, dniPuestoEncriptado, Utils.Server_to_Pantalla); //VIAJA ENCRIPTADO A LA PANTALLA
 							}
 						}
 						else {

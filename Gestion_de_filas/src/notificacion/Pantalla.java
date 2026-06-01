@@ -42,12 +42,11 @@ public class Pantalla  {
 		
 	    String mensajeRecibido = this.receptor.getMensaje();
 	    if (mensajeRecibido != null) {
-	    	String[] partes = mensajeRecibido.split("/");
-            String dniEncriptado = partes[0]; 
             //asi le enviamos el dni desencriptado a la ventana_pantalla pero todavia teniendo el nropuesto en el msj
             // no poner esta logica en ventana_pantalla porque no me parece correcto que la ventana tenga al gestor de seguridad
-            String mensajeRecibidoDesencriptado = gestorSeguridad.recuperarDNI(dniEncriptado)+"/"+partes[1];
             
+	    	String mensajeRecibidoDesencriptado = gestorSeguridad.recuperarDNI(mensajeRecibido);
+
 	        if (!this.clientes.isEmpty() && mensajeRecibidoDesencriptado.equals(this.clientes.getFirst())) {
 	            return;
 	        }
