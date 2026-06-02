@@ -180,7 +180,7 @@ public class Servidor {
 										int intentos = mapaPersistido.get(dni);
 										mapaPersistido.remove(dni);
 										gestorNotificacion.guardarIntentos(mapaPersistido);
-										server.enviarReintento(emisor_empleado, getDniMsj(dni+"/"+intentos), puerto);
+										server.enviarReintento(emisor_empleado, gestorSeguridad.protegerDNI(dni+"/"+intentos), puerto);
 										
 										
 									}
@@ -260,7 +260,7 @@ public class Servidor {
 								System.out.println("PANTALLA --- Enviando DNI " + msj + " (Puesto " + vector[1] + ") hacia la pantalla central.");
 								String dni = gestorSeguridad.recuperarDNI(msj);
 								String dniPuestoEncriptado = gestorSeguridad.protegerDNI(dni+"/"+vector[1]);
-								//server.enviarReintento(emisor_pantalla, msj+"/"+vector[1], Utils.Server_to_Pantalla); //VIAJA ENCRIPTADO A LA PANTALLA
+								eliminarPersistencia(dni, mapaPersistido);
 								server.enviarReintento(emisor_pantalla, dniPuestoEncriptado, Utils.Server_to_Pantalla); //VIAJA ENCRIPTADO A LA PANTALLA
 							}
 						}
@@ -277,6 +277,12 @@ public class Servidor {
 		});
 		//this.hiloRec.setDaemon(true); 
 		this.hiloRec.start();
+	}
+	
+	private void eliminarPersistencia(String dni, Map<String, Integer> mapaPersistido) {
+		System.out.println("ELIMINANDO DNI REINTENTOS");
+		mapaPersistido.remove(dni);
+		
 	}
 	
 	public LinkedList<String> getClientes() {

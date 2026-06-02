@@ -126,6 +126,7 @@ public class ControladorEmpleado implements ActionListener{
 		}
 		else if (comando.equals("Iniciar turno")) {
 			iniciarTurno();
+			
 			detenerTodosLosTimers();
 		}
 		else if (comando.equals("Finalizar turno")) {
@@ -138,7 +139,6 @@ public class ControladorEmpleado implements ActionListener{
 			pedirEstado();
 		}
 	}
-	
 	
 	private void cicloLlamada() {
 		this.guardarReintentos();
@@ -207,7 +207,7 @@ public class ControladorEmpleado implements ActionListener{
 		System.out.println("Guardando cliente...");
 		Map<String, Integer> clientes = new HashMap<String, Integer>();
 		clientes = this.gestorPersistencia.recuperarIntentos();
-		clientes.put(dniActual_emp, 4-this.intentos);
+		clientes.put(dniActual_emp, this.intentos);
 		this.gestorPersistencia.guardarIntentos(clientes);
 	}
 	
