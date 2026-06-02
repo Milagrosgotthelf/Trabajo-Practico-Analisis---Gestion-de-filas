@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notificaciones>
+  <notificacion>
+    <dni></dni>
+    <intentos>4</intentos>
+  </notificacion>
+  <notificacion>
+    <dni>1111111</dni>
+    <intentos>1</intentos>
+  </notificacion>
+</notificaciones>

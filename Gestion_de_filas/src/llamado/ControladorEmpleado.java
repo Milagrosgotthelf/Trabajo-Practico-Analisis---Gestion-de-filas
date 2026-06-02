@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.BindException;
 import java.net.ConnectException;
+import java.util.HashMap;
 import java.util.Map;
 
 import factory.IAbstractFactory;
@@ -27,7 +28,7 @@ public class ControladorEmpleado implements ActionListener{
 	private volatile boolean pidiendoCliente = false;
 	
 	private IAbstractFactory factory;
-	private NotificacionPersistencia clienteAux;
+	private NotificacionPersistencia gestorPersistencia;
 	
 	public ControladorEmpleado()  {	
 		this.empleado = new Empleado();
@@ -41,7 +42,7 @@ public class ControladorEmpleado implements ActionListener{
         else
         	throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
 		
-		this.clienteAux = factory.crearNotificacionPersistencia();
+		this.gestorPersistencia = factory.crearNotificacionPersistencia();
 	}
 	
 	public void setVistas(Ventana_empleado emp) {
@@ -106,7 +107,6 @@ public class ControladorEmpleado implements ActionListener{
 			
 			try {
 				this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
-				Map <String, Integer> clientePersistido = this.clienteAux.recuperarIntentos();
 				ventanaLlamadaDefecto();
 				pedirEstado();
 				
@@ -129,16 +129,19 @@ public class ControladorEmpleado implements ActionListener{
 			detenerTodosLosTimers();
 		}
 		else if (comando.equals("Finalizar turno")) {
-			
 			ventanaLlamadaDefecto();
 			synchronized(lockEstado) {
 				lockEstado.notifyAll();
 			}
 			ventanaEstado();
+			ventanaLlamadaDefecto();
+			pedirEstado();
 		}
 	}
 	
+	
 	private void cicloLlamada() {
+		this.guardarReintentos();
 		if (intentos>0) {
 			vistaEmpleado.activarBtnLlamar(false);
 			String dni_llamar = this.dniActual_emp;
@@ -147,7 +150,7 @@ public class ControladorEmpleado implements ActionListener{
 			this.enviarCliente_Server_Reintento(this.dniActual_emp);
 	        rellamarCliente(); 
 
-	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
+	        javax.swing.Timer timerReintento = new javax.swing.Timer(5000, e -> {
 	            if (clienteAtendido && !this.dniActual_emp.equals("-") && this.dniActual_emp.equals(dni_llamar)) {
 	                cicloLlamada(); 
 	            }
@@ -167,11 +170,10 @@ public class ControladorEmpleado implements ActionListener{
 	    }
 	}
 
-	private void mostrarSigCliente() {
+	private void mostrarSigCliente(String dni) {
 		ventanaEstado = false;
-		this.proxdni = dniActual_emp;
+		this.proxdni = dni;
         vistaEmpleado.setProximoDni(this.proxdni);
-        intentos = 3;
         clienteAtendido = true;
         vistaEmpleado.setLabelsVisibles(true);
         vistaEmpleado.setIntentos(intentos);
@@ -198,6 +200,15 @@ public class ControladorEmpleado implements ActionListener{
 		intentos--;
 		vistaEmpleado.setIntentos(intentos);
 		vistaEmpleado.activarBtnIniciarTurno(true); 
+		
+	}
+	
+	private void guardarReintentos() {
+		System.out.println("Guardando cliente...");
+		Map<String, Integer> clientes = new HashMap<String, Integer>();
+		clientes = this.gestorPersistencia.recuperarIntentos();
+		clientes.put(dniActual_emp, 4-this.intentos);
+		this.gestorPersistencia.guardarIntentos(clientes);
 	}
 	
 	private void iniciarTurno() {
@@ -228,8 +239,18 @@ public class ControladorEmpleado implements ActionListener{
 
 	        String aux = this.llamarCliente_reintento();
 	        if(aux != null && !aux.equals("HAY_CLIENTES") && !aux.equals("LISTA_VACIA")) {
-		        dniActual_emp = aux;
-	            mostrarSigCliente();
+	        	if(aux.split("/").length > 1) {
+	        		dniActual_emp = aux.split("/")[0];
+	        		intentos = Integer.parseInt(aux.split("/")[1]);
+	        		
+	        		
+	        	}
+	        	else {
+			        dniActual_emp = aux;
+			        intentos = 3;
+		            
+	        	}
+	        	mostrarSigCliente(dniActual_emp);
 	        }
 	        else if(aux == null) {
 	        	this.vistaEmpleado.mostrarMensaje("Fallo de conexión con el servidor. Abortando solicitud...");

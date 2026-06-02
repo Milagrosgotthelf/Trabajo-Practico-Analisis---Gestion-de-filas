@@ -4,12 +4,14 @@ import java.net.BindException;
 import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Map;
 
 import factory.IAbstractFactory;
 import factory.JsonFactory;
 import factory.TxtFactory;
 import factory.XmlFactory;
 import persistencia.IPersistencia.ColaPersistencia;
+import persistencia.IPersistencia.NotificacionPersistencia;
 import seguridad.GestorSeguridad;
 public class Servidor {
 	
@@ -36,6 +38,7 @@ public class Servidor {
 	
 	private IAbstractFactory factory; 
 	private ColaPersistencia colaAux;
+	private NotificacionPersistencia gestorNotificacion;
 	
 	 
 	public Servidor() {
@@ -50,12 +53,14 @@ public class Servidor {
 		        	throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
 			
 		try {
-			
+			this.gestorNotificacion = factory.crearNotificacionPersistencia();
 			iniciaReceptores();
 			this.hilosPpales();
 			this.hiloHeartbeat();
 			this.colaAux = factory.crearColaPersistencia();
 			this.clientes = this.colaAux.recuperarCola();
+			
+			
 			
 		} catch (BindException e) {
 			System.out.println("Iniciando servidor secundario");
@@ -147,10 +152,13 @@ public class Servidor {
 		System.out.println(array[0] + "\n" +array[1]);
 		return array;
 	}
+	
 	private void hiloRecEmp(Servidor server) {
 		this.hiloRec = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				Map<String, Integer> mapaPersistido = gestorNotificacion.recuperarIntentos();
+				//O: Lo va a abrir una vez unicamente asi puede vaciarlo
 				while (true) {
 					try {
 						String msj = receptor_empleado.getMensaje(); 
@@ -163,9 +171,22 @@ public class Servidor {
 								//Si se atrasa esto se come al dni
 								Object lockDelEmpleado = semaforoEmpleados.get(listaEmpleados.indexOf(vector[1]));
 								
+								
+								String dni;
 								synchronized (lockDelEmpleado) {
-									if (!server.getClientes().isEmpty()) {
-										String dni = server.retiraCliente();
+									if(!mapaPersistido.isEmpty()) {
+										
+										dni = (String) mapaPersistido.keySet().toArray()[0];
+										int intentos = mapaPersistido.get(dni);
+										mapaPersistido.remove(dni);
+										gestorNotificacion.guardarIntentos(mapaPersistido);
+										server.enviarReintento(emisor_empleado, getDniMsj(dni+"/"+intentos), puerto);
+										
+										
+									}
+									else if (!server.getClientes().isEmpty()) {
+										
+										dni = server.retiraCliente();
 									    System.out.println("EMPLEADO --- Asignando DNI " + dni + " al Puesto " + vector[1] + ". Quedan " + server.getClientes().size() + " en cola.");
 									    server.enviarReintento(emisor_empleado, dni, puerto); //LO ENVIAMOS ENCRIPTADO
 									    try {
@@ -187,7 +208,7 @@ public class Servidor {
 							        
 							        synchronized (lockDelEmpleado) {
 							            boolean bool;
-							            if (server.getClientes().isEmpty()) {
+							            if (server.getClientes().isEmpty() && mapaPersistido.isEmpty()) {
 							                bool = server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
 							            } else {
 							                bool = server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
