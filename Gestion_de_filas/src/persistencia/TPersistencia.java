@@ -35,12 +35,16 @@ public abstract class TPersistencia<T> {
             String linea;
             while ((linea = reader.readLine()) != null) {
                 sb.append(linea).append("\n");
-            }
+            
             return parsearDatos(sb.toString());
+            }
         } catch (IOException e) {
             System.err.println("Error al recuperar los datos: " + e.getMessage());
-            return obtenerObjetoVacio();
         }
+        catch (Exception e) {
+			System.err.println("Error inesperado al recuperar los datos: " + e.getMessage());
+		}
+        return obtenerObjetoVacio();
     }
 
     // Pasos "gancho" (primitive operations) que las subclases deben implementar

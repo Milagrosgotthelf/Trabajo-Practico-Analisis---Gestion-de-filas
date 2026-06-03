@@ -11,7 +11,6 @@ public class MainUnificado {
 		MainReg.main(args);
 		MainEmp.main(args);
 		MainEmp.main(args);
-		MainPan.main(args);
 	}
 
 }

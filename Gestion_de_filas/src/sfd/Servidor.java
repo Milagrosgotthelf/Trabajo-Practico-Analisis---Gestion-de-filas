@@ -157,7 +157,10 @@ public class Servidor {
 		this.hiloRec = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Map<String, Integer> mapaPersistido = gestorNotificacion.recuperarIntentos();
+				Map<String, Integer> mapaPersistido = null;
+				try {
+					mapaPersistido = gestorNotificacion.recuperarIntentos();
+				} catch (Exception e) {}
 				//O: Lo va a abrir una vez unicamente asi puede vaciarlo
 				while (true) {
 					try {
@@ -174,7 +177,7 @@ public class Servidor {
 								
 								String dni;
 								synchronized (lockDelEmpleado) {
-									if(!mapaPersistido.isEmpty()) {
+									if(mapaPersistido != null && !mapaPersistido.isEmpty()) {
 										
 										dni = (String) mapaPersistido.keySet().toArray()[0];
 										int intentos = mapaPersistido.get(dni);
@@ -208,7 +211,7 @@ public class Servidor {
 							        
 							        synchronized (lockDelEmpleado) {
 							            boolean bool;
-							            if (server.getClientes().isEmpty() && mapaPersistido.isEmpty()) {
+							            if (server.getClientes().isEmpty() && (mapaPersistido != null && mapaPersistido.isEmpty())) {
 							                bool = server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
 							            } else {
 							                bool = server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
@@ -226,7 +229,7 @@ public class Servidor {
 							        }
 							    }
 							}
-							else if (msj.equals("Desconectar")) {
+							else if (msj.startsWith("Desconectar")) {
 							    String puesto = vector[1];
 							    int index = listaEmpleados.indexOf(puesto);
 							    

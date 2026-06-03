@@ -1,3 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <notificaciones>
+  <notificacion>
+    <dni>11111666</dni>
+    <intentos>3</intentos>
+  </notificacion>
 </notificaciones>

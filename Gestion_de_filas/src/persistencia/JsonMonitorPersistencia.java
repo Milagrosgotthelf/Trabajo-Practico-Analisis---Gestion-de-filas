@@ -1,30 +1,27 @@
 package persistencia;
 
-import java.util.List;
 
 import persistencia.IPersistencia.MonitorPersistencia;
+import java.util.LinkedList;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class JsonMonitorPersistencia extends TPersistencia<List<String>> implements MonitorPersistencia {
+public class JsonMonitorPersistencia extends TPersistencia<LinkedList<String>> implements MonitorPersistencia {
 
     public JsonMonitorPersistencia() {
         super("datos/historial_monitor.json");
     }
 
     @Override
-    public void guardarHistorial(List<String> historial) {
+    public void guardarHistorial(LinkedList<String> historial) {
         guardar(historial); // Llama al template method
     }
 
     @Override
-    public List<String> recuperarHistorial() {
+    public LinkedList<String> recuperarHistorial() {
         return recuperar(); // Llama al template method
     }
 
     @Override
-    protected String formatearDatos(List<String> datos) {
+    protected String formatearDatos(LinkedList<String> datos) {
         StringBuilder json = new StringBuilder("[\n");
         for (int i = 0; i < datos.size(); i++) {
             json.append("  \"").append(datos.get(i)).append("\"");
@@ -36,8 +33,8 @@ public class JsonMonitorPersistencia extends TPersistencia<List<String>> impleme
     }
 
     @Override
-    protected List<String> parsearDatos(String contenido) {
-        List<String> lista = new ArrayList<>();
+    protected LinkedList<String> parsearDatos(String contenido) {
+    	LinkedList<String> lista = new LinkedList<>();
         String limpia = contenido.replace("[", "").replace("]", "").replace("\"", "").trim();
         
         if (!limpia.isEmpty()) {
@@ -49,7 +46,7 @@ public class JsonMonitorPersistencia extends TPersistencia<List<String>> impleme
     }
 
     @Override
-    protected List<String> obtenerObjetoVacio() {
-        return new ArrayList<>();
+    protected LinkedList<String> obtenerObjetoVacio() {
+        return new LinkedList<String>();
     }
 }

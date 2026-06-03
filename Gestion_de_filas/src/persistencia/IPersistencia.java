@@ -12,8 +12,8 @@ public interface IPersistencia {
 	}
 
 	public interface MonitorPersistencia {
-	    void guardarHistorial(List<String> historial);
-	    List<String> recuperarHistorial();
+	    void guardarHistorial(LinkedList<String> historial);
+	    LinkedList<String> recuperarHistorial();
 	}
 
 	public interface NotificacionPersistencia {

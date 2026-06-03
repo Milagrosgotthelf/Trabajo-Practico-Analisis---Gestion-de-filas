@@ -1,11 +1,10 @@
 package persistencia;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 
 import persistencia.IPersistencia.MonitorPersistencia;
 
-public class TxtMonitorPersistencia extends TPersistencia<List<String>> implements MonitorPersistencia {
+public class TxtMonitorPersistencia extends TPersistencia<LinkedList<String>> implements MonitorPersistencia {
 
 	public TxtMonitorPersistencia() {
 		super("datos/historial_monitor.txt");
@@ -13,23 +12,23 @@ public class TxtMonitorPersistencia extends TPersistencia<List<String>> implemen
 	}
 
 	@Override
-    public void guardarHistorial(List<String> historial) {
+    public void guardarHistorial(LinkedList<String> historial) {
         guardar(historial); 
     }
 
     @Override
-    public List<String> recuperarHistorial() {
+    public LinkedList<String> recuperarHistorial() {
         return recuperar(); 
     }
 
     @Override
-    protected String formatearDatos(List<String> datos) {
+    protected String formatearDatos(LinkedList<String> datos) {
         return String.join("\n", datos);
     }
 
     @Override
-    protected List<String> parsearDatos(String contenido) {
-        List<String> lista = new ArrayList<>();
+    protected LinkedList<String> parsearDatos(String contenido) {
+    	LinkedList<String> lista = new LinkedList<>();
         if (contenido != null && !contenido.trim().isEmpty()) {
             String[] llamados = contenido.split("\n");
             for (String llamado : llamados) {
@@ -40,8 +39,8 @@ public class TxtMonitorPersistencia extends TPersistencia<List<String>> implemen
     }
 
     @Override
-    protected List<String> obtenerObjetoVacio() {
-        return new ArrayList<>();
+    protected LinkedList<String> obtenerObjetoVacio() {
+        return new LinkedList<>();
     }
 
 }
