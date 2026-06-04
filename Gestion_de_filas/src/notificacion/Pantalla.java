@@ -36,7 +36,7 @@ public class Pantalla {
     }
     
     // MODIFICADO: Recibe List general y asegura que siempre queden 5 elementos
-    public void setClientes(List<String> historialRecuperado) {
+    public void setClientes(LinkedList<String> historialRecuperado) {
         this.clientes.clear();
         
         if (historialRecuperado != null) {

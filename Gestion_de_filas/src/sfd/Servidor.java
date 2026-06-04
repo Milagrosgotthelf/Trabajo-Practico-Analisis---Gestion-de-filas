@@ -168,6 +168,7 @@ public class Servidor {
 						String[] vector = server.split(msj);
 						msj = vector[0];
 						if(msj != null) {
+							System.out.println("MENSAJE: " + msj + " - " + vector[1]);
 							if(msj.equals("Cliente")) {
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
 								System.out.println("EMPLEADO --- Puesto " + vector[1] + " está solicitando el siguiente cliente.");
