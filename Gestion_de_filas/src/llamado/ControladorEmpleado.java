@@ -61,7 +61,7 @@ public class ControladorEmpleado implements ActionListener{
 	private void cerrarTerminal() {
 	    if (this.empleado.getNumeroDePuesto() != 0) {
 	        try {
-	            this.empleado.enviarCliente_Server("Desconectar");
+	            this.empleado.enviarDesconexion_Server("Desconectar");
 	        } catch (ConnectException ex) {}
 	    }
 	    System.exit(0);

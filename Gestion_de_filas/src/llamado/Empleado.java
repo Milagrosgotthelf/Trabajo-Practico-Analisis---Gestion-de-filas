@@ -43,6 +43,15 @@ public class Empleado {
 			
 	}
 	
+	public void enviarDesconexion_Server(String msj) throws ConnectException {
+		if (msj != null) {
+			//a este punto llega el dni desencriptado porque de esa manera lo trata el controladorEmpleado pero al enviarselo al Servidor hay que encriptarlo no solo porque 
+			//el servidor tiene la cola con los dnis encriptados sino porque hay que protegerlo en la comunicacion por sockets
+			this.emisor_server.enviar(msj + "/" + this.numeroDePuesto, this.puertoEmisor);
+		}
+			
+	}
+	
 	public void setNumeroDePuesto(int numeroDePuesto) throws BindException{
 		this.puertoEmisor = Utils.Empleado_to_Server;
 		this.numeroDePuesto = numeroDePuesto;
