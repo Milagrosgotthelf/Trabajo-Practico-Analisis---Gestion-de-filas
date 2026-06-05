@@ -153,14 +153,21 @@ public class Servidor {
 		return array;
 	}
 	
+	private Map<String, Integer> limpiezaPersistencia(Map<String, Integer> mapaPersistido) {
+		Map<String, Integer> mapaLimpio = mapaPersistido;
+		for (String dni : mapaPersistido.keySet()) {
+			if (!existeCliente(dni) || mapaPersistido.get(dni) <= 0) {
+				mapaLimpio.remove(dni);
+			}
+		}
+		return mapaLimpio;
+	}
+	
 	private void hiloRecEmp(Servidor server) {
 		this.hiloRec = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				Map<String, Integer> mapaPersistido = null;
-				try {
-					mapaPersistido = gestorNotificacion.recuperarIntentos();
-				} catch (Exception e) {}
 				//O: Lo va a abrir una vez unicamente asi puede vaciarlo
 				while (true) {
 					try {
@@ -168,7 +175,7 @@ public class Servidor {
 						String[] vector = server.split(msj);
 						msj = vector[0];
 						if(msj != null) {
-							System.out.println("MENSAJE: " + msj + " - " + vector[1]);
+							//System.out.println("MENSAJE: " + msj + " - " + vector[1]);
 							if(msj.equals("Cliente")) {
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
 								System.out.println("EMPLEADO --- Puesto " + vector[1] + " está solicitando el siguiente cliente.");
@@ -178,8 +185,9 @@ public class Servidor {
 								
 								String dni;
 								synchronized (lockDelEmpleado) {
+									/*
 									if(mapaPersistido != null && !mapaPersistido.isEmpty()) {
-										
+										System.out.println("EMPLEADO --- Reintentando enviar cliente desde persistencia. Quedan " + mapaPersistido.size() + " clientes en persistencia.");
 										dni = (String) mapaPersistido.keySet().toArray()[0];
 										int intentos = mapaPersistido.get(dni);
 										mapaPersistido.remove(dni);
@@ -189,7 +197,8 @@ public class Servidor {
 										
 									}
 									else if (!server.getClientes().isEmpty()) {
-										
+										*/
+									if (!server.getClientes().isEmpty()) {
 										dni = server.retiraCliente();
 									    System.out.println("EMPLEADO --- Asignando DNI " + dni + " al Puesto " + vector[1] + ". Quedan " + server.getClientes().size() + " en cola.");
 									    server.enviarReintento(emisor_empleado, dni, puerto); //LO ENVIAMOS ENCRIPTADO
@@ -199,6 +208,9 @@ public class Servidor {
 									    }catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
 									    	
 									    }
+									}
+									else {
+										System.out.println("LISTA VACIA SERVIDOR");
 									}
 								}
 							}
@@ -212,7 +224,8 @@ public class Servidor {
 							        
 							        synchronized (lockDelEmpleado) {
 							            boolean bool;
-							            if (server.getClientes().isEmpty() && (mapaPersistido != null && mapaPersistido.isEmpty())) {
+							            //(mapaPersistido != null && mapaPersistido.isEmpty())
+							            if (server.getClientes().isEmpty()) {
 							                bool = server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
 							            } else {
 							                bool = server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
@@ -264,7 +277,6 @@ public class Servidor {
 								System.out.println("PANTALLA --- Enviando DNI " + msj + " (Puesto " + vector[1] + ") hacia la pantalla central.");
 								String dni = gestorSeguridad.recuperarDNI(msj);
 								String dniPuestoEncriptado = gestorSeguridad.protegerDNI(dni+"/"+vector[1]);
-								eliminarPersistencia(dni, mapaPersistido);
 								server.enviarReintento(emisor_pantalla, dniPuestoEncriptado, Utils.Server_to_Pantalla); //VIAJA ENCRIPTADO A LA PANTALLA
 							}
 						}
@@ -466,6 +478,7 @@ public class Servidor {
 			System.out.println("Falla al intentar enviar desde Servidor el mensaje: "+msj);	
 			
 		}
+			System.out.println("Mensaje no enviado");
 			return false;
 		
 	}
