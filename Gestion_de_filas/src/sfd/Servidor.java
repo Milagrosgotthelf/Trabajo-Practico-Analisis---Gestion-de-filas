@@ -51,9 +51,8 @@ public class Servidor {
 		            factory = new TxtFactory();
 		        else
 		        	throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
-			
 		try {
-			this.gestorNotificacion = factory.crearNotificacionPersistencia();
+			//this.gestorNotificacion = factory.crearNotificacionPersistencia();
 			iniciaReceptores();
 			this.hilosPpales();
 			this.hiloHeartbeat();
@@ -325,18 +324,20 @@ public class Servidor {
 	        while (true) {
 	            try {
 	                if (estadoSec) {
+	                	
 	                    String msj = receptor_server_heartbeat.getHeartbeat();
 	                    if(msj != null) {
 		                    if ("HEARTBEAT".equals(msj)) {
 		                        //servidorPpalVivo();
 		                    }
 		                    else {
-		                    	String[] vector = msj.split("/");
+		                    	String[] vector = this.split("/");
 		                    	String orden = vector[0];
 		                    	String dni = vector[1];
 		                    	System.out.println("SERVIDOR SECUNDARIO --- Recibida orden de sincronización: " + orden);
 		                    	if(orden.equals("Agregar")) {
 		                    		this.clientes.addLast(dni);
+		                    		
 		                    	}
 		                    	else if (orden.equals("Eliminar")) {
 		                    		this.clientes.remove(dni);
@@ -365,6 +366,7 @@ public class Servidor {
 		                    			this.semaforoEmpleados.add(new Object());
 		                    		}
 		                    	}
+		                    	this.colaAux.guardarCola(clientes);
 		                    }
 	                    }
 	                    else {
@@ -450,7 +452,7 @@ public class Servidor {
 			this.estadoSec = true;
 			this.receptor_server_heartbeat = new Receptor(Utils.Server_to_Server2);
 			this.hiloHeartbeat();
-			
+			this.colaAux = this.factory.crearColaPersistencia("datos/colaAux2");
 		}
 		 catch (Exception e) {
 			 System.out.println("Excepcion al iniciar los receptores: " + e.getMessage());

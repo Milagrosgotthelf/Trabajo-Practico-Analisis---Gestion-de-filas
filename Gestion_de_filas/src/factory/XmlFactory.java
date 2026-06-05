@@ -13,6 +13,11 @@ public class XmlFactory implements IAbstractFactory{
 	public ColaPersistencia crearColaPersistencia() {
 		return new XmlColaPersistencia();
 	}
+	
+	@Override
+    public ColaPersistencia crearColaPersistencia(String rutaArchivo) {
+        return new XmlColaPersistencia(rutaArchivo+".xml");
+    }
 
 	@Override
 	public MonitorPersistencia crearMonitorPersistencia() {

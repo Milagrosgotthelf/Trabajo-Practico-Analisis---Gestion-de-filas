@@ -12,6 +12,10 @@ public class TxtFactory implements IAbstractFactory{
 	public ColaPersistencia crearColaPersistencia() {
 		return new TxtColaPersistencia();
 	}
+	@Override
+    public ColaPersistencia crearColaPersistencia(String rutaArchivo) {
+        return new TxtColaPersistencia(rutaArchivo+".txt");
+    }
 
 	@Override
 	public MonitorPersistencia crearMonitorPersistencia() {

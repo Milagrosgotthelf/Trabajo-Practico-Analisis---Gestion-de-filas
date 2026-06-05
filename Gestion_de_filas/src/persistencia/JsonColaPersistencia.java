@@ -9,6 +9,10 @@ public class JsonColaPersistencia extends TPersistencia<LinkedList<String>> impl
     public JsonColaPersistencia() {
         super("datos/cola_espera.json");
     }
+    
+    public JsonColaPersistencia(String rutaArchivo) {
+        super(rutaArchivo);
+    }
 
     @Override
     public void guardarCola(LinkedList<String> dniClientes) {

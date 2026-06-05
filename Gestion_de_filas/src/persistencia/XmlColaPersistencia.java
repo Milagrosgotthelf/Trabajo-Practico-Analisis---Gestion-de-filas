@@ -9,6 +9,10 @@ public class XmlColaPersistencia extends TPersistencia <LinkedList<String>>imple
 	public XmlColaPersistencia() {
         super("datos/cola_espera.xml");
     }
+	
+	public XmlColaPersistencia(String rutaArchivo) {
+        super(rutaArchivo);
+    }
 
     @Override
     public void guardarCola(LinkedList<String> dniClientes) {

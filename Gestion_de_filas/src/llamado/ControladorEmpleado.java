@@ -42,7 +42,7 @@ public class ControladorEmpleado implements ActionListener{
         else
         	throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
 		
-		this.gestorPersistencia = factory.crearNotificacionPersistencia();
+		//this.gestorPersistencia = factory.crearNotificacionPersistencia();
 	}
 	
 	public void setVistas(Ventana_empleado emp) {
@@ -206,9 +206,7 @@ public class ControladorEmpleado implements ActionListener{
 	private void guardarReintentos() {
 		System.out.println("Guardando cliente...");
 		Map<String, Integer> clientes = new HashMap<String, Integer>();
-		clientes = this.gestorPersistencia.recuperarIntentos();
 		clientes.put(dniActual_emp, this.intentos);
-		this.gestorPersistencia.guardarIntentos(clientes);
 	}
 	
 	private void iniciarTurno() {

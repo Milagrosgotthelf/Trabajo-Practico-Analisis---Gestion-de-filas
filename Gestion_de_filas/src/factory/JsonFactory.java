@@ -10,6 +10,11 @@ public class JsonFactory implements IAbstractFactory {
     public ColaPersistencia crearColaPersistencia() {
         return new JsonColaPersistencia();
     }
+	
+	@Override
+    public ColaPersistencia crearColaPersistencia(String rutaArchivo) {
+        return new JsonColaPersistencia(rutaArchivo+".json");
+    }
     @Override
     public MonitorPersistencia crearMonitorPersistencia() {
         return new JsonMonitorPersistencia(); 

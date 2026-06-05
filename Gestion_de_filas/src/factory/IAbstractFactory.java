@@ -9,6 +9,7 @@ import persistencia.IPersistencia.NotificacionPersistencia;
 //Va a haber una clase que persista los tres objetos para cada formato
 public interface IAbstractFactory {
   ColaPersistencia crearColaPersistencia();
+  ColaPersistencia crearColaPersistencia(String rutaArchivo);
   MonitorPersistencia crearMonitorPersistencia();
   NotificacionPersistencia crearNotificacionPersistencia();
 

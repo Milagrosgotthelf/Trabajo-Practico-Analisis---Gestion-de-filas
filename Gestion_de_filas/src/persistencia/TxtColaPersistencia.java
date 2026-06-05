@@ -9,6 +9,9 @@ public class TxtColaPersistencia extends TPersistencia<LinkedList<String>> imple
     public TxtColaPersistencia() {
         super("datos/cola_espera.txt");
     }
+    public TxtColaPersistencia(String rutaArchivo) {
+        super(rutaArchivo);
+    }
 
     @Override
     public void guardarCola(LinkedList<String> dniClientes) {
