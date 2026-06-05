@@ -135,8 +135,6 @@ public class ControladorEmpleado implements ActionListener{
 				lockEstado.notifyAll();
 			}
 			ventanaEstado();
-			ventanaLlamadaDefecto();
-			pedirEstado();
 		}
 	}
 	
