@@ -27,7 +27,7 @@ public abstract class CifradoSimetricoBase implements IEstrategiaCifrado {
             cipher.init(Cipher.ENCRYPT_MODE, key);
             
             byte[] encriptado = cipher.doFinal(dato.getBytes());
-            return Base64.getEncoder().encodeToString(encriptado);
+            return Base64.getUrlEncoder().encodeToString(encriptado);
             
         } catch(Exception e) {
             // VER>>>>>> catch para badpadding (clave incorrecta)
@@ -45,7 +45,7 @@ public abstract class CifradoSimetricoBase implements IEstrategiaCifrado {
             Cipher cipher = Cipher.getInstance(getNombreAlgoritmo());
             cipher.init(Cipher.DECRYPT_MODE, key);
             
-            byte[] bytesCifrados = Base64.getDecoder().decode(datoEncriptado);
+            byte[] bytesCifrados = Base64.getUrlDecoder().decode(datoEncriptado);
             byte[] desencriptado = cipher.doFinal(bytesCifrados);
             return new String(desencriptado);
             

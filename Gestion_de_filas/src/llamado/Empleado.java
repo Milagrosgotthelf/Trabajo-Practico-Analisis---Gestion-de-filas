@@ -23,14 +23,14 @@ public class Empleado {
 	
 	public String llamarCliente() throws ConnectException {
 		System.out.println("Solicitando cliente para el puesto " + this.numeroDePuesto);
-		this.emisor_server.enviar("Cliente/"+this.numeroDePuesto, this.puertoEmisor);
+		this.emisor_server.enviar(gestorSeguridad.protegerDNI("Cliente/"+this.numeroDePuesto), this.puertoEmisor);
 		String msjEncriptado  = this.receptor_server.getMensaje(); //msj es el DNI encriptado enviado por el servidor
 		System.out.println("EMPLEADO -- Mensaje recibido del servidor: " + msjEncriptado);
 		return this.gestorSeguridad.recuperarDNI(msjEncriptado); // de esta manera siempre que lo usemos dentro del controladorEmpleado ya sera el DNI real
 	} 
 	
 	public String pedirEstado() throws ConnectException {
-		this.emisor_server.enviar("Estado/"+this.numeroDePuesto, this.puertoEmisor);
+		this.emisor_server.enviar(gestorSeguridad.protegerDNI("Estado/"+this.numeroDePuesto), this.puertoEmisor);
 		return this.receptor_server.getMensaje();
 	} 
 	
@@ -39,14 +39,14 @@ public class Empleado {
 		if (msj != null) {
 			//a este punto llega el dni desencriptado porque de esa manera lo trata el controladorEmpleado pero al enviarselo al Servidor hay que encriptarlo no solo porque 
 			//el servidor tiene la cola con los dnis encriptados sino porque hay que protegerlo en la comunicacion por sockets
-			this.emisor_server.enviar(gestorSeguridad.protegerDNI(msj) + "/" + this.numeroDePuesto, this.puertoEmisor);
+			this.emisor_server.enviar(gestorSeguridad.protegerDNI(msj + "/" + this.numeroDePuesto), this.puertoEmisor);
 		}
 			
 	}
 	
 	public void enviarDesconexion_Server(String msj) throws ConnectException {
 		if (msj != null)
-			this.emisor_server.enviar(msj + "/" + this.numeroDePuesto, this.puertoEmisor);
+			this.emisor_server.enviar(gestorSeguridad.protegerDNI(msj + "/" + this.numeroDePuesto), this.puertoEmisor);
 	}
 	
 	public void setNumeroDePuesto(int numeroDePuesto) throws BindException{

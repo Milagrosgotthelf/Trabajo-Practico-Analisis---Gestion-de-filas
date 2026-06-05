@@ -85,8 +85,6 @@ public class Servidor {
 	                        if(!msj.equals("TerminalActiva")) {
 	                        	int puesto = Integer.parseInt(getPuestoMsj(msj));
 	                        	msj = getDniMsj(msj); //ENCRIPTADO
-	                        	String msjDesencriptado = gestorSeguridad.recuperarDNI(msj);
-	                        	System.out.println("TERMINAL REGISTRO --- Solicitud de ingreso para DNI: " + msjDesencriptado + " desde puesto: " + puesto);
 		                        if (!server.existeCliente(msj)) {
 		                            server.agregarCliente(msj);
 		                            System.out.println("TERMINAL REGISTRO --- Cliente agregado exitosamente. ");
@@ -170,12 +168,15 @@ public class Servidor {
 				//O: Lo va a abrir una vez unicamente asi puede vaciarlo
 				while (true) {
 					try {
-						String msj = receptor_empleado.getMensaje(); 
-						String[] vector = server.split(msj);
+						String msj = receptor_empleado.getMensaje();
+						msj = gestorSeguridad.recuperarDNI(msj);
+						String[] vector = server.split(msj); //Este split es redundante ahora
 						msj = vector[0];
+						String puesto = vector[1];
 						if(msj != null) {
 							//System.out.println("MENSAJE: " + msj + " - " + vector[1]);
 							if(msj.equals("Cliente")) {
+								System.out.println("CLIENTE SERVIDOR 179");
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
 								System.out.println("EMPLEADO --- Puesto " + vector[1] + " está solicitando el siguiente cliente.");
 								//Si se atrasa esto se come al dni
@@ -214,9 +215,8 @@ public class Servidor {
 								}
 							}
 							else if (msj.equals("Estado")) {
-								String puesto = vector[1];
 							    int index = listaEmpleados.indexOf(puesto);
-							    
+							    System.out.println("ESTADO SERVIDOR 218");
 							    if (index != -1) {
 							        String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(puesto));
 							        Object lockDelEmpleado = semaforoEmpleados.get(index);
@@ -242,8 +242,8 @@ public class Servidor {
 							        }
 							    }
 							}
-							else if (msj.startsWith("Desconectar")) {
-							    String puesto = vector[1];
+							else if (msj.equals("Desconectar")) {
+								System.out.println("DESCONECTAR SERVIDOR 246");
 							    int index = listaEmpleados.indexOf(puesto);
 							    
 							    if (index != -1) {
@@ -259,8 +259,7 @@ public class Servidor {
 							        }
 							    }
 							}
-							else if (vector[1].equals("0")) {
-								msj = gestorSeguridad.recuperarDNI(msj);
+							else if (puesto.equals("0")) {
 								//Aca entran los numeros de puesto
 								System.out.println("EMPLEADO --- Registrando nueva terminal de atención física. Puesto: " + msj);
 		                        listaEmpleados.add(msj);
@@ -273,9 +272,8 @@ public class Servidor {
 	                        }
 							else{
 								//Aca entran los dni
-								System.out.println("PANTALLA --- Enviando DNI " + msj + " (Puesto " + vector[1] + ") hacia la pantalla central.");
-								String dni = gestorSeguridad.recuperarDNI(msj);
-								String dniPuestoEncriptado = gestorSeguridad.protegerDNI(dni+"/"+vector[1]);
+								System.out.println("PANTALLA --- Enviando DNI " + msj + " (Puesto " + puesto + ") hacia la pantalla central.");
+								String dniPuestoEncriptado = gestorSeguridad.protegerDNI(msj+"/"+puesto);
 								server.enviarReintento(emisor_pantalla, dniPuestoEncriptado, Utils.Server_to_Pantalla); //VIAJA ENCRIPTADO A LA PANTALLA
 							}
 						}
@@ -330,11 +328,10 @@ public class Servidor {
 		                    if ("HEARTBEAT".equals(msj)) {
 		                        //servidorPpalVivo();
 		                    }
-		                    else {
-		                    	String[] vector = this.split("/");
+		                    else if(msj.length()>1){
+		                    	String[] vector = msj.split("/");
 		                    	String orden = vector[0];
-		                    	String dni = vector[1];
-		                    	System.out.println("SERVIDOR SECUNDARIO --- Recibida orden de sincronización: " + orden);
+		                    	String dni = vector[1]; //Solo util cuando se envia un dni y no cuando se sincroniza
 		                    	if(orden.equals("Agregar")) {
 		                    		this.clientes.addLast(dni);
 		                    		
@@ -356,7 +353,7 @@ public class Servidor {
 		                    		//de problema temporal de conexion no se dupliquen datos
 		                    		for(int i=1;i<vector.length;i++) {
 		                    			this.clientes.addLast(vector[i]);
-		                    		}
+		                    		} 
 		                    	}
 		                    	else if(orden.equals("SincronizacionEmp")) {
 		                    		//Testear inicializando el vector aca, para que en un caso hipotetico
@@ -367,10 +364,10 @@ public class Servidor {
 		                    		}
 		                    	}
 		                    	this.colaAux.guardarCola(clientes);
+		                    	System.out.println("SERVIDOR SECUNDARIO: Cola persistida");
 		                    }
 	                    }
 	                    else {
-	                    	
 	                        servidorPpalMuerto();
 	                        estadoSec = false;
 	                    }
