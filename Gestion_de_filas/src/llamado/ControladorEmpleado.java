@@ -93,7 +93,6 @@ public class ControladorEmpleado implements ActionListener{
 				Thread.sleep(2000);}catch(InterruptedException e1) {}
 				}
 			}
-		this.vistaEmpleado.mostrarMensaje("Reconexión fallida. Esperando...");
 		throw new ConnectException("No se pudo conectar al servidor después de varios intentos.");
 		
 	}
@@ -142,38 +141,56 @@ public class ControladorEmpleado implements ActionListener{
 		}
 	}
 	
-	private void cicloLlamada() throws ConnectException {
-		this.guardarReintentos();
-		
-		if (intentos>0) {
-			vistaEmpleado.activarBtnLlamar(false);
-			String dni_llamar = this.dniActual_emp;
-			this.vistaEmpleado.notificarLlamada(4-intentos);
-			
-			this.enviarCliente_Server_Reintento(this.dniActual_emp);
+	private void cicloLlamada() { // Podés quitar el "throws ConnectException" de la firma
+	    this.guardarReintentos();
+	    
+	    if (intentos > 0) {
+	        vistaEmpleado.activarBtnLlamar(false);
+	        String dni_llamar = this.dniActual_emp;
+	        this.vistaEmpleado.notificarLlamada(4 - intentos);
+	        
+	        // Iniciamos el proceso de envío con manejo de reconexión asíncrono
+	        ejecutarEnvioConReintentos(dni_llamar);
+
+	    } else if (intentos <= 0) {
+	        if (!this.proxdni.equals("-")) 
+	            vistaEmpleado.mostrarMensaje("El cliente no se ha presentado tras 3 llamados...");
+	        vistaEmpleado.activarBtnLlamar(true);
+	        ventanaLlamadaDefecto(); 
+	        synchronized(lockEstado) {
+	            lockEstado.notifyAll();
+	        }
+	        ventanaEstado();
+	    }
+	}
+	private void ejecutarEnvioConReintentos(String dni_llamar) {
+	    try {
+	        // Intenta enviar el DNI al servidor (este método ya tiene sus propios intentos rápidos)
+	        this.enviarCliente_Server_Reintento(this.dniActual_emp);
+	        
+	        // Si el envío es exitoso, continuamos con el flujo normal
 	        rellamarCliente(); 
 
-	        javax.swing.Timer timerReintento = new javax.swing.Timer(5000, e -> {
+	        // Configuramos el timer de 30 segundos para la PRÓXIMA llamada de este mismo cliente
+	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
 	            if (clienteAtendido && !this.dniActual_emp.equals("-") && this.dniActual_emp.equals(dni_llamar)) {
-	                try {
-						cicloLlamada();
-					} catch (ConnectException ex) {
-						this.vistaEmpleado.mostrarMensaje(ex.getMessage());
-					} 
+	                cicloLlamada();
 	            }
 	        });
 	        timerReintento.setRepeats(false);
 	        timers.add(timerReintento);
 	        timerReintento.start();
-	    } else if (intentos<=0) {
-	    	if (!this.proxdni.equals("-")) 
-	            vistaEmpleado.mostrarMensaje("El cliente no se ha presentado tras 3 llamados...");
-	    	vistaEmpleado.activarBtnLlamar(true);
-	    	ventanaLlamadaDefecto(); 
-	    	synchronized(lockEstado) {
-				lockEstado.notifyAll();
-			}
-	    	ventanaEstado();
+
+	    } catch (ConnectException e) {
+	        // Si falla la conexión, mostramos un aviso y esperamos 5 segundos usando un Timer
+	        this.vistaEmpleado.mostrarMensaje("Fallo de conexión al servidor. Reintentando envío en 5 segundos...");
+	        
+	        javax.swing.Timer timerEsperaConexion = new javax.swing.Timer(5000, evt -> {
+	            ejecutarEnvioConReintentos(dni_llamar); // Llamada recursiva tras la pausa
+	        });
+	        timerEsperaConexion.setRepeats(false);
+	        timers.add(timerEsperaConexion);
+	        timerEsperaConexion.start();
 	    }
 	}
 
@@ -272,9 +289,15 @@ public class ControladorEmpleado implements ActionListener{
 				return empleado.llamarCliente();
 			} catch (ConnectException e) {
 				intentos--;
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		}
-		this.vistaEmpleado.mostrarMensaje("Reconexión fallida. Cerrando terminal.");
+		this.vistaEmpleado.mostrarMensaje("Reconexión fallida. Esperando...");
 		return null;
 	}
 	
