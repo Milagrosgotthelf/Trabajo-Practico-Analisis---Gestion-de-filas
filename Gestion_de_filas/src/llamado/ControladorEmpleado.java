@@ -71,10 +71,14 @@ public class ControladorEmpleado implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String comando = e.getActionCommand();
-		manejarEmpleado(comando);
+		try {
+			manejarEmpleado(comando);
+		} catch(ConnectException ex) {
+			this.vistaEmpleado.mostrarMensaje(ex.getMessage());
+		}
 	}
 	
-	public void enviarCliente_Server_Reintento(String msj) {
+	public void enviarCliente_Server_Reintento(String msj) throws ConnectException {
 		int intentos=Utils.Intentos;
 		while(intentos>0) {
 			try {
@@ -84,31 +88,31 @@ public class ControladorEmpleado implements ActionListener{
 				return;
 			} catch (ConnectException e) {
 				intentos--;
-				this.vistaEmpleado.mostrarMensaje("Reintentando conexión...");
+				//this.vistaEmpleado.mostrarMensaje("Reintentando conexión...");
 				try {
 				Thread.sleep(2000);}catch(InterruptedException e1) {}
 				}
 			}
-		this.vistaEmpleado.mostrarMensaje("Reconexión fallida. Cerrando terminal.");
-		System.exit(-1);
-	
+		this.vistaEmpleado.mostrarMensaje("Reconexión fallida. Esperando...");
+		throw new ConnectException("No se pudo conectar al servidor después de varios intentos.");
+		
 	}
 	
-	private void manejarEmpleado(String comando) {
+	private void manejarEmpleado(String comando) throws ConnectException {
 		
 		if (comando.equals("INICIAR")){
 			
 			String nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
-			
+			try {
 			//
 			this.enviarCliente_Server_Reintento(nroPuesto);
 			//Fallo al enviar el mensaje por servidor caido
 			//Deberia esperar y re intentar antes de cambiar la conexión.
 			
-			try {
-				this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
-				ventanaLlamadaDefecto();
-				pedirEstado();
+			
+			this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
+			ventanaLlamadaDefecto();
+			pedirEstado();
 				
 			} catch (BindException e) {
 				this.vistaEmpleado.mostrarMensaje("Número de Puesto ocupado");
@@ -138,8 +142,9 @@ public class ControladorEmpleado implements ActionListener{
 		}
 	}
 	
-	private void cicloLlamada() {
+	private void cicloLlamada() throws ConnectException {
 		this.guardarReintentos();
+		
 		if (intentos>0) {
 			vistaEmpleado.activarBtnLlamar(false);
 			String dni_llamar = this.dniActual_emp;
@@ -150,7 +155,11 @@ public class ControladorEmpleado implements ActionListener{
 
 	        javax.swing.Timer timerReintento = new javax.swing.Timer(5000, e -> {
 	            if (clienteAtendido && !this.dniActual_emp.equals("-") && this.dniActual_emp.equals(dni_llamar)) {
-	                cicloLlamada(); 
+	                try {
+						cicloLlamada();
+					} catch (ConnectException ex) {
+						this.vistaEmpleado.mostrarMensaje(ex.getMessage());
+					} 
 	            }
 	        });
 	        timerReintento.setRepeats(false);
@@ -238,13 +247,10 @@ public class ControladorEmpleado implements ActionListener{
 	        	if(aux.split("/").length > 1) {
 	        		dniActual_emp = aux.split("/")[0];
 	        		intentos = Integer.parseInt(aux.split("/")[1]);
-	        		
-	        		
 	        	}
 	        	else {
 			        dniActual_emp = aux;
 			        intentos = 3;
-		            
 	        	}
 	        	mostrarSigCliente(dniActual_emp);
 	        }
@@ -289,7 +295,7 @@ public class ControladorEmpleado implements ActionListener{
 	                    ventanaEstado();
 	                }
 	                else if (estadoCola == null) {
-	                	System.exit(-1);
+	                	Thread.sleep(10000);
 	                }
 	                Thread.sleep(1000);
 	                //O: Este sleep existe porque a veces no daba el tiempo para detener este hilo para llamar
@@ -313,12 +319,11 @@ public class ControladorEmpleado implements ActionListener{
 					return empleado.pedirEstado();
 				}catch (ConnectException e) {
 					intentos--;
-					this.vistaEmpleado.mostrarMensaje("Reintentando conexión...");
 					Thread.sleep(2000);
 					
 				}
 			}
-			this.vistaEmpleado.mostrarMensaje("Reconexión fallida. Cerrando terminal.");
+			this.vistaEmpleado.mostrarMensaje("Reconexión fallida. Esperando...");
 			return null;
 			
 	}

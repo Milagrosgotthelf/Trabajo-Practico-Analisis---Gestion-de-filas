@@ -180,37 +180,46 @@ public class Servidor {
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
 								System.out.println("EMPLEADO --- Puesto " + vector[1] + " está solicitando el siguiente cliente.");
 								//Si se atrasa esto se come al dni
-								Object lockDelEmpleado = semaforoEmpleados.get(listaEmpleados.indexOf(vector[1]));
-								
-								
-								String dni;
-								synchronized (lockDelEmpleado) {
-									/*
-									if(mapaPersistido != null && !mapaPersistido.isEmpty()) {
-										System.out.println("EMPLEADO --- Reintentando enviar cliente desde persistencia. Quedan " + mapaPersistido.size() + " clientes en persistencia.");
-										dni = (String) mapaPersistido.keySet().toArray()[0];
-										int intentos = mapaPersistido.get(dni);
-										mapaPersistido.remove(dni);
-										gestorNotificacion.guardarIntentos(mapaPersistido);
-										server.enviarReintento(emisor_empleado, gestorSeguridad.protegerDNI(dni+"/"+intentos), puerto);
-										
-										
-									}
-									else if (!server.getClientes().isEmpty()) {
-										*/
-									if (!server.getClientes().isEmpty()) {
-										dni = server.retiraCliente();
-									    System.out.println("EMPLEADO --- Asignando DNI " + dni + " al Puesto " + vector[1] + ". Quedan " + server.getClientes().size() + " en cola.");
-									    server.enviarReintento(emisor_empleado, dni, puerto); //LO ENVIAMOS ENCRIPTADO
-									    try {
-									    	emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2); //LO ENVIAMOS ENCRIPTADO Y COMO LO GUARDO ENCRIPTADO NO DEBERIA DE HABER PROBLEMA
-									    	System.out.println("HEARTBEAT --- Enviada orden 'Eliminar DNI' al servidor secundario.");
-									    }catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
-									    	
-									    }
-									}
-									else {
-										System.out.println("LISTA VACIA SERVIDOR");
+								Object lockDelEmpleado = null;
+								try {
+								lockDelEmpleado = semaforoEmpleados.get(listaEmpleados.indexOf(vector[1]));
+								}
+								catch(IndexOutOfBoundsException e) {
+									System.out.println(e.getMessage());
+									listaEmpleados.add(vector[1]);
+			                        semaforoEmpleados.add(new Object());
+			                        lockDelEmpleado = semaforoEmpleados.get(listaEmpleados.indexOf(vector[1]));
+								}
+								finally {
+									String dni;
+									synchronized (lockDelEmpleado) {
+										/*
+										if(mapaPersistido != null && !mapaPersistido.isEmpty()) {
+											System.out.println("EMPLEADO --- Reintentando enviar cliente desde persistencia. Quedan " + mapaPersistido.size() + " clientes en persistencia.");
+											dni = (String) mapaPersistido.keySet().toArray()[0];
+											int intentos = mapaPersistido.get(dni);
+											mapaPersistido.remove(dni);
+											gestorNotificacion.guardarIntentos(mapaPersistido);
+											server.enviarReintento(emisor_empleado, gestorSeguridad.protegerDNI(dni+"/"+intentos), puerto);
+											
+											
+										}
+										else if (!server.getClientes().isEmpty()) {
+											*/
+										if (!server.getClientes().isEmpty()) {
+											dni = server.retiraCliente();
+										    System.out.println("EMPLEADO --- Asignando DNI " + dni + " al Puesto " + vector[1] + ". Quedan " + server.getClientes().size() + " en cola.");
+										    server.enviarReintento(emisor_empleado, dni, puerto); //LO ENVIAMOS ENCRIPTADO
+										    try {
+										    	emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2); //LO ENVIAMOS ENCRIPTADO Y COMO LO GUARDO ENCRIPTADO NO DEBERIA DE HABER PROBLEMA
+										    	System.out.println("HEARTBEAT --- Enviada orden 'Eliminar DNI' al servidor secundario.");
+										    }catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
+										    	
+										    }
+										}
+										else {
+											System.out.println("LISTA VACIA SERVIDOR");
+										}
 									}
 								}
 							}
