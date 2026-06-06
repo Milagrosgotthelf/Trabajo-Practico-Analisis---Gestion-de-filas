@@ -4,9 +4,6 @@ import java.net.BindException;
 import java.net.ConnectException;
 
 import factory.IAbstractFactory;
-import factory.JsonFactory;
-import factory.TxtFactory;
-import factory.XmlFactory;
 import sfd.Utils;
 
 public class FacadeEmpleado {
@@ -17,15 +14,6 @@ public class FacadeEmpleado {
 	public FacadeEmpleado() {
 		
 		this.empleado = new Empleado();
-		if (Utils.Formato.toUpperCase().trim().equals("JSON"))
-            factory = new JsonFactory();
-        else if (Utils.Formato.toUpperCase().trim().equals("XML"))
-            factory = new XmlFactory();
-        else if (Utils.Formato.toUpperCase().trim().equals("TXT"))
-            factory = new TxtFactory();
-        else
-        	throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
-		//this.gestorPersistencia = factory.crearNotificacionPersistencia();
 	}
 
 	public void desconectar() throws ConnectException {
@@ -48,8 +36,10 @@ public class FacadeEmpleado {
 */
 	public void llamarCliente(String dni) throws ConnectException {
 		enviarConReintentos(dni);
+		
 	}
 
+	
 /*	public int getNumeroDePuesto() {
 		return empleado.getNumeroDePuesto();
 	}

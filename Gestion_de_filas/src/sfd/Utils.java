@@ -20,8 +20,10 @@ public class Utils {
 	public static String Server_to_Server2;
 	public static String Server2_to_Server;
 	
-	public static String Formato;
+	public static String Formato, Formato2;
 	public static final int Intentos=4;
+	
+	public static int TiempoRellamado;
 	
 	//asi se ejecuta automaticamente al ejecutar la clase
 	static {
@@ -46,6 +48,9 @@ public class Utils {
 			Server2_to_Server = prop.getProperty("Server2_to_Server");
 			
 			Formato = prop.getProperty("Formato");
+			Formato2 = prop.getProperty("Formato2");
+			
+			TiempoRellamado = Integer.parseInt(prop.getProperty("TiempoRellamado"));
 	    } catch (Exception e) {
 	        System.out.println("Error cargando configuración: " + e.getMessage());
 	    }

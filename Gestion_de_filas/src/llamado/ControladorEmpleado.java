@@ -7,6 +7,8 @@ import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 
+import sfd.Utils;
+
 
 public class ControladorEmpleado implements ActionListener{
 	
@@ -99,15 +101,13 @@ public class ControladorEmpleado implements ActionListener{
 		}
 	}
 	
-	private void cicloLlamada() { // Podés quitar el "throws ConnectException" de la firma
-	    this.guardarReintentos();
+	private void cicloLlamada() { 
 	    
 	    if (intentos > 0) {
 	        vistaEmpleado.activarBtnLlamar(false);
 	        String dni_llamar = this.dniActual_emp;
 	        this.vistaEmpleado.notificarLlamada(4 - intentos);
 	        
-	        // Iniciamos el proceso de envío con manejo de reconexión asíncrono
 	        ejecutarEnvioConReintentos(dni_llamar);
 
 	    } else if (intentos <= 0) {
@@ -123,14 +123,11 @@ public class ControladorEmpleado implements ActionListener{
 	}
 	private void ejecutarEnvioConReintentos(String dni_llamar) {
 	    try {
-	        // Intenta enviar el DNI al servidor (este método ya tiene sus propios intentos rápidos)
 	        facadeEmp.llamarCliente(this.dniActual_emp);
 	        
-	        // Si el envío es exitoso, continuamos con el flujo normal
 	        rellamarCliente(); 
 
-	        // Configuramos el timer de 30 segundos para la PRÓXIMA llamada de este mismo cliente
-	        javax.swing.Timer timerReintento = new javax.swing.Timer(30000, e -> {
+	        javax.swing.Timer timerReintento = new javax.swing.Timer(Utils.TiempoRellamado, e -> {
 	            if (clienteAtendido && !this.dniActual_emp.equals("-") && this.dniActual_emp.equals(dni_llamar)) {
 	                cicloLlamada();
 	            }
@@ -183,12 +180,6 @@ public class ControladorEmpleado implements ActionListener{
 		vistaEmpleado.setIntentos(intentos);
 		vistaEmpleado.activarBtnIniciarTurno(true); 
 		
-	}
-	
-	private void guardarReintentos() {
-		System.out.println("Guardando cliente...");
-		Map<String, Integer> clientes = new HashMap<String, Integer>();
-		clientes.put(dniActual_emp, this.intentos);
 	}
 	
 	private void iniciarTurno() {

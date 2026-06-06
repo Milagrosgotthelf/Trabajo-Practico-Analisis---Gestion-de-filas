@@ -3,8 +3,12 @@ package sfd;
 import java.net.BindException;
 import java.net.ConnectException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.swing.Timer;
 
 import factory.IAbstractFactory;
 import factory.JsonFactory;
@@ -38,8 +42,9 @@ public class Servidor {
 	
 	private IAbstractFactory factory; 
 	private ColaPersistencia colaAux;
+	private Map<String, Long> latidosEmpleados = new ConcurrentHashMap<>();
 	private NotificacionPersistencia gestorNotificacion;
-	
+	private Map<String, String> clientesEnAtencion = new ConcurrentHashMap<>();
 	 
 	public Servidor() {
 		System.out.println("Servidor iniciado");
@@ -52,7 +57,7 @@ public class Servidor {
 		        else
 		        	throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
 		try {
-			//this.gestorNotificacion = factory.crearNotificacionPersistencia();
+			this.gestorNotificacion = factory.crearNotificacionPersistencia();
 			iniciaReceptores();
 			this.hilosPpales();
 			this.hiloHeartbeat();
@@ -63,6 +68,15 @@ public class Servidor {
 			
 		} catch (BindException e) {
 			System.out.println("Iniciando servidor secundario");
+			
+			if (Utils.Formato2.toUpperCase().trim().equals("JSON"))
+	            factory = new JsonFactory();
+	        else if (Utils.Formato2.toUpperCase().trim().equals("XML"))
+	            factory = new XmlFactory();
+	        else if (Utils.Formato2.toUpperCase().trim().equals("TXT"))
+	            factory = new TxtFactory();
+	        else
+	        	throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
 			inicioSecundario();
 		}
 	}
@@ -146,7 +160,6 @@ public class Servidor {
 			i--;
 		}
 		String[] array = {string.substring(0, i),string.substring(i+1,string.length())};
-		System.out.println(array[0] + "\n" +array[1]);
 		return array;
 	}
 	
@@ -164,17 +177,19 @@ public class Servidor {
 		this.hiloRec = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Map<String, Integer> mapaPersistido = null;
+				Map<String, Integer> mapaPersistido = gestorNotificacion.recuperarIntentos();
 				//O: Lo va a abrir una vez unicamente asi puede vaciarlo
 				while (true) {
 					try {
 						String msj = receptor_empleado.getMensaje();
-						msj = gestorSeguridad.recuperarDNI(msj);
-						String[] vector = server.split(msj); //Este split es redundante ahora
-						msj = vector[0];
-						String puesto = vector[1];
 						if(msj != null) {
-							//System.out.println("MENSAJE: " + msj + " - " + vector[1]);
+							msj = gestorSeguridad.recuperarDNI(msj);
+							String[] vector = server.split(msj); //Este split es redundante ahora
+							msj = vector[0];
+							String puesto = vector[1];
+							
+							latidosEmpleados.put(puesto, System.currentTimeMillis());
+							
 							if(msj.equals("Cliente")) {
 								System.out.println("CLIENTE SERVIDOR 179");
 								String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(vector[1]));
@@ -191,31 +206,33 @@ public class Servidor {
 			                        lockDelEmpleado = semaforoEmpleados.get(listaEmpleados.indexOf(vector[1]));
 								}
 								finally {
-									String dni;
+									String dni = null;
+									
 									synchronized (lockDelEmpleado) {
-										/*
 										if(mapaPersistido != null && !mapaPersistido.isEmpty()) {
 											System.out.println("EMPLEADO --- Reintentando enviar cliente desde persistencia. Quedan " + mapaPersistido.size() + " clientes en persistencia.");
 											dni = (String) mapaPersistido.keySet().toArray()[0];
 											int intentos = mapaPersistido.get(dni);
+											server.enviarReintento(emisor_empleado, gestorSeguridad.protegerDNI(dni+"/"+intentos), puerto);
+											clientesEnAtencion.put(vector[1], dni + "/3"); // Asignamos el DNI con 3 intentos
+											sincronizarArchivoReintentos();
 											mapaPersistido.remove(dni);
 											gestorNotificacion.guardarIntentos(mapaPersistido);
-											server.enviarReintento(emisor_empleado, gestorSeguridad.protegerDNI(dni+"/"+intentos), puerto);
-											
 											
 										}
 										else if (!server.getClientes().isEmpty()) {
-											*/
-										if (!server.getClientes().isEmpty()) {
 											dni = server.retiraCliente();
 										    System.out.println("EMPLEADO --- Asignando DNI " + dni + " al Puesto " + vector[1] + ". Quedan " + server.getClientes().size() + " en cola.");
 										    server.enviarReintento(emisor_empleado, dni, puerto); //LO ENVIAMOS ENCRIPTADO
+										    clientesEnAtencion.put(vector[1], dni + "/3"); // Asignamos el DNI con 3 intentos
+										    sincronizarArchivoReintentos();
 										    try {
 										    	emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2); //LO ENVIAMOS ENCRIPTADO Y COMO LO GUARDO ENCRIPTADO NO DEBERIA DE HABER PROBLEMA
 										    	System.out.println("HEARTBEAT --- Enviada orden 'Eliminar DNI' al servidor secundario.");
-										    }catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
-										    	
-										    }
+										    }catch(Exception e) {}//Esto está para que no moleste cuando no hay un servidor secundario
+										    
+										    
+										    
 										}
 										else {
 											System.out.println("LISTA VACIA SERVIDOR");
@@ -224,8 +241,13 @@ public class Servidor {
 								}
 							}
 							else if (msj.equals("Estado")) {
+								if (clientesEnAtencion.containsKey(puesto)) {
+								    clientesEnAtencion.remove(puesto);
+								    sincronizarArchivoReintentos(); // Al removerlo, desaparece del archivo
+								    System.out.println("SERVIDOR --- Turno finalizado en Puesto " + puesto + ". Archivo limpiado.");
+								}
+								
 							    int index = listaEmpleados.indexOf(puesto);
-							    System.out.println("ESTADO SERVIDOR 218");
 							    if (index != -1) {
 							        String puerto = Integer.toString(Integer.parseInt(Utils.Server_to_Empleado_base) + Integer.parseInt(puesto));
 							        Object lockDelEmpleado = semaforoEmpleados.get(index);
@@ -244,15 +266,20 @@ public class Servidor {
 							                    emisor_server_heartbeat.enviar("Eliminar empleado/" + puesto, Utils.Server_to_Server2);
 							                    System.out.println("HEARTBEAT --- Enviada orden 'Eliminar empleado' al servidor secundario.");
 							                } catch(Exception e) {}
-							                server.listaEmpleados.remove(index);
-							                server.semaforoEmpleados.remove(index);
-							                System.out.println("Empleado " + puesto + " desconectado y eliminado.");
+							                finally {
+								                server.listaEmpleados.remove(index);
+								                server.semaforoEmpleados.remove(index);
+								                latidosEmpleados.remove(puesto);
+								                System.out.println("Empleado " + puesto + " desconectado y eliminado.");
+								                //Nunca va a entrar aca, salvo que el empleado se desconecte justo cuando el servidor le esta enviando el estado
+							                }
 							            }
 							        }
 							    }
 							}
 							else if (msj.equals("Desconectar")) {
 								System.out.println("DESCONECTAR SERVIDOR 246");
+								clientesEnAtencion.remove(puesto);
 							    int index = listaEmpleados.indexOf(puesto);
 							    
 							    if (index != -1) {
@@ -264,6 +291,7 @@ public class Servidor {
 							            
 							            server.listaEmpleados.remove(index);
 							            server.semaforoEmpleados.remove(index);
+							            latidosEmpleados.remove(puesto);
 							            System.out.println("EMPLEADO --- Puesto " + puesto + " se ha desconectado voluntariamente.");
 							        }
 							    }
@@ -279,11 +307,21 @@ public class Servidor {
 	                        	}catch(Exception e) {//Esto está para que no moleste cuando no hay un servidor secundario
 	                        	}
 	                        }
-							else{
-								//Aca entran los dni
-								System.out.println("PANTALLA --- Enviando DNI " + msj + " (Puesto " + puesto + ") hacia la pantalla central.");
-								String dniPuestoEncriptado = gestorSeguridad.protegerDNI(msj+"/"+puesto);
-								server.enviarReintento(emisor_pantalla, dniPuestoEncriptado, Utils.Server_to_Pantalla); //VIAJA ENCRIPTADO A LA PANTALLA
+							else {
+							    System.out.println("PANTALLA --- Enviando DNI " + msj + " (Puesto " + puesto + ") hacia la pantalla central.");
+							    String dniPuestoEncriptado = gestorSeguridad.protegerDNI(msj+"/"+puesto);
+							    server.enviarReintento(emisor_pantalla, dniPuestoEncriptado, Utils.Server_to_Pantalla); 
+							    
+							    // AQUÍ DESCONTAMOS EL INTENTO
+							    if (clientesEnAtencion.containsKey(puesto)) {
+							        String[] datos = clientesEnAtencion.get(puesto).split("/");
+							        if (datos[0].equals(msj)) { // Verificamos que sea el mismo DNI
+							            int intentosRestantes = Integer.parseInt(datos[1]) - 1;
+							            clientesEnAtencion.put(puesto, msj + "/" + intentosRestantes);
+							            sincronizarArchivoReintentos();
+							            System.out.println("SERVIDOR --- Intento descontado. Quedan " + intentosRestantes);
+							        }
+							    }
 							}
 						}
 						else {
@@ -358,15 +396,11 @@ public class Servidor {
 		                    		semaforoEmpleados.remove(index);
 		                    	}
 		                    	else if(orden.equals("SincronizacionDni")) {
-		                    		//Testear inicializando el vector aca, para que en un caso hipotetico
-		                    		//de problema temporal de conexion no se dupliquen datos
 		                    		for(int i=1;i<vector.length;i++) {
 		                    			this.clientes.addLast(vector[i]);
 		                    		} 
 		                    	}
 		                    	else if(orden.equals("SincronizacionEmp")) {
-		                    		//Testear inicializando el vector aca, para que en un caso hipotetico
-		                    		//de problema temporal de conexion no se dupliquen datos
 		                    		for(int i=1;i<vector.length;i++) {
 		                    			this.listaEmpleados.add(vector[i]);
 		                    			this.semaforoEmpleados.add(new Object());
@@ -445,6 +479,7 @@ public class Servidor {
 		//this.hiloEstadoCola(this);
 		this.hiloRecEmp(this);
 		this.hiloReg(this);
+		this.iniciarWatchdogEmpleados();
 		
 	}
 
@@ -490,4 +525,57 @@ public class Servidor {
 			return false;
 		
 	}
-}	
+//Iteración 4
+	private void iniciarWatchdogEmpleados() {
+	    Thread watchdog = new Thread(() -> {
+	        while (true) {
+	            try {
+	                Thread.sleep(5000); // El vigilante revisa cada 5 segundos
+	                long ahora = System.currentTimeMillis();
+	                
+	                // Iteramos sobre una copia para evitar ConcurrentModificationException
+	                for (String puesto : new ArrayList<>(listaEmpleados)) {
+	                    Long ultimoLatido = latidosEmpleados.get(puesto);
+	                    
+	                    //En terminos del sistema 45seg es un monton pero realmente no es tanto tiempo
+	                    if (ultimoLatido != null && (ahora - ultimoLatido) > Utils.TiempoRellamado*1.5) {
+	                        System.out.println("WATCHDOG --- Empleado en puesto " + puesto + " no responde. Desconectando forzosamente...");
+	                        
+	                        int index = listaEmpleados.indexOf(puesto);
+	                        if (index != -1) {
+	                            Object lockDelEmpleado = semaforoEmpleados.get(index);
+	                            synchronized (lockDelEmpleado) {
+	                                // Mismos pasos de limpieza que en el 'Desconectar'
+	                                try {
+	                                    emisor_server_heartbeat.enviar("Eliminar empleado/" + puesto, Utils.Server_to_Server2);
+	                                } catch (Exception e) {}
+	                                
+	                                clientesEnAtencion.remove(puesto);
+	                                listaEmpleados.remove(index);
+	                                semaforoEmpleados.remove(index);
+	                                latidosEmpleados.remove(puesto);
+	                                gestorNotificacion.recuperarIntentos();
+	                            }
+	                        }
+	                    }
+	                }
+	            } catch (InterruptedException e) {
+	                Thread.currentThread().interrupt();
+	                break;
+	            }
+	        }
+	    });
+	    watchdog.setDaemon(true);
+	    watchdog.start();
+	}
+	
+	private void sincronizarArchivoReintentos() {
+	    Map<String, Integer> mapaParaGuardar = new HashMap<>();
+	    for (String valor : clientesEnAtencion.values()) {
+	        String[] partes = valor.split("/");
+	        // Guarda el DNI (que ya está encriptado) y sus intentos restantes
+	        mapaParaGuardar.put(partes[0], Integer.parseInt(partes[1])-1); 
+	    }
+	    this.gestorNotificacion.guardarIntentos(mapaParaGuardar);
+	}
+}
