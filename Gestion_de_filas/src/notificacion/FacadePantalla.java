@@ -2,6 +2,7 @@ package notificacion;
 
 import java.util.LinkedList;
 
+import factory.FactoryArchs;
 import factory.IAbstractFactory;
 import factory.JsonFactory;
 import factory.TxtFactory;
@@ -16,15 +17,7 @@ public class FacadePantalla {
     
     
 	public FacadePantalla() {
-		if (Utils.Formato.toUpperCase().trim().equals("JSON"))
-	        factory = new JsonFactory();
-	    else if (Utils.Formato.toUpperCase().trim().equals("XML"))
-	        factory = new XmlFactory();
-	    else if (Utils.Formato.toUpperCase().trim().equals("TXT"))
-	        factory = new TxtFactory();
-	    else
-	        throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
-	        
+		factory= FactoryArchs.getFormato();
 	    this.gestorPersistencia = factory.crearMonitorPersistencia();
 	    
 	    this.pantalla = Pantalla.getInstance();

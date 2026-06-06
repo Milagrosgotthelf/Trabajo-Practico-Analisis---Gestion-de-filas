@@ -8,12 +8,10 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.swing.Timer;
 
+
+import factory.FactoryArchs;
 import factory.IAbstractFactory;
-import factory.JsonFactory;
-import factory.TxtFactory;
-import factory.XmlFactory;
 import persistencia.IPersistencia.ColaPersistencia;
 import persistencia.IPersistencia.NotificacionPersistencia;
 import seguridad.GestorSeguridad;
@@ -48,14 +46,8 @@ public class Servidor {
 	 
 	public Servidor() {
 		System.out.println("Servidor iniciado");
-		        if (Utils.Formato.toUpperCase().trim().equals("JSON"))
-		            factory = new JsonFactory();
-		        else if (Utils.Formato.toUpperCase().trim().equals("XML"))
-		            factory = new XmlFactory();
-		        else if (Utils.Formato.toUpperCase().trim().equals("TXT"))
-		            factory = new TxtFactory();
-		        else
-		        	throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
+		factory= FactoryArchs.getFormato();
+	    
 		try {
 			this.gestorNotificacion = factory.crearNotificacionPersistencia();
 			iniciaReceptores();
@@ -69,15 +61,8 @@ public class Servidor {
 		} catch (BindException e) {
 			System.out.println("Iniciando servidor secundario");
 			
-			if (Utils.Formato2.toUpperCase().trim().equals("JSON"))
-	            factory = new JsonFactory();
-	        else if (Utils.Formato2.toUpperCase().trim().equals("XML"))
-	            factory = new XmlFactory();
-	        else if (Utils.Formato2.toUpperCase().trim().equals("TXT"))
-	            factory = new TxtFactory();
-	        else
-	        	throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
-			inicioSecundario();
+			factory= FactoryArchs.getFormato();
+		    inicioSecundario();
 		}
 	}
 	
