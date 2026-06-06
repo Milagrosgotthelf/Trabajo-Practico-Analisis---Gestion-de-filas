@@ -9,44 +9,32 @@ import sfd.Utils;
 
 public class ControladorPantalla {
     
-    private Pantalla pantalla = null;
     private Ventana_pantalla vistaPantalla = null;
-    private IAbstractFactory factory;
-    private MonitorPersistencia gestorPersistencia;
-    
+    private FacadePantalla facadePant = new FacadePantalla();
     public ControladorPantalla(Ventana_pantalla vista) {
         
-        if (Utils.Formato.toUpperCase().trim().equals("JSON"))
-            factory = new JsonFactory();
-        else if (Utils.Formato.toUpperCase().trim().equals("XML"))
-            factory = new XmlFactory();
-        else if (Utils.Formato.toUpperCase().trim().equals("TXT"))
-            factory = new TxtFactory();
-        else
-            throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
-            
-        this.gestorPersistencia = factory.crearMonitorPersistencia();
                 
         this.vistaPantalla = vista;
-        this.pantalla = Pantalla.getInstance();
+        
         
         // 1. Recuperamos el historial al iniciar
-        this.pantalla.setClientes(this.gestorPersistencia.recuperarHistorial());
+        facadePant.setClientes();
+
         
         // 2. Actualizamos la vista inicial por si recuperó datos de la sesión anterior
-        vista.actualizarTurnos(pantalla.getClientes());
+        vista.actualizarTurnos(facadePant.getClientes());
 
         new Thread(() -> {
             while (true) {
                 // 3. Verificamos si hubo un nuevo llamado
-                boolean huboActualizacion = pantalla.escucharEmpleado(); 
+                boolean huboActualizacion = facadePant.escucharEmpleado(); 
                 
                 if (huboActualizacion) {
                     // GUARDADO INMEDIATO: Cumple el requisito de tolerancia a fallas críticas
-                    gestorPersistencia.guardarHistorial(pantalla.getClientes());
+                    facadePant.guardarHistorial();
                     
                     java.awt.EventQueue.invokeLater(() -> {
-                        vista.actualizarTurnos(pantalla.getClientes());
+                        vista.actualizarTurnos(facadePant.getClientes());
                     });
                 }
             }
@@ -56,8 +44,9 @@ public class ControladorPantalla {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
                 // Guardado por precaución al cerrar de forma ordenada
-                gestorPersistencia.guardarHistorial(pantalla.getClientes());
-                pantalla.cerrarPantalla(); 
+            	facadePant.guardarHistorial();
+                facadePant.cerrarPantalla();
+
             }
         });
     }

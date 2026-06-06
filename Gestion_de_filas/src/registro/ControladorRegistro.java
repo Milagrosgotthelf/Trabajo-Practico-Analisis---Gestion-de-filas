@@ -2,26 +2,23 @@ package registro;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.BindException;
 import java.net.ConnectException;
 
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 import sfd.Utils;
 
 public class ControladorRegistro implements ActionListener {
 	
-	private TerminalRegistro terminal = null;
 	private Ventana_terminal_registro ventana_registro;
-	private int numTerminal;
+	
+	private FacadeRegistro facadeReg = null;
 	
 	public ControladorRegistro(int id, Ventana_terminal_registro reg) {
-		this.numTerminal = id;
+		this.facadeReg = new FacadeRegistro(id);
 		this.ventana_registro = reg;
 		
 		
-		this.terminal = this.nuevaTerminal();
 		this.ventana_registro.setActionListener(this);	
 	}
 	
@@ -77,7 +74,7 @@ public class ControladorRegistro implements ActionListener {
 		else {
 			while(intentos > 0 && !agregado) {
 				try {
-					agregado = this.terminal.agregarCliente(dniActual);
+					agregado = facadeReg.agregarCliente(dniActual); 
 					return (agregado) ? 1 : 0;
 				} catch (ConnectException e1) {
 					intentos--;
@@ -94,30 +91,5 @@ public class ControladorRegistro implements ActionListener {
 		}
 	}
 	
-	public TerminalRegistro nuevaTerminal() {
-		TerminalRegistro terminal = null;
-		int intentos = Utils.Intentos;
-		boolean conectado = false;
-		while(intentos > 0 && !conectado)
-			try {
-				intentos--;
-				terminal = new TerminalRegistro(this.numTerminal);
-				conectado = true;
-			} catch (ConnectException e) {
-				System.out.println("No se puede conectar al servidor");
-				try {
-					System.out.println("Espera");
-					Thread.sleep(5000); // Espera 5 segundos antes de intentar reconectar
-				} catch (InterruptedException ie) {
-					Thread.currentThread().interrupt();
-					break;
-				}
-			}catch(BindException e) {
-				System.out.println(e.getMessage() + " Cerrando...");
-				System.exit(1);
-				
-			}
-		return terminal;
-	}
-	
+		
 }

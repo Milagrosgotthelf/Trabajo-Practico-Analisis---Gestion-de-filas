@@ -7,15 +7,9 @@ import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 
-import factory.IAbstractFactory;
-import factory.JsonFactory;
-import factory.TxtFactory;
-import factory.XmlFactory;
-import persistencia.IPersistencia.NotificacionPersistencia;
-import sfd.Utils;
+
 public class ControladorEmpleado implements ActionListener{
 	
-	private Empleado empleado = null;
 	private Ventana_empleado vistaEmpleado;
 	private int intentos =3;
 	private String dniActual_emp ="", proxdni ="", estadoCola="";
@@ -24,26 +18,12 @@ public class ControladorEmpleado implements ActionListener{
 	private java.util.List<javax.swing.Timer> timers = new java.util.ArrayList<>();
 	private final Object lockEstado = new Object();
 	private final Object lockButton = new Object();
+	private FacadeEmpleado facadeEmp= new FacadeEmpleado();
 	
 	private volatile boolean pidiendoCliente = false;
 	
-	private IAbstractFactory factory;
-	private NotificacionPersistencia gestorPersistencia;
 	
-	public ControladorEmpleado()  {	
-		this.empleado = new Empleado();
-		
-		if (Utils.Formato.toUpperCase().trim().equals("JSON"))
-            factory = new JsonFactory();
-        else if (Utils.Formato.toUpperCase().trim().equals("XML"))
-            factory = new XmlFactory();
-        else if (Utils.Formato.toUpperCase().trim().equals("TXT"))
-            factory = new TxtFactory();
-        else
-        	throw new IllegalArgumentException("Formato no soportado: " + Utils.Formato);
-		
-		//this.gestorPersistencia = factory.crearNotificacionPersistencia();
-	}
+	public ControladorEmpleado()  {}
 	
 	public void setVistas(Ventana_empleado emp) {
 	    this.vistaEmpleado = emp;
@@ -59,11 +39,10 @@ public class ControladorEmpleado implements ActionListener{
 	}
 
 	private void cerrarTerminal() {
-	    if (this.empleado.getNumeroDePuesto() != 0) {
-	        try {
-	            this.empleado.enviarDesconexion_Server("Desconectar");
+	    try {
+	        facadeEmp.desconectar();
 	        } catch (ConnectException ex) {}
-	    }
+	    
 	    System.exit(0);
 	}
 	
@@ -71,6 +50,7 @@ public class ControladorEmpleado implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String comando = e.getActionCommand();
+		
 		try {
 			manejarEmpleado(comando);
 		} catch(ConnectException ex) {
@@ -78,24 +58,7 @@ public class ControladorEmpleado implements ActionListener{
 		}
 	}
 	
-	public void enviarCliente_Server_Reintento(String msj) throws ConnectException {
-		int intentos=Utils.Intentos;
-		while(intentos>0) {
-			try {
-				//ACA EL MSJ ES EL DNI DEL CLIENTE QUE ESTA DESENCRIPTADO
-				//EL SERVIDOR TIENE LA FILA CON LOS DNI ENCRIPTADOS POR LO QUE DEBEMOS ENCRIPTARLO ANTES DE ENVIARSELO EN EL METODO DE EMPLEADO
-				this.empleado.enviarCliente_Server(msj);
-				return;
-			} catch (ConnectException e) {
-				intentos--;
-				//this.vistaEmpleado.mostrarMensaje("Reintentando conexión...");
-				try {
-				Thread.sleep(2000);}catch(InterruptedException e1) {}
-				}
-			}
-		throw new ConnectException("No se pudo conectar al servidor después de varios intentos.");
-		
-	}
+	
 	
 	private void manejarEmpleado(String comando) throws ConnectException {
 		
@@ -103,16 +66,11 @@ public class ControladorEmpleado implements ActionListener{
 			
 			String nroPuesto=this.vistaEmpleado.getTextField_numeroPuesto();
 			try {
-			//
-			this.enviarCliente_Server_Reintento(nroPuesto);
-			//Fallo al enviar el mensaje por servidor caido
-			//Deberia esperar y re intentar antes de cambiar la conexión.
-			
-			
-			this.empleado.setNumeroDePuesto(Integer.parseInt(nroPuesto));
-			ventanaLlamadaDefecto();
-			pedirEstado();
-				
+				//
+				facadeEmp.iniciarPuesto(nroPuesto);
+				ventanaLlamadaDefecto();
+				pedirEstado();
+					
 			} catch (BindException e) {
 				this.vistaEmpleado.mostrarMensaje("Número de Puesto ocupado");
 				this.vistaEmpleado.cleanTextField_numeroPuesto();
@@ -166,7 +124,7 @@ public class ControladorEmpleado implements ActionListener{
 	private void ejecutarEnvioConReintentos(String dni_llamar) {
 	    try {
 	        // Intenta enviar el DNI al servidor (este método ya tiene sus propios intentos rápidos)
-	        this.enviarCliente_Server_Reintento(this.dniActual_emp);
+	        facadeEmp.llamarCliente(this.dniActual_emp);
 	        
 	        // Si el envío es exitoso, continuamos con el flujo normal
 	        rellamarCliente(); 
@@ -259,7 +217,7 @@ public class ControladorEmpleado implements ActionListener{
 	        pidiendoCliente = true;
 	    }
 
-	        String aux = this.llamarCliente_reintento();
+	        String aux = facadeEmp.obtenerSiguienteCliente();
 	        if(aux != null && !aux.equals("HAY_CLIENTES") && !aux.equals("LISTA_VACIA")) {
 	        	if(aux.split("/").length > 1) {
 	        		dniActual_emp = aux.split("/")[0];
@@ -272,6 +230,7 @@ public class ControladorEmpleado implements ActionListener{
 	        	mostrarSigCliente(dniActual_emp);
 	        }
 	        else if(aux == null) {
+	        	
 	        	this.vistaEmpleado.mostrarMensaje("Fallo de conexión con el servidor. Abortando solicitud...");
 	        }
 	        synchronized (lockEstado) {
@@ -282,25 +241,7 @@ public class ControladorEmpleado implements ActionListener{
 	}
 	
 	
-	private String llamarCliente_reintento() {
-		int intentos = Utils.Intentos;
-		while(intentos>0) {
-			try {
-				return empleado.llamarCliente();
-			} catch (ConnectException e) {
-				intentos--;
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		}
-		this.vistaEmpleado.mostrarMensaje("Reconexión fallida. Esperando...");
-		return null;
-	}
-	
+		
 	private void pedirEstado() {
 	    Thread hiloEstado = new Thread(() -> {
 	        String auxAnt = "";
@@ -311,13 +252,14 @@ public class ControladorEmpleado implements ActionListener{
 	                        lockEstado.wait(); 
 	                    }
 	                }
-	                estadoCola = this.pedirEstado_reintento();
+	                estadoCola = facadeEmp.obtenerEstadoCola();
 	                
 	                if (estadoCola != null && (!ventanaEstado || !estadoCola.equals(auxAnt))) {
 	                    auxAnt = estadoCola;
 	                    ventanaEstado();
 	                }
 	                else if (estadoCola == null) {
+	                	this.vistaEmpleado.mostrarMensaje("Reconexión fallida. Esperando...");
 	                	Thread.sleep(10000);
 	                }
 	                Thread.sleep(1000);
@@ -334,22 +276,7 @@ public class ControladorEmpleado implements ActionListener{
 	    hiloEstado.start();
 	}
 	
-	private String pedirEstado_reintento() throws InterruptedException {
-		
-		int intentos = Utils.Intentos;
-			while(intentos>0) {
-				try {
-					return empleado.pedirEstado();
-				}catch (ConnectException e) {
-					intentos--;
-					Thread.sleep(2000);
-					
-				}
-			}
-			this.vistaEmpleado.mostrarMensaje("Reconexión fallida. Esperando...");
-			return null;
-			
-	}
+	
 	
 	private void detenerTodosLosTimers() {
 		for (javax.swing.Timer timer : timers) {
