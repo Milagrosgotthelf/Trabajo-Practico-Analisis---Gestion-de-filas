@@ -5,10 +5,12 @@ import java.io.InputStreamReader;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class Receptor implements Runnable {
-    private String mensaje = null;
-    private ServerSocket s = null;
+	private LinkedBlockingQueue<String> mensajes = new LinkedBlockingQueue<>();
+	private ServerSocket s = null;
 
     public Receptor(String puerto) throws BindException {
         try {
@@ -32,10 +34,7 @@ public class Receptor implements Runnable {
 
                 String leido = in.readLine();
                 if (leido != null) {
-                    synchronized (this) {
-                        this.mensaje = leido;
-                        this.notifyAll(); 
-                    }
+                	this.mensajes.put(leido);
                 }
             } catch (Exception e) {
             	System.out.println("Excepcion en el receptor: " + e.getMessage()); 
@@ -47,29 +46,23 @@ public class Receptor implements Runnable {
     }
 
     public synchronized String getMensaje() {
-        while (this.mensaje == null) {
             try {
-                this.wait();
+                return this.mensajes.take();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return null;
             }
-        }
-        String aux = this.mensaje;
-        this.mensaje = null; 
-        return aux;
     }
+        
     
-    public synchronized String getHeartbeat(){     
-    	
-    	try {
-            this.wait(10000);
+    public String getHeartbeat(){     
+        try {
+            // poll() espera hasta 10 segundos por un mensaje, retorna null si no llega nada
+            return this.mensajes.poll(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
+            return null;
         }
-        String aux = this.mensaje;
-        this.mensaje = null; 
-        return aux;
     }
     
     public void kill() {
