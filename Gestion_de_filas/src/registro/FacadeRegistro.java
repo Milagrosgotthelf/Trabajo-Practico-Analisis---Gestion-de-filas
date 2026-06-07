@@ -31,11 +31,7 @@ public class FacadeRegistro {
 					Thread.currentThread().interrupt();
 					break;
 				}
-			}catch(BindException e) {
-				System.out.println(e.getMessage() + " Cerrando...");
-				System.exit(1);
-				
-			}
+			}catch(BindException e) {}
 		return terminal;
 	}
 

@@ -53,8 +53,7 @@ public class ControladorRegistro implements ActionListener {
 					this.ventana_registro.mostrarMensajeTemporal("   DNI REPETIDO: Por favor, aguarde a ser llamado.  ", 155, 100, 322, 50);	
 				}
 				else if (agregado==2) {
-					this.ventana_registro.mostrarMensaje("   No se pudo reconectar al servidor. Cerrando terminal.  ");
-					System.exit(1);
+					this.ventana_registro.mostrarMensaje("   No se pudo reconectar al servidor. Aguarde... ");
 				}
 				else {
 					this.ventana_registro.mostrarMensajeTemporal("   DNI INVALIDO: Fuera de rango etario.  ", 155, 100, 260, 50);
@@ -78,10 +77,8 @@ public class ControladorRegistro implements ActionListener {
 					return (agregado) ? 1 : 0;
 				} catch (ConnectException e1) {
 					intentos--;
-					this.ventana_registro.mostrarMensaje("   No se puede conectar al servidor. Reintentando...  ");
-				
 					try {
-						Thread.sleep(500);
+						Thread.sleep(5000);
 					} catch (InterruptedException e) {}
 					//JOptionPane.showMessageDialog(ventana_registro, "No se pudo conectar al servidor.");
 				}

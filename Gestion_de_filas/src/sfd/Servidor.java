@@ -183,43 +183,45 @@ public class Servidor {
 									String dni = null;
 									
 									synchronized (lockDelEmpleado) {
-										if(mapaPersistido != null && !mapaPersistido.isEmpty()) {
-											System.out.println("EMPLEADO --- Reintentando enviar cliente desde persistencia. Quedan " + mapaPersistido.size() + " clientes en persistencia.");
-											dni = (String) mapaPersistido.keySet().toArray()[0];
-											int intentos = mapaPersistido.get(dni);
-											server.enviarReintento(emisor_empleado, gestorSeguridad.protegerDNI(gestorSeguridad.recuperarDNI(dni)+"/"+intentos), puerto);
-											clientesEnAtencion.put(vector[1], dni + "/3"); // Asignamos el DNI encriptado con 3 intentos
-											sincronizarArchivoReintentos();
-											mapaPersistido.remove(dni);
-											gestorNotificacion.guardarIntentos(mapaPersistido);
-											
-										}
-										else if (!server.getClientes().isEmpty()) {
-											dni = server.retiraCliente();
-										    System.out.println("EMPLEADO --- Asignando DNI " + dni + " al Puesto " + vector[1] + ". Quedan " + server.getClientes().size() + " en cola.");
-										    server.enviarReintento(emisor_empleado, dni, puerto); //LO ENVIAMOS ENCRIPTADO
-										    clientesEnAtencion.put(vector[1], dni + "/3"); // Asignamos el DNI con 3 intentos
-										    sincronizarArchivoReintentos();
-										    try {
-										    	emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2); //LO ENVIAMOS ENCRIPTADO Y COMO LO GUARDO ENCRIPTADO NO DEBERIA DE HABER PROBLEMA
-										    	System.out.println("HEARTBEAT --- Enviada orden 'Eliminar DNI' al servidor secundario.");
-										    }catch(Exception e) {}//Esto está para que no moleste cuando no hay un servidor secundario
-										    
-										    
-										    
-										}
-										else {
-											System.out.println("LISTA VACIA SERVIDOR");
-										}
+									    if(mapaPersistido != null && !mapaPersistido.isEmpty()) {
+									        System.out.println("EMPLEADO --- Reintentando enviar cliente desde persistencia.");
+									        dni = (String) mapaPersistido.keySet().toArray()[0];
+									        int intentos = mapaPersistido.get(dni);
+									        server.enviarReintento(emisor_empleado, gestorSeguridad.protegerDNI(gestorSeguridad.recuperarDNI(dni)+"/"+intentos), puerto);
+									        
+									        // ¡Corrección! Usamos los intentos reales, no /3
+									        clientesEnAtencion.put(vector[1], dni + "/" + intentos); 
+									        
+									        // NO lo borramos de persistencia, porque aún está en atención
+									        // y eliminamos todas las llamadas a sincronizarArchivoReintentos
+									        mapaPersistido.remove(dni); // Lo sacamos del mapa local temporal para que el proximo empleado no tome el mismo
+									    }
+									    else if (!server.getClientes().isEmpty()) {
+									        dni = server.retiraCliente();
+									        System.out.println("EMPLEADO --- Asignando DNI " + dni + " al Puesto " + vector[1]);
+									        server.enviarReintento(emisor_empleado, dni, puerto); 
+									        
+									        clientesEnAtencion.put(vector[1], dni + "/3"); 
+									        actualizarPersistencia(dni, 3); // Lo agregamos al archivo físico nuevo
+									        
+									        try {
+									            emisor_server_heartbeat.enviar("Eliminar/"+dni, Utils.Server_to_Server2); 
+									        }catch(Exception e) {}
+									    }
+									    else {
+									        System.out.println("LISTA VACIA SERVIDOR");
+									        server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
+									    }
 									}
 								}
 							}
 							else if (msj.equals("Estado")) {
-								if (clientesEnAtencion.containsKey(puesto)) {
-								    clientesEnAtencion.remove(puesto);
-								    sincronizarArchivoReintentos(); // Al removerlo, desaparece del archivo
-								    System.out.println("SERVIDOR --- Turno finalizado en Puesto " + puesto + ". Archivo limpiado.");
-								}
+							    if (clientesEnAtencion.containsKey(puesto)) {
+							        String[] datos = clientesEnAtencion.get(puesto).split("/");
+							        eliminarDePersistencia(datos[0]); // Lo borramos del archivo físico porque ya se atendió
+							        clientesEnAtencion.remove(puesto);
+							        System.out.println("SERVIDOR --- Turno finalizado en Puesto " + puesto + ". DNI eliminado de persistencia.");
+							    }
 								
 							    int index = listaEmpleados.indexOf(puesto);
 							    if (index != -1) {
@@ -287,13 +289,14 @@ public class Servidor {
 							    String dniPuestoEncriptado = gestorSeguridad.protegerDNI(msj+"/"+puesto);
 							    server.enviarReintento(emisor_pantalla, dniPuestoEncriptado, Utils.Server_to_Pantalla); 
 							    
-							    // AQUÍ DESCONTAMOS EL INTENTO
 							    if (clientesEnAtencion.containsKey(puesto)) {
 							        String[] datos = clientesEnAtencion.get(puesto).split("/");
-							        if (gestorSeguridad.recuperarDNI(datos[0]).equals(msj)) { // Verificamos que sea el mismo DNI
+							        if (gestorSeguridad.recuperarDNI(datos[0]).equals(msj)) { 
 							            int intentosRestantes = Integer.parseInt(datos[1]) - 1;
 							            clientesEnAtencion.put(puesto, datos[0] + "/" + intentosRestantes);
-							            sincronizarArchivoReintentos();
+							            
+							            // Actualizamos solo este DNI en el archivo físico
+							            actualizarPersistencia(datos[0], intentosRestantes); 
 							            System.out.println("SERVIDOR --- Intento descontado. Quedan " + intentosRestantes);
 							        }
 							    }
@@ -520,14 +523,18 @@ public class Servidor {
 	    watchdog.start();
 	}
 	
-	private void sincronizarArchivoReintentos() {
-	    Map<String, Integer> mapaParaGuardar = new HashMap<>();
-	    for (String valor : clientesEnAtencion.values()) {
-	        String[] partes = valor.split("/");
-	        // Guarda el DNI (que ya está encriptado) y sus intentos restantes
-	        mapaParaGuardar.put(partes[0], Integer.parseInt(partes[1])); 
+	private void actualizarPersistencia(String dni, int intentos) {
+	    Map<String, Integer> mapa = gestorNotificacion.recuperarIntentos();
+	    mapa.put(dni, intentos);
+	    gestorNotificacion.guardarIntentos(mapa);
+	}
+
+	private void eliminarDePersistencia(String dni) {
+	    Map<String, Integer> mapa = gestorNotificacion.recuperarIntentos();
+	    if (mapa.containsKey(dni)) {
+	        mapa.remove(dni);
+	        gestorNotificacion.guardarIntentos(mapa);
 	    }
-	    this.gestorNotificacion.guardarIntentos(mapaParaGuardar);
 	}
 	
 	public LinkedList<String> getClientes() {
