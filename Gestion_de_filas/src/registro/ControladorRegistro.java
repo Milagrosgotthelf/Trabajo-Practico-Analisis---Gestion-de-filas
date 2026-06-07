@@ -53,7 +53,8 @@ public class ControladorRegistro implements ActionListener {
 					this.ventana_registro.mostrarMensajeTemporal("   DNI REPETIDO: Por favor, aguarde a ser llamado.  ", 155, 100, 322, 50);	
 				}
 				else if (agregado==2) {
-					this.ventana_registro.mostrarMensaje("   No se pudo reconectar al servidor. Aguarde... ");
+					System.out.print("Se perdio conexion con el servidor");
+					return;
 				}
 				else {
 					this.ventana_registro.mostrarMensajeTemporal("   DNI INVALIDO: Fuera de rango etario.  ", 155, 100, 260, 50);
