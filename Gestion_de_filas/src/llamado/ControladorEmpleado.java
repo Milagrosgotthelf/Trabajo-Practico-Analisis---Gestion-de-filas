@@ -206,7 +206,6 @@ public class ControladorEmpleado implements ActionListener{
 	    synchronized (lockEstado) {
 	        if (pidiendoCliente) return;
 	        pidiendoCliente = true;
-	    }
 
 	        String aux = facadeEmp.obtenerSiguienteCliente();
 	        if(aux != null && !aux.equals("HAY_CLIENTES") && !aux.equals("LISTA_VACIA")) {
@@ -224,7 +223,6 @@ public class ControladorEmpleado implements ActionListener{
 	        	
 	        	this.vistaEmpleado.mostrarMensaje("Fallo de conexión con el servidor. Abortando solicitud...");
 	        }
-	        synchronized (lockEstado) {
 	            pidiendoCliente = false;
 	            lockEstado.notifyAll(); 
 	    }
@@ -242,9 +240,9 @@ public class ControladorEmpleado implements ActionListener{
 	                    while (pidiendoCliente || clienteAtendido) {
 	                        lockEstado.wait(); 
 	                    }
-	                }
-	                estadoCola = facadeEmp.obtenerEstadoCola();
 	                
+	                    estadoCola = facadeEmp.obtenerEstadoCola();
+	                }
 	                if (estadoCola != null && (!ventanaEstado || !estadoCola.equals(auxAnt))) {
 	                    auxAnt = estadoCola;
 	                    ventanaEstado();

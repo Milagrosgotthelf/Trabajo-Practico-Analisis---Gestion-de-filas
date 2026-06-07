@@ -8,7 +8,6 @@ import sfd.Utils;
 
 public class FacadeEmpleado {
 	private Empleado empleado;
-	private IAbstractFactory factory;
 	
 
 	public FacadeEmpleado() {

@@ -148,22 +148,11 @@ public class Servidor {
 		return array;
 	}
 	
-	private Map<String, Integer> limpiezaPersistencia(Map<String, Integer> mapaPersistido) {
-		Map<String, Integer> mapaLimpio = mapaPersistido;
-		for (String dni : mapaPersistido.keySet()) {
-			if (!existeCliente(dni) || mapaPersistido.get(dni) <= 0) {
-				mapaLimpio.remove(dni);
-			}
-		}
-		return mapaLimpio;
-	}
-	
 	private void hiloRecEmp(Servidor server) {
 		this.hiloRec = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				Map<String, Integer> mapaPersistido = gestorNotificacion.recuperarIntentos();
-				//O: Lo va a abrir una vez unicamente asi puede vaciarlo
 				while (true) {
 					try {
 						String msj = receptor_empleado.getMensaje();
@@ -198,8 +187,8 @@ public class Servidor {
 											System.out.println("EMPLEADO --- Reintentando enviar cliente desde persistencia. Quedan " + mapaPersistido.size() + " clientes en persistencia.");
 											dni = (String) mapaPersistido.keySet().toArray()[0];
 											int intentos = mapaPersistido.get(dni);
-											server.enviarReintento(emisor_empleado, gestorSeguridad.protegerDNI(dni+"/"+intentos), puerto);
-											clientesEnAtencion.put(vector[1], dni + "/3"); // Asignamos el DNI con 3 intentos
+											server.enviarReintento(emisor_empleado, gestorSeguridad.protegerDNI(gestorSeguridad.recuperarDNI(dni)+"/"+intentos), puerto);
+											clientesEnAtencion.put(vector[1], dni + "/3"); // Asignamos el DNI encriptado con 3 intentos
 											sincronizarArchivoReintentos();
 											mapaPersistido.remove(dni);
 											gestorNotificacion.guardarIntentos(mapaPersistido);
@@ -239,8 +228,8 @@ public class Servidor {
 							        
 							        synchronized (lockDelEmpleado) {
 							            boolean bool;
-							            //(mapaPersistido != null && mapaPersistido.isEmpty())
-							            if (server.getClientes().isEmpty()) {
+							            
+							            if (server.getClientes().isEmpty() && (mapaPersistido != null && mapaPersistido.isEmpty())) {
 							                bool = server.enviarReintento(emisor_empleado, "LISTA_VACIA", puerto);
 							            } else {
 							                bool = server.enviarReintento(emisor_empleado, "HAY_CLIENTES", puerto);
@@ -278,6 +267,7 @@ public class Servidor {
 							            server.semaforoEmpleados.remove(index);
 							            latidosEmpleados.remove(puesto);
 							            System.out.println("EMPLEADO --- Puesto " + puesto + " se ha desconectado voluntariamente.");
+							            mapaPersistido = gestorNotificacion.recuperarIntentos();
 							        }
 							    }
 							}
@@ -300,9 +290,9 @@ public class Servidor {
 							    // AQUÍ DESCONTAMOS EL INTENTO
 							    if (clientesEnAtencion.containsKey(puesto)) {
 							        String[] datos = clientesEnAtencion.get(puesto).split("/");
-							        if (datos[0].equals(msj)) { // Verificamos que sea el mismo DNI
+							        if (gestorSeguridad.recuperarDNI(datos[0]).equals(msj)) { // Verificamos que sea el mismo DNI
 							            int intentosRestantes = Integer.parseInt(datos[1]) - 1;
-							            clientesEnAtencion.put(puesto, msj + "/" + intentosRestantes);
+							            clientesEnAtencion.put(puesto, datos[0] + "/" + intentosRestantes);
 							            sincronizarArchivoReintentos();
 							            System.out.println("SERVIDOR --- Intento descontado. Quedan " + intentosRestantes);
 							        }
@@ -322,29 +312,6 @@ public class Servidor {
 		});
 		//this.hiloRec.setDaemon(true); 
 		this.hiloRec.start();
-	}
-	
-	private void eliminarPersistencia(String dni, Map<String, Integer> mapaPersistido) {
-		System.out.println("ELIMINANDO DNI REINTENTOS");
-		mapaPersistido.remove(dni);
-		
-	}
-	
-	public LinkedList<String> getClientes() {
-		return clientes;
-	}
-	
-	public boolean existeEmpleado(String emp) {
-		return this.listaEmpleados.contains(emp);
-		
-	}
-	
-	public String getPuestoMsj(String msj) {
-		return this.split(msj)[1];
-	}
-	
-	public String getDniMsj(String msj) {
-		return this.split(msj)[0];
 	}
 	
 	//ITERACION 3
@@ -499,7 +466,6 @@ public class Servidor {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -559,8 +525,25 @@ public class Servidor {
 	    for (String valor : clientesEnAtencion.values()) {
 	        String[] partes = valor.split("/");
 	        // Guarda el DNI (que ya está encriptado) y sus intentos restantes
-	        mapaParaGuardar.put(partes[0], Integer.parseInt(partes[1])-1); 
+	        mapaParaGuardar.put(partes[0], Integer.parseInt(partes[1])); 
 	    }
 	    this.gestorNotificacion.guardarIntentos(mapaParaGuardar);
+	}
+	
+	public LinkedList<String> getClientes() {
+		return clientes;
+	}
+	
+	public boolean existeEmpleado(String emp) {
+		return this.listaEmpleados.contains(emp);
+		
+	}
+	
+	public String getPuestoMsj(String msj) {
+		return this.split(msj)[1];
+	}
+	
+	public String getDniMsj(String msj) {
+		return this.split(msj)[0];
 	}
 }
