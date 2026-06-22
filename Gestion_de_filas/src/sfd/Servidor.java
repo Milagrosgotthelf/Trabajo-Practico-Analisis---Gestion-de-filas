@@ -492,7 +492,7 @@ public class Servidor {
 	                    Long ultimoLatido = latidosEmpleados.get(puesto);
 	                    
 	                    //En terminos del sistema 45seg es un monton pero realmente no es tanto tiempo
-	                    if (ultimoLatido != null && (ahora - ultimoLatido) > Utils.TiempoRellamado*1.5) {
+	                    if (ultimoLatido != null && (ahora - ultimoLatido) > Utils.TiempoRellamado*10) {
 	                        System.out.println("WATCHDOG --- Empleado en puesto " + puesto + " no responde. Desconectando forzosamente...");
 	                        
 	                        int index = listaEmpleados.indexOf(puesto);
